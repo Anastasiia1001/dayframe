@@ -427,3 +427,58 @@ test("Ukrainian labels preserve saved task keys and user-written content", async
     ),
   ).toBe("monthly");
 });
+
+test("new palettes and all companions can be selected, persisted and celebrated", async ({
+  page,
+}) => {
+  await demo(page);
+  await go(page, "Settings");
+  for (const [name, id] of [
+    ["Полуничне молочко", "Strawberry"],
+    ["Фісташкове печиво", "Pistachio"],
+    ["Персиковий зефір", "Peach"],
+    ["Чорнична хмаринка", "Blueberry"],
+    ["М’ятна лагуна", "Lagoon"],
+    ["Місячна казка", "Moonlight"],
+  ]) {
+    const button = page.getByRole("button", { name, exact: true });
+    await button.click();
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", id);
+  }
+  for (const [name, id] of [
+    ["Зайчик Пух", "bunny"],
+    ["Киця Мур", "cat"],
+    ["Лисичка Іскра", "fox"],
+    ["Ведмедик Медок", "bear"],
+    ["Жабка М’ята", "frog"],
+    ["Зірочка Сяйка", "star"],
+  ]) {
+    const button = page.getByRole("button", { name: new RegExp("^" + name) });
+    await button.click();
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".cozy-note .mascot-" + id)).toBeVisible();
+  }
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "Moonlight");
+  await expect(page.locator(".cozy-note .mascot-star")).toBeVisible();
+  await go(page, "Today");
+  await page
+    .getByRole("button", { name: "Виконати Полити рослини", exact: true })
+    .click();
+  await expect(page.locator(".companion-celebrating")).toBeVisible();
+  await expect(page.locator(".happy-petals>span")).toHaveCount(14);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(
+    await page
+      .locator(".cozy-note .mascot-body")
+      .evaluate((e) => getComputedStyle(e).animationName),
+  ).toBe("none");
+  await page.setViewportSize({ width: 320, height: 844 });
+  await go(page, "Settings");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});

@@ -1,111 +1,59 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, Sparkles } from "lucide-react";
+import { Mascot } from "./Mascot";
+import { mascots, type MascotId } from "../appearance";
 const notes = [
   "Маленькі кроки теж ведуть уперед. Ти молодець.",
   "Ковток води, глибокий вдих. У тебе все вийде.",
   "Щоб день був хорошим, не обов’язково встигнути все.",
   "Маленька перемога заслуговує на маленький танець радості.",
+  "Ти заслуговуєш на перерву й щось смачненьке.",
+  "Не поспішай. Ми рухаємося у твоєму ритмі.",
 ];
-/** A small local companion: no services, timers or personal data. */
-export function CozyCompanion() {
-  const [note, setNote] = useState(0);
+export function CozyCompanion({
+  mascot = "bunny",
+  burst = 0,
+}: {
+  mascot?: MascotId;
+  burst?: number;
+}) {
+  const [note, setNote] = useState(0),
+    [play, setPlay] = useState(false);
+  useEffect(() => {
+    if (!burst && !note) return;
+    setPlay(true);
+    const timer = setTimeout(() => setPlay(false), 1200);
+    return () => clearTimeout(timer);
+  }, [burst, note]);
   return (
-    <div className="cozy-note">
+    <div className={`cozy-note ${play ? "companion-celebrating" : ""}`}>
       <button
-        className="bunny-button"
+        className={`bunny-button ${play ? "is-playing" : ""}`}
         aria-label="Трохи підтримки"
-        onClick={() => setNote((n) => n + 1)}
+        title={mascots.find((m) => m.id === mascot)?.name}
+        onClick={() => {
+          setNote((n) => n + 1);
+          setPlay(true);
+        }}
+        onAnimationEnd={(e) => {
+          if (e.animationName === "storybook-bounce") setPlay(false);
+        }}
       >
-        <svg
-          className="bunny"
-          viewBox="0 0 90 90"
-          fill="none"
-          aria-hidden="true"
-        >
-          <g className="bunny-ears">
-            <ellipse
-              cx="32"
-              cy="25"
-              rx="10"
-              ry="22"
-              fill="var(--bunny)"
-              stroke="var(--bunny-line)"
-              strokeWidth="1.6"
-              transform="rotate(-12 32 25)"
-            />
-            <ellipse
-              cx="58"
-              cy="25"
-              rx="10"
-              ry="22"
-              fill="var(--bunny)"
-              stroke="var(--bunny-line)"
-              strokeWidth="1.6"
-              transform="rotate(12 58 25)"
-            />
-            <ellipse
-              cx="32"
-              cy="24"
-              rx="4"
-              ry="14"
-              fill="var(--blush)"
-              transform="rotate(-12 32 24)"
-            />
-            <ellipse
-              cx="58"
-              cy="24"
-              rx="4"
-              ry="14"
-              fill="var(--blush)"
-              transform="rotate(12 58 24)"
-            />
-          </g>
-          <ellipse
-            cx="45"
-            cy="57"
-            rx="31"
-            ry="27"
-            fill="var(--bunny)"
-            stroke="var(--bunny-line)"
-            strokeWidth="1.6"
-          />
-          <ellipse cx="25" cy="63" rx="7" ry="4" fill="var(--blush)" />
-          <ellipse cx="65" cy="63" rx="7" ry="4" fill="var(--blush)" />
-          <g className="bunny-eyes">
-            <ellipse cx="34" cy="55" rx="2.3" ry="3.2" fill="var(--text)" />
-            <ellipse cx="56" cy="55" rx="2.3" ry="3.2" fill="var(--text)" />
-          </g>
-          <path
-            d="M42 61 Q45 65 48 61 M45 64 Q42 69 39 66 M45 64 Q48 69 51 66"
-            stroke="var(--text)"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-          />
-          <path
-            d="M70 22l2-5 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"
-            fill="var(--accent)"
-            opacity=".65"
-          />
-        </svg>
+        <Mascot key={mascot + ":" + note + ":" + burst} kind={mascot} />
         <span className="bunny-heart" aria-hidden="true">
           ♡
         </span>
       </button>
       <div className="cozy-copy">
         <span className="cozy-label">
-          <Sparkles size={12} />
-          СПРАВИ З ТУРБОТОЮ ПРО СЕБЕ
+          <Sparkles size={12} /> СПРАВИ З ТУРБОТОЮ ПРО СЕБЕ
         </span>
         <p key={note} aria-live="polite">
           {notes[note % notes.length]}
         </p>
       </div>
-      <span className="cozy-flower" aria-hidden="true">
-        ✿
-      </span>
       <span className="cozy-signoff">
-        <Heart size={13} />
-        Одна маленька справа за раз
+        <Heart size={13} /> Одна маленька справа за раз
       </span>
     </div>
   );
@@ -113,10 +61,24 @@ export function CozyCompanion() {
 export function HappyPetals({ burst }: { burst: number }) {
   if (!burst) return null;
   return (
-    <div className="happy-petals" key={burst} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => (
-        <span key={i} style={{ "--i": i } as import("react").CSSProperties}>
-          {i % 3 === 0 ? "♡" : i % 3 === 1 ? "✦" : "✿"}
+    <div
+      className="happy-petals storybook-petals"
+      key={burst}
+      aria-hidden="true"
+    >
+      {Array.from({ length: 14 }, (_, i) => (
+        <span
+          key={i}
+          style={
+            {
+              "--i": i,
+              "--x": `${(i - 6.5) * 24}px`,
+              "--y": `${-95 - Math.sin((i / 13) * Math.PI) * 65}px`,
+              "--spin": `${(i - 6) * 32}deg`,
+            } as import("react").CSSProperties
+          }
+        >
+          {["♡", "✦", "✿", "✧"][i % 4]}
         </span>
       ))}
     </div>

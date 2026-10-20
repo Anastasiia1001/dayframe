@@ -1,3 +1,5 @@
+import { themes, mascots, safeMascot } from "./appearance";
+import { Mascot } from "./components/Mascot";
 import { uk, locale, shortDate, plural } from "./locale";
 import { nextOccurrence, reopenDueTasks } from "./recurrence";
 import { IntegrationSettings } from "./components/IntegrationSettings";
@@ -44,16 +46,6 @@ const nav = [
   ["Work", BriefcaseBusiness],
   ["Personal", CheckCheck],
 ] as const;
-const themes = [
-  "Default",
-  "Graphite",
-  "Blue",
-  "Green",
-  "Purple",
-  "Warm",
-  "Dark",
-  "Blossom",
-];
 const dateKey = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 export default function App() {
@@ -75,6 +67,7 @@ export default function App() {
       .toUpperCase() || "♡";
   const [burst, setBurst] = useState(0);
   const [page, setPage] = useState("Today");
+  const [mascot, setMascot] = useLocal("dayframe-mascot", "bunny");
   const [theme, setTheme] = useLocal("dayframe-theme", "Default");
   const [tasks, setTasks] = useLocal<PersonalTask[]>(
     "dayframe-tasks",
@@ -948,7 +941,9 @@ export default function App() {
               Додати завдання
             </button>
           </div>
-          {prefs.cozyMode !== false && <CozyCompanion />}
+          {prefs.cozyMode !== false && (
+            <CozyCompanion mascot={safeMascot(mascot)} burst={burst} />
+          )}
           {workspace.errors.map((e) => (
             <div className="workspace-alert" key={e} role="status">
               <CircleHelp size={18} />
@@ -1288,52 +1283,62 @@ export default function App() {
                   Обери кольори під свій настрій.
                 </p>
                 <div className="theme-grid">
-                  {themes.map((t, i) => (
+                  {themes.map((t) => (
                     <button
-                      key={t}
-                      className={`theme-choice ${theme === t ? "chosen" : ""}`}
-                      onClick={() => setTheme(t)}
+                      key={t.id}
+                      className={`theme-choice ${theme === t.id ? "chosen" : ""}`}
+                      onClick={() => setTheme(t.id)}
+                      aria-pressed={theme === t.id}
                     >
                       <span
                         className="theme-preview"
+                        aria-hidden="true"
                         style={{
-                          background: [
-                            "#f7f8f5",
-                            "#e9e9e9",
-                            "#eff4f9",
-                            "#eff5ef",
-                            "#f4eff8",
-                            "#faf2e9",
-                            "#232827",
-                            "#f6efff",
-                          ][i],
+                          background: t.background,
                         }}
                       >
-                        <i
-                          style={{
-                            background: [
-                              "#63806d",
-                              "#5c6570",
-                              "#5079a6",
-                              "#507b55",
-                              "#8b6baa",
-                              "#b88954",
-                              "#9bb9a1",
-                              "#a77dba",
-                            ][i],
-                          }}
-                        />
+                        <i style={{ background: t.accent }} />
                         <span />
                         <span />
                       </span>
-                      <b>{uk(t)}</b>
-                      {theme === t && <Check size={14} />}
+                      <b>{t.name}</b>
+                      {theme === t.id && <Check size={14} />}
                     </button>
                   ))}
                 </div>
                 <p className="muted">
                   Тема визначає кольори акцентів, фону, тексту, вибраних
                   елементів і календаря.
+                </p>
+              </Section>
+              <Section
+                title="Твій маленький помічник"
+                eyebrow="ОБЕРИ ТОГО, ХТО ПІДТРИМУВАТИМЕ ТЕБЕ"
+              >
+                <p className="section-description">
+                  Натисни на героя, щоб познайомитися. Він радітиме твоїм
+                  маленьким перемогам.
+                </p>
+                <div className="mascot-grid">
+                  {mascots.map((m) => (
+                    <button
+                      key={m.id}
+                      className={`mascot-choice ${safeMascot(mascot) === m.id ? "chosen" : ""}`}
+                      aria-pressed={safeMascot(mascot) === m.id}
+                      onClick={() => setMascot(m.id)}
+                    >
+                      <Mascot kind={m.id} />
+                      <strong>{m.name}</strong>
+                      <small>{m.description}</small>
+                      {safeMascot(mascot) === m.id && (
+                        <Check className="mascot-selected" size={16} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <p className="section-description">
+                  Анімації враховують системне налаштування «Зменшити рух».
+                  Помічника можна приховати нижче.
                 </p>
               </Section>
               <IntegrationSettings workspace={workspace} />

@@ -4063,3 +4063,422 @@ button:disabled {
     min-width: 0;
   }
 }
+
+/* Sweet palettes with enough contrast for everyday reading. */
+:root[data-theme="Strawberry"] {
+  --bg: #fff0f2;
+  --surface: #fffafb;
+  --text: #4d2838;
+  --muted: #815369;
+  --border: #ebc5d1;
+  --accent: #b03960;
+  --selected: #f8d6e1;
+  --soft: #fce5ec;
+  --calendar: #a04b83;
+  --google: #43826c;
+  --blush: #f4a7bd;
+  --bunny-line: #d594ac;
+}
+:root[data-theme="Pistachio"] {
+  --bg: #f4f7e7;
+  --surface: #fefff8;
+  --text: #35432c;
+  --muted: #66744e;
+  --border: #d6dfbc;
+  --accent: #5d731e;
+  --selected: #e3ecc5;
+  --soft: #edf2da;
+  --calendar: #7b8f45;
+  --google: #408678;
+  --blush: #efc2b3;
+  --bunny: #fffdf0;
+  --bunny-line: #bdc897;
+}
+:root[data-theme="Peach"] {
+  --bg: #fff3e9;
+  --surface: #fffcf8;
+  --text: #55382c;
+  --muted: #87634e;
+  --border: #edd2bc;
+  --accent: #ac562d;
+  --selected: #f9dfc9;
+  --soft: #ffead8;
+  --calendar: #bb7952;
+  --google: #638d66;
+  --blush: #efb4a0;
+  --bunny: #fffaf0;
+  --bunny-line: #d9ac8e;
+}
+:root[data-theme="Blueberry"] {
+  --bg: #f0f1ff;
+  --surface: #fcfbff;
+  --text: #3b315b;
+  --muted: #6b6188;
+  --border: #d8cef0;
+  --accent: #6650b3;
+  --selected: #e2daf8;
+  --soft: #ebe6fa;
+  --calendar: #8264be;
+  --google: #398879;
+  --blush: #e8b8dc;
+  --bunny: #fff9ff;
+  --bunny-line: #c5acd9;
+}
+:root[data-theme="Lagoon"] {
+  --bg: #ebfaf6;
+  --surface: #fafffd;
+  --text: #294b43;
+  --muted: #557a6f;
+  --border: #c1e2d7;
+  --accent: #227866;
+  --selected: #d0eee3;
+  --soft: #e0f5ec;
+  --calendar: #42918b;
+  --google: #739742;
+  --blush: #efc0bc;
+  --bunny: #fffcf5;
+  --bunny-line: #a5c6b8;
+}
+:root[data-theme="Moonlight"] {
+  color-scheme: dark;
+  --bg: #252238;
+  --surface: #302b46;
+  --text: #f4eafa;
+  --muted: #c7b5d6;
+  --border: #59486e;
+  --accent: #d4b1f5;
+  --selected: #503d68;
+  --soft: #3b304f;
+  --calendar: #c4a1e6;
+  --google: #9ccfbc;
+  --blush: #b87aa4;
+  --bunny: #655072;
+  --bunny-line: #c3a1d1;
+  --shadow: 0 20px 80px #16102355;
+}
+:root[data-theme="Moonlight"] .status,
+:root[data-theme="Moonlight"] .source {
+  background: #ffffff0c;
+}
+:root[data-theme="Moonlight"] .review-card {
+  background: var(--soft);
+  border-color: var(--border);
+}
+.theme-choice {
+  min-width: 0;
+}
+.theme-choice > b {
+  padding-right: 18px;
+  line-height: 1.6;
+}
+.theme-preview {
+  position: relative;
+  overflow: hidden;
+}
+.theme-preview::after {
+  content: "✿";
+  position: absolute;
+  right: 8px;
+  bottom: 5px;
+  font-size: 25px;
+  color: var(--accent);
+  opacity: 0.3;
+}
+.theme-choice.chosen {
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.mascot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  padding: 5px 23px 23px;
+}
+.mascot-choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 14px 9px 18px;
+  min-width: 0;
+  overflow: hidden;
+}
+.mascot-choice.chosen {
+  border-color: var(--accent);
+  background: var(--selected);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.mascot-choice > strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+.mascot-choice > small {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+  text-align: center;
+}
+.mascot-selected {
+  position: absolute;
+  right: 11px;
+  top: 11px;
+  color: var(--accent);
+}
+.mascot-choice .mascot-art {
+  width: 91px;
+  height: 100px;
+}
+.mascot-body {
+  transform-origin: 50px 95px;
+}
+.mascot-ears {
+  transform-origin: 50px 50px;
+}
+.mascot-paw {
+  transform-origin: 76px 91px;
+}
+.mascot-glint {
+  transform-origin: 88px 20px;
+}
+.bunny-button {
+  overflow: visible;
+}
+.bunny-button .mascot-art {
+  width: 61px;
+  height: 68px;
+}
+.bunny-button {
+  width: 64px;
+  height: 73px;
+}
+.mascot-eyes {
+  animation-iteration-count: 2;
+}
+.cozy-note {
+  min-height: 78px;
+}
+.cozy-copy p {
+  padding-right: 5px;
+}
+.storybook-petals > span {
+  font-size: 22px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bunny-button .mascot-body {
+    animation: storybook-hello 1s cubic-bezier(0.3, 0.1, 0.2, 1) both;
+  }
+  .bunny-button:hover .mascot-paw,
+  .bunny-button:focus-visible .mascot-paw {
+    animation: storybook-wave 0.8s ease 2;
+  }
+  .bunny-button:hover .mascot-ears {
+    animation: ear-flop 0.7s ease 2;
+  }
+  .bunny-button.is-playing .mascot-body,
+  .companion-celebrating .mascot-body {
+    animation: storybook-bounce 1.05s ease both;
+  }
+  .bunny-button.is-playing .mascot-paw {
+    animation: storybook-wave 0.4s ease 3;
+  }
+  .bunny-button.is-playing .mascot-ears {
+    animation: ear-flop 0.5s ease 2;
+  }
+  .bunny-button.is-playing .mascot-glint {
+    animation: glint-twirl 0.7s ease both;
+  }
+  .mascot-choice:hover .mascot-body,
+  .mascot-choice:focus-visible .mascot-body {
+    animation: storybook-bounce 1.05s ease both;
+  }
+  .mascot-choice:hover .mascot-paw {
+    animation: storybook-wave 0.6s ease 2;
+  }
+  .mascot-choice.chosen .mascot-glint {
+    animation: glint-twirl 0.8s ease both;
+  }
+  .companion-celebrating {
+    animation: companion-glow 1.2s ease both;
+  }
+  .storybook-petals > span {
+    animation: storybook-confetti 1.55s cubic-bezier(0.1, 0.65, 0.3, 1) both;
+    animation-delay: calc(var(--i) * 18ms);
+  }
+  .theme-choice:hover .theme-preview::after {
+    animation: glint-twirl 0.8s ease;
+  }
+  .bunny-button:hover .bunny,
+  .bunny-button:focus-visible .bunny {
+    animation: none;
+  }
+  .mascot-choice {
+    transition:
+      transform 0.2s,
+      border-color 0.2s,
+      background 0.2s;
+  }
+  .mascot-choice:hover {
+    transform: translateY(-3px);
+  }
+}
+@keyframes storybook-hello {
+  0% {
+    transform: translateY(8px) scale(0.84, 1.08) rotate(-9deg);
+  }
+  25% {
+    transform: translateY(-6px) scale(1.04, 0.96) rotate(5deg);
+  }
+  55% {
+    transform: translateY(2px) scale(1.06, 0.94) rotate(-3deg);
+  }
+  78% {
+    transform: translateY(-2px) scale(0.98, 1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0);
+  }
+}
+@keyframes storybook-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1) rotate(0);
+  }
+  14% {
+    transform: translateY(3px) scale(1.14, 0.86) rotate(-5deg);
+  }
+  38% {
+    transform: translateY(-15px) scale(0.89, 1.12) rotate(7deg);
+  }
+  55% {
+    transform: translateY(-11px) scale(0.96, 1.04) rotate(-4deg);
+  }
+  73% {
+    transform: translateY(3px) scale(1.12, 0.88);
+  }
+  87% {
+    transform: translateY(-3px) scale(0.98, 1.02);
+  }
+}
+@keyframes storybook-wave {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-25deg) translateY(-3px);
+  }
+  70% {
+    transform: rotate(15deg) translateY(-1px);
+  }
+}
+@keyframes ear-flop {
+  0%,
+  100% {
+    transform: rotate(0) scaleY(1);
+  }
+  35% {
+    transform: rotate(-7deg) scaleY(0.93);
+  }
+  70% {
+    transform: rotate(6deg) scaleY(1.04);
+  }
+}
+@keyframes glint-twirl {
+  0% {
+    transform: scale(0.6) rotate(-35deg);
+    opacity: 0.3;
+  }
+  55% {
+    transform: scale(1.25) rotate(100deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(180deg);
+    opacity: 0.7;
+  }
+}
+@keyframes companion-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  40% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+}
+@keyframes storybook-confetti {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0) scale(0.3);
+  }
+  15% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), var(--y)) rotate(var(--spin)) scale(0.65);
+  }
+}
+@media (max-width: 700px) {
+  .mascot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 5px 19px 20px;
+  }
+  .mascot-choice .mascot-art {
+    width: 80px;
+    height: 91px;
+  }
+  .mascot-choice > strong {
+    font-size: 13px;
+  }
+  .mascot-choice > small {
+    font-size: 11px;
+  }
+  .bunny-button {
+    width: 53px;
+    min-width: 53px;
+    height: 74px;
+  }
+  .bunny-button .mascot-art {
+    width: 54px;
+    height: 64px;
+  }
+  .cozy-copy p {
+    font-size: 14px;
+  }
+  .cozy-note {
+    min-height: 88px;
+  }
+  .theme-choice > b {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mascot-body,
+  .mascot-paw,
+  .mascot-ears,
+  .mascot-glint,
+  .mascot-shadow,
+  .storybook-petals > span {
+    animation: none !important;
+    transition: none !important;
+  }
+  .storybook-petals {
+    display: none;
+  }
+}
+:root[data-theme="Dark"] .mascot-bunny,
+:root[data-theme="Dark"] .mascot-cat,
+:root[data-theme="Moonlight"] .mascot-bunny,
+:root[data-theme="Moonlight"] .mascot-cat {
+  --mascot-ink: #f8edf6;
+}
+@media(prefers-reduced-motion:no-preference){.bunny-button.is-playing .mascot-shadow{animation:storybook-shadow 1.05s ease both;transform-origin:50px 100px}.bunny-button.is-playing .mascot-eyes{animation:joyful-squint 1.05s ease both}.sidebar,.topbar,body{transition:background-color .25s ease,color .25s ease}}
+@keyframes storybook-shadow{0%,100%{transform:scaleX(1);opacity:.12}14%,73%{transform:scaleX(1.15);opacity:.17}38%,55%{transform:scaleX(.65);opacity:.06}}
+@keyframes joyful-squint{0%,100%{transform:scaleY(1)}20%,78%{transform:scaleY(.4)}40%,60%{transform:scaleY(.8)}}
