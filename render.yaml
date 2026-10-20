@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: dayframe
+    runtime: node
+    plan: free
+    buildCommand: npm ci --no-audit --no-fund && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: MICROSOFT_TENANT_ID
+        value: common
+    # Public origin is read from Render's RENDER_EXTERNAL_URL automatically.
+    # Add provider client IDs/secrets securely in Environment after app registration.
