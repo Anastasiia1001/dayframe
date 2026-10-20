@@ -1,6 +1,17 @@
+import { CalendarBoard } from "./components/CalendarBoard";
+import { PersonalBoard } from "./components/PersonalBoard";
+import { TaskList } from "./components/TaskList";
+import { EventDetails } from "./components/EventDetails";
+import {
+  activeTasks,
+  sortTasks,
+  postponedTask,
+  normalizeStoredTasks,
+  eventOnDay,
+} from "./domain/planning";
 import { themes, mascots, safeMascot } from "./appearance";
 import { Mascot } from "./components/Mascot";
-import { uk, locale, shortDate, plural } from "./locale";
+import { uk, locale, shortDate } from "./locale";
 import { nextOccurrence, reopenDueTasks } from "./recurrence";
 import { IntegrationSettings } from "./components/IntegrationSettings";
 import { useWorkspace } from "./useWorkspace";
@@ -17,7 +28,6 @@ import {
   Search,
   Bell,
   Settings,
-  ChevronLeft,
   ChevronRight,
   ArrowUpRight,
   ArrowRight,
@@ -31,10 +41,7 @@ import {
   CheckCheck,
   PanelLeftClose,
   MessageSquare,
-  Circle,
   Trash2,
-  Pencil,
-  SkipForward,
 } from "lucide-react";
 import type { CalendarEvent, PersonalTask, Period } from "./types";
 
@@ -76,8 +83,8 @@ export default function App() {
   useEffect(() => {
     setTasks((current) => reopenDueTasks(current, today));
   }, [today, tasks, setTasks]);
-  const [period, setPeriod] = useState<Period>("Day");
   const [modal, setModal] = useState<PersonalTask | null>(null);
+  const [eventDetail, setEventDetail] = useState<CalendarEvent | null>(null);
   const [detail, setDetail] = useState<{
     title: string;
     body: string;
@@ -94,7 +101,10 @@ export default function App() {
     "Google",
     "Personal",
   ]);
-  const [calendarView, setCalendarView] = useState("Week");
+  const [calendarView, setCalendarView] = useLocal(
+    "dayframe-calendar-view",
+    "Week",
+  );
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [toast, setToast] = useState("");
   const [prefs, setPrefs] = useLocal("dayframe-prefs", {
@@ -106,11 +116,7 @@ export default function App() {
     page === "Calendar" ? calendarDate : new Date(),
   );
   const { events, slack } = workspace;
-  const visibleEvents = events.filter(
-    (e) =>
-      e.date === today ||
-      (e.allDay && e.date < today && !!e.endDate && e.endDate > today),
-  );
+  const visibleEvents = events.filter((e) => eventOnDay(e, today));
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
@@ -130,6 +136,7 @@ export default function App() {
         setSearchOpen(false);
         setModal(null);
         setDetail(null);
+        setEventDetail(null);
         setNotifications(false);
       }
     };
@@ -167,12 +174,12 @@ export default function App() {
     }
     openMock(title, body, source);
   };
-  const addTask = () =>
+  const addTask = (date = today) =>
     setModal({
       id: crypto.randomUUID(),
       title: "",
-      category: period,
-      date: today,
+      category: "Day",
+      date,
       recurrence: prefs.defaultRecurrence,
       priority: "Normal",
       notes: "",
@@ -200,29 +207,16 @@ export default function App() {
     }
   };
   const postpone = (t: PersonalTask) => {
-    const d = new Date(`${shortDate(t.date)}T12:00:00`);
-    d.setDate(d.getDate() + 1);
-    setTasks((ts) =>
-      ts.map((x) =>
-        x.id === t.id
-          ? {
-              ...x,
-              date: dateKey(d),
-              completed: false,
-              completedOn: undefined,
-              nextOccurrence: undefined,
-            }
-          : x,
-      ),
-    );
-    setToast(
-      "Завдання перенесено на " +
-        d.toLocaleDateString(locale, { month: "short", day: "numeric" }),
-    );
+    const next = postponedTask(t, today);
+    setTasks((ts) => ts.map((x) => (x.id === t.id ? next : x)));
+    setToast("Завдання перенесено на " + shortDate(next.date));
   };
-  const todaysTasks = tasks.filter(
-    (t) => t.category === "Day" && !t.disabled && t.date <= today,
+  const todaysTasks = sortTasks(
+    activeTasks(tasks).filter((t) => t.date <= today),
   );
+  useEffect(() => {
+    setTasks((current) => normalizeStoredTasks(current, mockTasks, today));
+  }, [tasks, today]);
   useEffect(() => {
     setTasks((current) => {
       let changed = false;
@@ -238,80 +232,26 @@ export default function App() {
   }, [setTasks]);
   const done = todaysTasks.filter((t) => t.completed).length;
   const taskRows = (list: PersonalTask[], full = false) => (
-    <div className="task-list">
-      {list.length === 0 && (
-        <p className="empty">
-          Тут усе зроблено. Додай те, про що хочеш подбати.
-        </p>
-      )}
-      {list.map((t) => (
-        <div
-          className={`task-row ${t.completed ? "completed" : ""} ${t.disabled ? "disabled" : ""}`}
-          key={t.id}
-        >
-          <button
-            aria-label={`${t.completed ? "Позначити невиконаним" : "Виконати"} ${t.title}`}
-            className={`checkbox ${t.completed ? "checked" : ""}`}
-            onClick={() => toggleTask(t)}
-          >
-            {t.completed && <Check size={12} />}
-          </button>
-          <button className="task-title" onClick={() => setModal(t)}>
-            {t.title}
-            {full && (
-              <small>
-                {uk(t.recurrence)}
-                {t.recurrence === "custom"
-                  ? ` · кожні ${t.customDays || 2} ${plural(t.customDays || 2, "день", "дні", "днів")}`
-                  : ""}{" "}
-                · {shortDate(t.date)}
-                {t.disabled ? " · Призупинено" : ""}
-              </small>
-            )}
-          </button>
-          {full ? (
-            <div className="task-actions">
-              <button
-                aria-label={`Перенести ${t.title}`}
-                onClick={() => postpone(t)}
-              >
-                <SkipForward size={15} />
-              </button>
-              <button
-                aria-label={`Редагувати ${t.title}`}
-                onClick={() => setModal(t)}
-              >
-                <Pencil size={14} />
-              </button>
-              <button
-                aria-label={`Видалити ${t.title}`}
-                onClick={() =>
-                  setTasks((ts) => ts.filter((x) => x.id !== t.id))
-                }
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          ) : (
-            <span className="recurrence">{uk(t.recurrence)}</span>
-          )}
-        </div>
-      ))}
-    </div>
+    <TaskList
+      tasks={list}
+      today={today}
+      compact={!full}
+      onToggle={toggleTask}
+      onEdit={setModal}
+      onPostpone={postpone}
+      onDelete={
+        full
+          ? (t) => setTasks((ts) => ts.filter((x) => x.id !== t.id))
+          : undefined
+      }
+    />
   );
   const schedule = (list: CalendarEvent[]) =>
     list.map((e, i) => (
       <button
         className={`event ${e.source === "Google" ? "google" : ""}`}
         key={e.id}
-        onClick={() =>
-          openItem(
-            e.title,
-            `${shortDate(e.date)} · ${e.start}–${e.end}\n${e.location}\n${e.participants.length ? e.participants.join(", ") : "Час для себе"}\n${e.reminder ? "Нагадування за 10 хвилин" : "Без нагадування"}`,
-            e.source,
-            e.url,
-          )
-        }
+        onClick={() => setEventDetail(e)}
       >
         <div className="event-time">
           {e.start}
@@ -321,12 +261,14 @@ export default function App() {
         <div className="event-info">
           <strong>{e.title}</strong>
           <small>
-            {e.location.includes("Teams") || e.location.includes("Meet") ? (
+            {e.meetingUrl ||
+            e.location.includes("Teams") ||
+            e.location.includes("Meet") ? (
               <Video size={12} />
             ) : (
               <MapPin size={12} />
             )}{" "}
-            {e.location}
+            {e.location.startsWith("https:") ? "Онлайн-зустріч" : e.location}
           </small>
         </div>
         {e.participants.length > 1 ? (
@@ -356,32 +298,30 @@ export default function App() {
     ));
   const digest = () => (
     <>
-      <div className="digest-tabs">
-        {["All", "Direct mentions", "Could help here"].map((g) => (
-          <button
-            className={digestGroup === g ? "active" : ""}
-            key={uk(g)}
-            onClick={() => setDigestGroup(g)}
+      {slack.length > 0 && (
+        <div className="digest-tabs">
+          <select
+            aria-label="Категорія огляду"
+            value={digestGroup}
+            onChange={(e) => setDigestGroup(e.target.value)}
           >
-            {uk(g)}
-            {g === "Direct mentions" && (
-              <span>{slack.filter((s) => s.group === g).length}</span>
-            )}
-          </button>
-        ))}
-        <select
-          aria-label="Категорія огляду"
-          value={digestGroup}
-          onChange={(e) => setDigestGroup(e.target.value)}
-        >
-          <option value="All">Усе</option>
-          {slack.map((s) => (
-            <option key={s.id} value={s.group}>
-              {uk(s.group)}
-            </option>
-          ))}
-        </select>
-      </div>
+            <option value="All">Усі повідомлення</option>
+            {[...new Set(slack.map((s) => s.group))].map((g) => (
+              <option key={g} value={g}>
+                {uk(g)}
+              </option>
+            ))}
+          </select>
+          <span className="muted">
+            {
+              slack.filter(
+                (s) => digestGroup === "All" || s.group === digestGroup,
+              ).length
+            }{" "}
+            повідомлень
+          </span>
+        </div>
+      )}
       <div className="digest-list">
         {slack.length === 0 && (
           <div className="empty">
@@ -391,6 +331,9 @@ export default function App() {
                 ? "Дані Slack не завантажено. Підключи Slack у налаштуваннях або онови джерела."
                 : "Відповідних повідомлень немає."}
             </p>
+            <button className="text-button" onClick={() => setPage("Settings")}>
+              Налаштувати Slack <ArrowRight size={14} />
+            </button>
           </div>
         )}
         {slack
@@ -454,25 +397,26 @@ export default function App() {
                   <button
                     className="text-button"
                     onClick={() => {
-                      if (tasks.some((t) => t.notes === s.id)) {
+                      if (
+                        tasks.some(
+                          (t) => t.origin?.id === s.id || t.notes === s.id,
+                        )
+                      ) {
                         setToast("Уже є серед твоїх завдань");
                         return;
                       }
-                      setTasks((ts) => [
-                        ...ts,
-                        {
-                          id: crypto.randomUUID(),
-                          title: s.summary,
-                          category: "Day",
-                          date: today,
-                          recurrence: "once",
-                          priority: "Normal",
-                          notes: s.id,
-                          completed: false,
-                          disabled: false,
-                        },
-                      ]);
-                      setToast("Додано до особистих завдань");
+                      setModal({
+                        id: crypto.randomUUID(),
+                        title: "",
+                        category: "Day",
+                        date: today,
+                        recurrence: "once",
+                        priority: "Normal",
+                        notes: s.summary + "\n\n" + s.why,
+                        origin: { source: "Slack", id: s.id },
+                        completed: false,
+                        disabled: false,
+                      });
                     }}
                   >
                     <Plus size={13} />
@@ -539,11 +483,13 @@ export default function App() {
     },
     {
       source: "Personal",
-      items: tasks.map((x) => ({
-        id: x.id,
-        title: x.title,
-        body: `${uk(x.category)} · ${uk(x.recurrence)}`,
-      })),
+      items: tasks
+        .filter((t) => !t.isTemplate)
+        .map((x) => ({
+          id: x.id,
+          title: x.title,
+          body: `${uk(x.category)} · ${uk(x.recurrence)}`,
+        })),
     },
   ].map((g) => ({
     ...g,
@@ -551,155 +497,29 @@ export default function App() {
       (x.title + " " + x.body).toLowerCase().includes(query.toLowerCase()),
     ),
   }));
+  const hasCalendar =
+    workspace.mode === "demo" ||
+    !!workspace.status?.providers.some((p) => p.id !== "slack" && p.connected);
   function calendar() {
-    const d = new Date(calendarDate);
-    let days: Date[] = [];
-    if (calendarView === "Month") {
-      d.setDate(1);
-      d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-      days = Array.from({ length: 42 }, (_, i) => {
-        const x = new Date(d);
-        x.setDate(d.getDate() + i);
-        return x;
-      });
-    } else if (calendarView === "Week") {
-      d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-      days = Array.from({ length: 7 }, (_, i) => {
-        const x = new Date(d);
-        x.setDate(d.getDate() + i);
-        return x;
-      });
-    } else days = [d];
     return (
-      <Section
-        title={calendarDate.toLocaleDateString(locale, {
-          month: "long",
-          year: "numeric",
-        })}
-        action={
-          <div className="calendar-controls">
-            <button
-              aria-label="Попередній період"
-              onClick={() => {
-                const d = new Date(calendarDate);
-                calendarView === "Month"
-                  ? d.setMonth(d.getMonth() - 1)
-                  : d.setDate(d.getDate() - (calendarView === "Week" ? 7 : 1));
-                setCalendarDate(d);
-              }}
-            >
-              <ChevronLeft size={17} />
-            </button>
-            <button onClick={() => setCalendarDate(new Date())}>
-              Сьогодні
-            </button>
-            <button
-              aria-label="Наступний період"
-              onClick={() => {
-                const d = new Date(calendarDate);
-                calendarView === "Month"
-                  ? d.setMonth(d.getMonth() + 1)
-                  : d.setDate(d.getDate() + (calendarView === "Week" ? 7 : 1));
-                setCalendarDate(d);
-              }}
-            >
-              <ChevronRight size={17} />
-            </button>
-          </div>
-        }
-      >
-        <div className="calendar-toolbar">
-          <div className="segmented">
-            {["Month", "Week", "Day"].map((v) => (
-              <button
-                key={uk(v)}
-                className={calendarView === v ? "active" : ""}
-                onClick={() => setCalendarView(v)}
-              >
-                {uk(v)}
-              </button>
-            ))}
-          </div>
-          <div className="calendar-filters">
-            {["Outlook", "Google", "Personal"].map((s) => (
-              <label key={uk(s)}>
-                <input
-                  type="checkbox"
-                  checked={filters.includes(s)}
-                  onChange={() =>
-                    setFilters((f) =>
-                      f.includes(s) ? f.filter((x) => x !== s) : [...f, s],
-                    )
-                  }
-                />
-                {uk(s)}
-              </label>
-            ))}
-          </div>
-        </div>
-        <div className={`calendar-grid view-${calendarView.toLowerCase()}`}>
-          {days.map((day) => {
-            const key = dateKey(day);
-            return (
-              <div
-                className={`calendar-cell ${key === today ? "is-today" : ""}`}
-                key={key}
-              >
-                <div className="cell-date">
-                  <small>
-                    {day.toLocaleDateString(locale, { weekday: "short" })}
-                  </small>
-                  <b>{day.getDate()}</b>
-                </div>
-                {events
-                  .filter(
-                    (e) =>
-                      (e.date === key ||
-                        (e.allDay &&
-                          e.date < key &&
-                          !!e.endDate &&
-                          e.endDate > key)) &&
-                      filters.includes(e.source),
-                  )
-                  .map((e) => (
-                    <button
-                      className={`calendar-event ${e.source === "Google" ? "google" : ""}`}
-                      key={e.id}
-                      onClick={() =>
-                        openItem(
-                          e.title,
-                          `${e.start}–${e.end} · ${e.location}`,
-                          e.source,
-                          e.url,
-                        )
-                      }
-                    >
-                      <small>
-                        {e.start}–{e.end}
-                      </small>
-                      <strong>{e.title}</strong>
-                      <small>{e.accountLabel || e.source}</small>
-                    </button>
-                  ))}
-                {filters.includes("Personal") &&
-                  tasks
-                    .filter(
-                      (t) => t.date === key && !t.disabled && !t.completed,
-                    )
-                    .map((t) => (
-                      <button
-                        className="calendar-task"
-                        key={t.id}
-                        onClick={() => setModal(t)}
-                      >
-                        ○ {t.title}
-                      </button>
-                    ))}
-              </div>
-            );
-          })}
-        </div>
-      </Section>
+      <CalendarBoard
+        events={events}
+        tasks={tasks}
+        today={today}
+        date={calendarDate}
+        onDate={setCalendarDate}
+        view={calendarView}
+        onView={setCalendarView}
+        filters={filters}
+        onFilters={setFilters}
+        onEvent={setEventDetail}
+        onTask={setModal}
+        onToggleTask={toggleTask}
+        onAdd={addTask}
+        loading={workspace.loading}
+        hasCalendar={hasCalendar}
+        onConnect={() => setPage("Settings")}
+      />
     );
   }
   return (
@@ -856,59 +676,39 @@ export default function App() {
         <main>
           <div className="page-heading">
             <div>
-              <div className="date-eyebrow">
-                {new Date().toLocaleDateString(locale, {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </div>
+              {page === "Today" && (
+                <div className="date-eyebrow">
+                  {new Date().toLocaleDateString(locale, {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </div>
+              )}
               <h1>
                 {page === "Today"
-                  ? "Трохи ясності у твоєму дні."
+                  ? "Сьогодні"
                   : page === "Personal"
-                    ? "Залиши місце для життя."
+                    ? "Мої завдання"
                     : page === "Work"
-                      ? "Твоя робота — як на долоні."
+                      ? "Робочі повідомлення"
                       : page === "Calendar"
-                        ? "Трохи простору для планів."
-                        : "Почувайся як удома."}
+                        ? "Календар"
+                        : "Налаштування"}
               </h1>
               <p>
                 {page === "Today"
-                  ? "Твій розклад, твої пріоритети й трохи простору для себе."
+                  ? "Зустрічі, актуальні справи й запити на відповідь."
                   : page === "Personal"
-                    ? "Маленькі справи. Більше спокою."
+                    ? "Найближчі справи — окремо від довгострокових заготовок."
                     : page === "Work"
-                      ? "Усе потрібне — без зайвого шуму."
+                      ? "Прямі згадки й повідомлення вибраних каналів."
                       : page === "Calendar"
-                        ? "Робота, життя й усе між ними — в одному календарі."
-                        : "Налаштуй Dayframe так, як зручно саме тобі."}
+                        ? "Події на шкалі часу. Завдання без часу — окремо."
+                        : "Теми, помічник і підключення облікових записів."}
               </p>
             </div>
-            {page === "Today" ? (
-              <button
-                className="today-date-chip"
-                onClick={() => setPage("Calendar")}
-              >
-                <CalendarDays size={20} />
-                <span>
-                  Сьогодні
-                  <small>
-                    {visibleEvents.length}{" "}
-                    {plural(visibleEvents.length, "подія", "події", "подій")} у
-                    календарі
-                  </small>
-                </span>
-                <ArrowUpRight size={16} />
-              </button>
-            ) : page === "Personal" ? (
-              <button className="primary" onClick={addTask}>
-                <Plus size={16} />
-                Додати завдання
-              </button>
-            ) : null}
           </div>
           <div className="workspace-toolbar">
             <span
@@ -936,306 +736,190 @@ export default function App() {
             >
               {workspace.loading ? "Оновлюємо…" : "Оновити"}
             </button>
-            <button className="primary quick-add" onClick={addTask}>
-              <Plus size={16} />
-              Додати завдання
-            </button>
+            {["Today", "Personal"].includes(page) && (
+              <button className="primary quick-add" onClick={() => addTask()}>
+                <Plus size={16} />
+                Додати завдання
+              </button>
+            )}
           </div>
-          {prefs.cozyMode !== false && (
+          {prefs.cozyMode !== false && page === "Today" && (
             <CozyCompanion mascot={safeMascot(mascot)} burst={burst} />
           )}
-          {workspace.errors.map((e) => (
-            <div className="workspace-alert" key={e} role="status">
-              <CircleHelp size={18} />
-              <p>{e}</p>
-              <button onClick={() => setPage("Settings")}>
-                Підключення <ArrowRight size={15} />
-              </button>
-            </div>
-          ))}
-          {page === "Today" && (
-            <>
-              <div className="day-summary">
-                <span>
-                  <span className="summary-dot" />
-                  ТВІЙ ДЕНЬ КОРОТКО
-                </span>
-                <div>
-                  <CalendarDays size={15} />
-                  <b>{visibleEvents.length}</b>{" "}
-                  {plural(visibleEvents.length, "подія", "події", "подій")}
-                  <span className="summary-divider" />
-                  <Circle size={14} />
-                  <b>{attention.length}</b>{" "}
-                  {plural(attention.length, "згадка", "згадки", "згадок")}
-                  <span className="summary-divider" />
-                  <CheckCheck size={16} />
-                  <b>{todaysTasks.filter((t) => !t.completed).length}</b>{" "}
-                  {plural(
-                    todaysTasks.filter((t) => !t.completed).length,
-                    "особисте завдання",
-                    "особисті завдання",
-                    "особистих завдань",
-                  )}
-                </div>
-                <span className="summary-end">
-                  Одна справа за раз.
-                  <Leaf size={14} />
-                </span>
+          {workspace.errors
+            .filter((e) => workspace.status || page === "Settings")
+            .map((e) => (
+              <div className="workspace-alert" key={e} role="status">
+                <CircleHelp size={18} />
+                <p>{e}</p>
+                <button onClick={() => setPage("Settings")}>
+                  Підключення <ArrowRight size={15} />
+                </button>
               </div>
-              <div className="dashboard">
-                <div className="dashboard-main">
+            ))}
+          {page === "Today" && (
+            <div className="focused-dashboard">
+              {!hasCalendar && !workspace.loading && (
+                <div className="connect-strip">
+                  <CalendarDays size={21} />
+                  <div>
+                    <strong>Додай календар — решта вже під рукою</strong>
+                    <p>
+                      Outlook і Google покажуть події тут. Особистими завданнями
+                      можна користуватися вже зараз.
+                    </p>
+                  </div>
+                  <button
+                    className="secondary"
+                    onClick={() => setPage("Settings")}
+                  >
+                    Підключити календар
+                  </button>
+                </div>
+              )}
+              <div
+                className={`focus-columns ${!hasCalendar ? "tasks-first" : ""}`}
+              >
+                {hasCalendar && (
                   <Section
-                    title="Твій розклад"
-                    eyebrow="ТРОХИ ПОРЯДКУ"
+                    title="Розклад на сьогодні"
                     action={
                       <button
                         className="text-button"
                         onClick={() => setPage("Calendar")}
                       >
-                        Відкрити календар <ArrowUpRight size={14} />
+                        Весь календар <ArrowRight size={15} />
                       </button>
                     }
                   >
-                    <div className="schedule-caption">
-                      <span>
-                        Сьогодні,{" "}
-                        {new Date().toLocaleDateString(locale, {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
-                      <div>
-                        <i className="legend outlook" />
-                        Outlook
-                        <i className="legend google" />
-                        Google
-                      </div>
-                    </div>
                     <div className="schedule-list">
-                      {visibleEvents.length ? (
+                      {workspace.loading ? (
+                        <p className="board-empty" role="status">
+                          Оновлюємо події…
+                        </p>
+                      ) : visibleEvents.length ? (
                         schedule(visibleEvents)
                       ) : (
-                        <div className="empty schedule-empty">
-                          <CalendarDays size={25} />
-                          <strong>У твоєму дні є простір.</strong>
-                          <p>
-                            {workspace.mode === "live"
-                              ? "Події на сьогодні не завантажено. Підключи Outlook або Календар Google у налаштуваннях."
-                              : "На сьогодні подій не заплановано."}
-                          </p>
+                        <div className="board-empty">
+                          <CalendarDays size={24} />
+                          <p>На сьогодні зустрічей немає.</p>
                           <button
                             className="text-button"
-                            onClick={() => setPage("Settings")}
+                            onClick={() => setPage("Calendar")}
                           >
-                            Налаштувати календарі <ArrowRight size={15} />
+                            Переглянути інший день
                           </button>
                         </div>
                       )}
                     </div>
-                    <div className="schedule-footer">
-                      <Leaf size={14} />
-                      <span>Час указано в часовому поясі твого пристрою.</span>
-                    </div>
                   </Section>
+                )}
+                {prefs.showPersonal && (
                   <Section
-                    title="Важливе для тебе у Slack"
-                    eyebrow="ТВІЙ ОГЛЯД SLACK"
-                    className="slack-card"
+                    title="Завдання на сьогодні"
                     action={
-                      <span className="ai-label">
-                        <Sparkles size={13} />
-                        {workspace.mode === "demo"
-                          ? "Демонстраційний огляд"
-                          : "Останні 24 години · Результати пошуку"}
-                      </span>
-                    }
-                  >
-                    {digest()}
-                    <div className="card-footer">
-                      <span>
-                        {workspace.mode === "demo"
-                          ? "Приклади оглядів для знайомства із застосунком."
-                          : "Повідомлення лише для читання. Ти обираєш важливе."}
-                      </span>
                       <button
                         className="text-button"
-                        onClick={() => setPage("Work")}
+                        onClick={() => setPage("Personal")}
                       >
-                        Усі повідомлення <ArrowRight size={14} />
+                        Усі завдання <ArrowRight size={15} />
                       </button>
-                    </div>
-                  </Section>
-                </div>
-                <div className="dashboard-side">
-                  <Section
-                    title="Варте твоєї уваги"
-                    action={
-                      <span className="number-badge">{attention.length}</span>
                     }
                   >
-                    <p className="section-description">
-                      Кілька речей, які можна переглянути.
-                    </p>
-                    {attention.length === 0 && (
-                      <p className="section-description">
-                        Прямих згадок не завантажено. Нічого не позначається
-                        пропущеним автоматично.
-                      </p>
+                    <div className="today-task-caption">
+                      <span>
+                        {todaysTasks.filter((t) => !t.completed).length}{" "}
+                        невиконаних
+                      </span>
+                      <span>{done} виконано</span>
+                    </div>
+                    {taskRows(
+                      todaysTasks.filter((t) => !t.completed).slice(0, 4),
                     )}
-                    {attention.map((a) => (
+                    {!todaysTasks.some((t) => !t.completed) && (
+                      <div className="board-empty">
+                        <CheckCheck size={26} />
+                        <p>На сьогодні все зроблено.</p>
+                      </div>
+                    )}
+                    {todaysTasks.filter((t) => !t.completed).length > 4 && (
                       <button
-                        className="attention-item"
-                        key={a.source}
-                        onClick={() =>
-                          openItem(a.title, a.body, a.source, a.url)
-                        }
+                        className="overflow-tasks"
+                        onClick={() => setPage("Personal")}
                       >
-                        <Source name={a.source} />
-                        <div>
-                          <div className="attention-source">
-                            {a.source}
-                            <span
-                              className={a.badge === "На сьогодні" ? "due" : ""}
-                            >
-                              {uk(a.badge)}
-                            </span>
-                          </div>
-                          <strong>{a.title}</strong>
-                          <p>{a.summary}</p>
-                        </div>
-                        <ArrowUpRight size={13} />
+                        Показати ще{" "}
+                        {todaysTasks.filter((t) => !t.completed).length - 4}
                       </button>
-                    ))}
-                  </Section>
-                  {prefs.showPersonal && (
-                    <Section
-                      title="Для тебе, поза роботою"
-                      className="personal-card"
-                      action={<Leaf size={18} />}
-                    >
-                      <div className="personal-caption">
-                        <span>МОЇ ЗАВДАННЯ</span>
-                        <span>
-                          Виконано {done} із {todaysTasks.length}
-                        </span>
-                      </div>
-                      <div className="progress-track">
-                        <div
-                          style={{
-                            width: `${todaysTasks.length ? (done / todaysTasks.length) * 100 : 0}%`,
-                          }}
-                        />
-                      </div>
-                      {taskRows(todaysTasks)}
-                      <button className="add-task-inline" onClick={addTask}>
-                        <Plus size={15} />
-                        Додати особисте завдання
-                      </button>
-                      <div className="card-footer">
-                        <span>Маленькі справи теж важливі.</span>
-                        <button
-                          aria-label="Відкрити особисті завдання"
-                          onClick={() => setPage("Personal")}
-                        >
-                          <ArrowRight size={16} />
-                        </button>
-                      </div>
-                    </Section>
-                  )}
-                  <section className="review-card">
-                    <span className="review-icon">
-                      <Sun size={21} />
-                    </span>
-                    <div className="eyebrow">ПЕРЕД ЗАВЕРШЕННЯМ ДНЯ</div>
-                    <h2>Заверши день зі спокоєм.</h2>
-                    <p>
-                      {attention.length}{" "}
-                      {plural(
-                        attention.length,
-                        "пряма згадка для перегляду.",
-                        "прямі згадки для перегляду.",
-                        "прямих згадок для перегляду.",
-                      )}
-                      <br />
-                      Невиконаних особистих завдань:{" "}
-                      {todaysTasks.filter((t) => !t.completed).length}.
-                    </p>
+                    )}
+                    {done > 0 && (
+                      <details className="today-completed">
+                        <summary>Виконані · {done}</summary>
+                        {taskRows(todaysTasks.filter((t) => t.completed))}
+                      </details>
+                    )}
                     <button
-                      onClick={() =>
-                        openMock(
-                          "Підсумки твого дня",
-                          `Згадок для перегляду: ${attention.length}.\nНевиконаних особистих завдань: ${todaysTasks.filter((t) => !t.completed).length}.\n\n${attention.map((a) => a.title).join("\n")}\n\nЗустрічі не позначаються пропущеними автоматично. Невиконані завдання можна перенести в розділі «Особисте».`,
-                          "Підсумки дня",
-                        )
-                      }
+                      className="add-task-inline"
+                      onClick={() => addTask()}
                     >
-                      Переглянути підсумки дня <ArrowRight size={15} />
+                      <Plus size={16} />
+                      Додати завдання
                     </button>
-                  </section>
-                </div>
+                  </Section>
+                )}
               </div>
-              <div className="page-footer">
-                <span>
-                  <span className="live-dot" />
-                  {workspace.mode === "demo"
-                    ? "Деморежим · Приклади активності"
-                    : "Лише читання · Твої облікові записи залишаються твоїми"}
-                </span>
-                <span>Для дня з турботою про себе.</span>
-              </div>
-            </>
+              {attention.length > 0 && (
+                <Section
+                  title="Потребує відповіді"
+                  action={
+                    <button
+                      className="text-button"
+                      onClick={() => setPage("Work")}
+                    >
+                      Slack <ArrowRight size={15} />
+                    </button>
+                  }
+                >
+                  {attention.map((a) => (
+                    <button
+                      className="attention-item"
+                      key={a.id}
+                      onClick={() => openItem(a.title, a.body, a.source, a.url)}
+                    >
+                      <Source name={a.source} />
+                      <div>
+                        <strong>{a.title}</strong>
+                        <p>{a.summary}</p>
+                      </div>
+                      <ArrowUpRight size={15} />
+                    </button>
+                  ))}
+                </Section>
+              )}
+            </div>
           )}
           {page === "Calendar" && calendar()}
           {page === "Personal" && (
-            <>
-              <div className="personal-intro">
-                <Leaf size={20} />
-                <span>
-                  Місце для маленьких справ, які підтримують лад у житті.
-                </span>
-                <span className="muted">Твої списки, твій ритм.</span>
-              </div>
-              <div className="period-tabs">
-                {(["Day", "Month", "Quarter", "Year"] as Period[]).map((p) => (
-                  <button
-                    className={period === p ? "active" : ""}
-                    onClick={() => setPeriod(p)}
-                    key={uk(p)}
-                  >
-                    {uk(p)}
-                    <span>
-                      {
-                        tasks.filter(
-                          (t) =>
-                            t.category === p && !t.completed && !t.disabled,
-                        ).length
-                      }
-                    </span>
-                  </button>
-                ))}
-              </div>
-              <Section
-                title={
-                  {
-                    Day: "Щоденні справи",
-                    Month: "Щомісячне оновлення",
-                    Quarter: "Трохи сезонної турботи",
-                    Year: "Важливе на рік",
-                  }[period]
-                }
-                action={
-                  <span className="muted">
-                    Початкові списки можна редагувати
-                  </span>
-                }
-              >
-                {taskRows(
-                  tasks.filter((t) => t.category === period),
-                  true,
-                )}
-              </Section>
-            </>
+            <PersonalBoard
+              tasks={tasks}
+              today={today}
+              onToggle={toggleTask}
+              onEdit={setModal}
+              onPostpone={postpone}
+              onDelete={(t) =>
+                setTasks((ts) => ts.filter((x) => x.id !== t.id))
+              }
+              onAdd={() => addTask()}
+              onUseTemplate={(t) =>
+                setModal({
+                  ...t,
+                  id: crypto.randomUUID(),
+                  isTemplate: false,
+                  date: today,
+                  completed: false,
+                  disabled: false,
+                })
+              }
+            />
           )}
           {page === "Work" && (
             <div className="work-stack">
@@ -1251,14 +935,6 @@ export default function App() {
               >
                 {digest()}
               </Section>
-              <div className="disabled-work">
-                <Source name="Jira" />
-                <Source name="Confluence" />
-                <p>
-                  Jira та Confluence вимкнені. Доступ не запитується, дані не
-                  завантажуються.
-                </p>
-              </div>
             </div>
           )}
           {page === "Settings" && (
@@ -1480,7 +1156,15 @@ export default function App() {
                 className={`notification-item ${read.includes(n.id) ? "read" : ""}`}
                 onClick={() => {
                   setRead((r) => [...r, n.id]);
-                  openMock(n.title, n.body, n.source);
+                  const event = events.find((e) => e.id === n.id),
+                    task = tasks.find((t) => t.id === n.id),
+                    message = slack.find((s) => "mention-" + s.id === n.id);
+                  if (event) setEventDetail(event);
+                  else if (task) setModal(task);
+                  else if (message) {
+                    setPage("Work");
+                    setExpanded(message.id);
+                  } else openMock(n.title, n.body, n.source);
                 }}
               >
                 <Source name={n.source} />
@@ -1531,7 +1215,11 @@ export default function App() {
                             setSearchOpen(false);
                             g.source === "Personal"
                               ? setModal(tasks.find((t) => t.id === i.id)!)
-                              : openMock(i.title, i.body, g.source);
+                              : g.source === "Calendar"
+                                ? setEventDetail(
+                                    events.find((e) => e.id === i.id) || null,
+                                  )
+                                : openMock(i.title, i.body, g.source);
                           }}
                         >
                           <Source name={g.source} />
@@ -1580,26 +1268,35 @@ export default function App() {
             onSubmit={(e) => {
               e.preventDefault();
               if (!modal.title.trim()) return;
+              const category: Period =
+                modal.recurrence === "yearly"
+                  ? "Year"
+                  : modal.recurrence === "every 3 months"
+                    ? "Quarter"
+                    : modal.recurrence === "monthly"
+                      ? "Month"
+                      : "Day";
+              const saved = { ...modal, category, title: modal.title.trim() };
               setTasks((ts) =>
                 ts.some((t) => t.id === modal.id)
-                  ? ts.map((t) =>
-                      t.id === modal.id
-                        ? { ...modal, title: modal.title.trim() }
-                        : t,
-                    )
-                  : [...ts, { ...modal, title: modal.title.trim() }],
+                  ? ts.map((t) => (t.id === modal.id ? saved : t))
+                  : [...ts, saved],
               );
               setModal(null);
-              setToast("Завдання збережено");
+              setToast(
+                modal.isTemplate ? "Шаблон збережено" : "Завдання збережено",
+              );
             }}
           >
             <div className="section-head">
               <div>
                 <span className="eyebrow">МАЛЕНЬКА СПРАВА ДЛЯ СЕБЕ</span>
                 <h2>
-                  {tasks.some((t) => t.id === modal.id)
-                    ? "Редагувати завдання"
-                    : "Додати особисте завдання"}
+                  {modal.isTemplate
+                    ? "Редагувати шаблон"
+                    : tasks.some((t) => t.id === modal.id)
+                      ? "Редагувати завдання"
+                      : "Додати особисте завдання"}
                 </h2>
               </div>
               <button
@@ -1621,31 +1318,19 @@ export default function App() {
               />
             </label>
             <div className="form-grid">
-              <label>
-                Категорія
-                <select
-                  aria-label="Категорія"
-                  value={modal.category}
-                  onChange={(e) =>
-                    setModal({ ...modal, category: e.target.value as Period })
-                  }
-                >
-                  {["Day", "Month", "Quarter", "Year"].map((p) => (
-                    <option key={p} value={p}>
-                      {uk(p)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Дата
-                <input
-                  type="date"
-                  required
-                  value={modal.date}
-                  onChange={(e) => setModal({ ...modal, date: e.target.value })}
-                />
-              </label>
+              {!modal.isTemplate && (
+                <label>
+                  Дата
+                  <input
+                    type="date"
+                    required
+                    value={modal.date}
+                    onChange={(e) =>
+                      setModal({ ...modal, date: e.target.value })
+                    }
+                  />
+                </label>
+              )}
               <label>
                 Повторення
                 <select
@@ -1670,6 +1355,27 @@ export default function App() {
                   ))}
                 </select>
               </label>
+              {modal.recurrence === "custom" && (
+                <label>
+                  Повторювати кожні (днів)
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={modal.customDays || 2}
+                    onChange={(e) =>
+                      setModal({ ...modal, customDays: Number(e.target.value) })
+                    }
+                  />
+                </label>
+              )}
+            </div>
+            <details className="task-extra">
+              <summary>
+                Важливість і нотатки
+                {modal.priority === "High" ? " · Важливе" : ""}
+                {modal.notes ? " · Є нотатки" : ""}
+              </summary>
               <label>
                 Пріоритет
                 <select
@@ -1686,40 +1392,30 @@ export default function App() {
                   ))}
                 </select>
               </label>
-              {modal.recurrence === "custom" && (
-                <label>
-                  Повторювати кожні (днів)
+              <label>
+                Нотатки
+                <textarea
+                  rows={3}
+                  value={modal.notes}
+                  onChange={(e) =>
+                    setModal({ ...modal, notes: e.target.value })
+                  }
+                  placeholder="Що корисно пам’ятати"
+                />
+              </label>
+              {!modal.isTemplate && (
+                <label className="check-label">
                   <input
-                    type="number"
-                    min="1"
-                    required
-                    value={modal.customDays || 2}
+                    type="checkbox"
+                    checked={modal.disabled}
                     onChange={(e) =>
-                      setModal({ ...modal, customDays: Number(e.target.value) })
+                      setModal({ ...modal, disabled: e.target.checked })
                     }
                   />
+                  Призупинити це завдання
                 </label>
               )}
-            </div>
-            <label>
-              Нотатки
-              <textarea
-                rows={3}
-                value={modal.notes}
-                onChange={(e) => setModal({ ...modal, notes: e.target.value })}
-                placeholder="Що корисно пам’ятати"
-              />
-            </label>
-            <label className="check-label">
-              <input
-                type="checkbox"
-                checked={modal.disabled}
-                onChange={(e) =>
-                  setModal({ ...modal, disabled: e.target.checked })
-                }
-              />
-              Призупинити це завдання
-            </label>
+            </details>{" "}
             <div className="modal-footer">
               {tasks.some((t) => t.id === modal.id) && (
                 <button
@@ -1742,7 +1438,8 @@ export default function App() {
                 Скасувати
               </button>
               <button className="primary" type="submit">
-                Зберегти завдання <Check size={15} />
+                {modal.isTemplate ? "Зберегти шаблон" : "Зберегти завдання"}{" "}
+                <Check size={15} />
               </button>
             </div>
           </form>
@@ -1790,6 +1487,12 @@ export default function App() {
           <Check size={16} />
           {toast}
         </div>
+      )}
+      {eventDetail && (
+        <EventDetails
+          event={eventDetail}
+          onClose={() => setEventDetail(null)}
+        />
       )}
       <HappyPetals burst={burst} />
     </div>

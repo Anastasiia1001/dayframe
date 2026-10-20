@@ -44,6 +44,7 @@ export const mockTasks: PersonalTask[] = Object.entries(groups).flatMap(
     titles.map((title, i) => ({
       id: `${category}-${i}`,
       title,
+      isTemplate: category !== "Day",
       category: category as Period,
       date: today,
       recurrence: {

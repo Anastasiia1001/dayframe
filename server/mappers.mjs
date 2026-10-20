@@ -56,6 +56,7 @@ export function mapOutlookEvent(e, timeZone = "UTC") {
     participants: (e.attendees || []).map(
       (a) => a.emailAddress?.name || a.emailAddress?.address || "Учасник",
     ),
+    meetingUrl: e.onlineMeeting?.joinUrl,
     externalUid: e.iCalUId,
     reminder: !!e.isReminderOn,
     url: e.webLink,
@@ -76,6 +77,7 @@ export function mapGoogleEvent(e, timeZone = "UTC") {
     source: "Google",
     location: e.location || e.hangoutLink || "Місце не вказано",
     participants: (e.attendees || []).map((a) => a.displayName || a.email),
+    meetingUrl: e.hangoutLink,
     externalUid: e.iCalUID,
     reminder: !!e.reminders?.useDefault || !!e.reminders?.overrides?.length,
     url: e.htmlLink,

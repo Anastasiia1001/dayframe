@@ -75,7 +75,7 @@ test("live defaults never imply fake connections; unsupported work sources stay 
   await page.goto("/");
   await expect(page.getByText("Власні дані", { exact: true })).toBeVisible();
   await expect(
-    page.getByText("Події на сьогодні не завантажено.", { exact: false }),
+    page.getByText("Додай календар — решта вже під рукою", { exact: true }),
   ).toBeVisible();
   await expect(page.getByText("GAME-89322", { exact: false })).toHaveCount(0);
   await go(page, "Settings");
@@ -110,6 +110,7 @@ test("task CRUD, completion and preferences persist across reloads", async ({
   ).toBeVisible();
   await page.reload();
   await go(page, "Personal");
+  await page.getByRole("button", { name: /Показати виконані/ }).click();
   await expect(
     page.getByLabel("Позначити невиконаним Записатися до стоматолога", {
       exact: true,
@@ -123,8 +124,25 @@ test("task CRUD, completion and preferences persist across reloads", async ({
     .fill("Записатися до стоматолога на огляд");
   await page.getByRole("button", { name: "Зберегти завдання" }).click();
   await page
+    .getByLabel("Позначити невиконаним Записатися до стоматолога на огляд", {
+      exact: true,
+    })
+    .click();
+  await page
     .getByLabel("Перенести Записатися до стоматолога на огляд", { exact: true })
     .click();
+  await page.getByRole("tab", { name: /Найближчі 7 днів/ }).click();
+  const postponed = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("dayframe-tasks")!).find(
+      (t) => t.title === "Записатися до стоматолога на огляд",
+    ),
+  );
+  expect(postponed.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  const expectedDate = new Date(date + "T12:00:00");
+  expectedDate.setDate(expectedDate.getDate() + 1);
+  expect(postponed.date).toBe(
+    `${expectedDate.getFullYear()}-${String(expectedDate.getMonth() + 1).padStart(2, "0")}-${String(expectedDate.getDate()).padStart(2, "0")}`,
+  );
   await page
     .getByLabel("Видалити Записатися до стоматолога на огляд", { exact: true })
     .click();
@@ -208,7 +226,7 @@ test("connected live accounts use actual adapters, deduplicate events, and isola
   ).toHaveCount(1);
   await expect(
     page
-      .locator(".digest-toggle")
+      .locator(".attention-item")
       .getByText("Please review the new navigation", { exact: true }),
   ).toBeVisible();
   failGoogle = true;
@@ -235,10 +253,11 @@ test("static site explains its limitation and can enter clearly labelled demo", 
     }),
   );
   await page.goto("/");
+  await expect(page.locator(".connect-strip")).toBeVisible();
+  await go(page, "Settings");
   await expect(page.locator(".workspace-alert")).toContainText(
     "Для реальних підключень потрібен сервер Dayframe",
   );
-  await go(page, "Settings");
   await page
     .getByRole("button", { name: "Спробувати деморежим", exact: true })
     .click();
@@ -332,7 +351,7 @@ test("switching from demo to live never presents demo events as account data", a
   ).toHaveCount(0);
   release();
   await expect(
-    page.getByText("Події на сьогодні не завантажено.", { exact: false }),
+    page.getByText("Додай календар — решта вже під рукою", { exact: true }),
   ).toBeVisible();
 });
 
@@ -375,6 +394,7 @@ test("Ukrainian labels preserve saved task keys and user-written content", async
   );
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "uk");
+  await page.locator(".today-completed summary").click();
   await expect(
     page.getByRole("button", {
       name: "Позначити невиконаним Полити рослини",
@@ -411,6 +431,7 @@ test("Ukrainian labels preserve saved task keys and user-written content", async
       ),
     ),
   ).toMatchObject({ recurrence: "custom", customDays: 3, category: "Day" });
+  await go(page, "Work");
   await page
     .getByLabel("Категорія огляду", { exact: true })
     .selectOption("My team");
@@ -457,7 +478,9 @@ test("new palettes and all companions can be selected, persisted and celebrated"
     const button = page.getByRole("button", { name: new RegExp("^" + name) });
     await button.click();
     await expect(button).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator(".cozy-note .mascot-" + id)).toBeVisible();
+    await expect(
+      page.locator(".mascot-choice[aria-pressed=true] .mascot-" + id),
+    ).toBeVisible();
   }
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "Moonlight");
@@ -481,4 +504,152 @@ test("new palettes and all companions can be selected, persisted and celebrated"
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+});
+
+test("household templates stay outside active tasks and are scheduled explicitly", async ({
+  page,
+}) => {
+  await demo(page);
+  await go(page, "Personal");
+  await expect(page.locator(".task-row:not(.completed)")).toHaveCount(3);
+  await expect(
+    page.getByText("Помити холодильник", { exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole("tab", { name: /Шаблони/ }).click();
+  await expect(
+    page.getByText("Помити холодильник", { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", {
+      name: "Запланувати Помити холодильник",
+      exact: true,
+    })
+    .click();
+  const next = new Date(date + "T12:00:00");
+  next.setDate(next.getDate() + 1);
+  const tomorrow = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}-${String(next.getDate()).padStart(2, "0")}`;
+  await page.getByLabel("Дата", { exact: true }).fill(tomorrow);
+  await page
+    .getByRole("button", { name: "Зберегти завдання", exact: true })
+    .click();
+  await page.getByRole("tab", { name: /Найближчі 7 днів/ }).click();
+  await expect(page.locator(".task-row")).toHaveCount(1);
+  await expect(page.locator(".task-row")).toContainText("Помити холодильник");
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("dayframe-tasks")!).filter(
+      (t) => t.title === "Помити холодильник",
+    ),
+  );
+  expect(saved).toHaveLength(2);
+  expect(saved.find((t) => !t.isTemplate)).toMatchObject({
+    date: tomorrow,
+    recurrence: "monthly",
+    isTemplate: false,
+  });
+  await page.reload();
+  await go(page, "Personal");
+  await expect(
+    page.getByText("Помити холодильник", { exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole("tab", { name: /Найближчі 7 днів/ }).click();
+  await expect(page.locator(".task-row")).toContainText("Помити холодильник");
+});
+
+test("calendar supports timed overlaps, date navigation, month overflow and event details", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("dayframe-data-mode", JSON.stringify("live")),
+  );
+  await page.route("**/api/status", (r) => r.fulfill({ json: status }));
+  await page.route("**/api/slack?*", (r) =>
+    r.fulfill({ json: { items: [], truncated: false } }),
+  );
+  await page.route("**/api/calendar/google?*", (r) =>
+    r.fulfill({ json: { events: [] } }),
+  );
+  await page.route("**/api/calendar/outlook-work?*", (r) =>
+    r.fulfill({
+      json: {
+        events: [
+          calendarEvent("a", "Планування", "Outlook"),
+          {
+            ...calendarEvent("b", "Дизайн-рев’ю", "Outlook"),
+            start: "11:30",
+            end: "12:30",
+          },
+          {
+            ...calendarEvent("c", "Особиста зустріч", "Outlook"),
+            start: "14:00",
+            end: "14:30",
+          },
+        ],
+      },
+    }),
+  );
+  await page.goto("/");
+  await go(page, "Calendar");
+  await expect(page.locator(".timed-event")).toHaveCount(3);
+  const rectangles = await page.locator(".timed-event").evaluateAll((nodes) =>
+    nodes.map((n) => {
+      const r = n.getBoundingClientRect();
+      return { x: r.x, width: r.width, y: r.y };
+    }),
+  );
+  expect(rectangles[1].x).toBeGreaterThan(rectangles[0].x);
+  expect(rectangles[1].y).toBeGreaterThan(rectangles[0].y);
+  await page
+    .locator(".timed-event")
+    .filter({ hasText: "Дизайн-рев’ю" })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText("11:30–12:30");
+  await expect(page.getByRole("link", { name: "Приєднатися" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Місяць", exact: true }).click();
+  await expect(page.locator(".calendar-cell")).toHaveCount(42);
+  await page.locator(".calendar-cell.is-today .month-more").click();
+  await expect(
+    page.getByRole("button", { name: "День", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".timed-event")).toHaveCount(3);
+  await page.getByLabel("Перейти до дати").fill("2026-01-31");
+  await page.getByRole("button", { name: "Місяць", exact: true }).click();
+  await page.getByRole("button", { name: "Наступний період" }).click();
+  await expect(page.getByLabel("Перейти до дати")).toHaveValue("2026-02-28");
+});
+
+test("Slack suggestions become concrete tasks only after the user supplies a title", async ({
+  page,
+}) => {
+  await demo(page);
+  await go(page, "Work");
+  await page.locator(".digest-toggle").first().click();
+  const before = await page.evaluate(
+    () => JSON.parse(localStorage.getItem("dayframe-tasks")!).length,
+  );
+  await page
+    .getByRole("button", { name: "Додати до завдань", exact: true })
+    .click();
+  await expect(page.getByLabel("Назва", { exact: true })).toHaveValue("");
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem("dayframe-tasks")!).length,
+    ),
+  ).toBe(before);
+  await page
+    .getByLabel("Назва", { exact: true })
+    .fill("Перевірити екран нагород перед зустріччю");
+  await page
+    .getByRole("button", { name: "Зберегти завдання", exact: true })
+    .click();
+  await go(page, "Personal");
+  const task = page
+    .locator(".task-row")
+    .filter({ hasText: "Перевірити екран нагород перед зустріччю" });
+  await expect(task).toContainText("Додано зі Slack");
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem("dayframe-tasks")!).length,
+    ),
+  ).toBe(before + 1);
 });

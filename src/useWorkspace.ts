@@ -17,7 +17,7 @@ export function useWorkspace(date: Date) {
     [updated, setUpdated] = useState<Date | null>(null);
   const [loadedMode, setLoadedMode] = useState<"live" | "demo" | null>(null);
   const generation = useRef(0);
-  const month = `${date.getFullYear()}-${date.getMonth()}`;
+  const rangeKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
   const refresh = useCallback(async () => {
     const g = ++generation.current;
     setLoading(true);
@@ -102,8 +102,8 @@ export function useWorkspace(date: Date) {
     } finally {
       if (g === generation.current) setLoading(false);
     }
-    // Fetches depend on the visible month, not on every render or intra-month navigation.
-  }, [mode, channels, month]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Fetches depend on the selected day, not on every render.
+  }, [mode, channels, rangeKey]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     void refresh();
     return () => {

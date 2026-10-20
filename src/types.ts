@@ -10,6 +10,7 @@ export interface CalendarEvent {
   location: string;
   participants: string[];
   reminder: boolean;
+  meetingUrl?: string;
   accountLabel?: string;
   externalUid?: string;
   allDay?: boolean;
@@ -59,6 +60,8 @@ export interface PersonalTask {
   notes: string;
   completed: boolean;
   disabled: boolean;
+  origin?: { source: "Slack"; id: string };
+  isTemplate?: boolean;
   customDays?: number;
   completedOn?: string;
   nextOccurrence?: string;

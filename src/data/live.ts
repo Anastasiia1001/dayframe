@@ -63,5 +63,8 @@ export function calendarRange(date: Date) {
   start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
   const end = new Date(start);
   end.setDate(end.getDate() + 42);
+  const agendaEnd = new Date(date);
+  agendaEnd.setDate(agendaEnd.getDate() + 8);
+  if (agendaEnd > end) end.setTime(agendaEnd.getTime());
   return { start, end };
 }
