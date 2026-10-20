@@ -4035,3 +4035,31 @@ button:disabled {
     padding: 0 19px 20px;
   }
 }
+/* Ukrainian labels stay legible in the compact mobile navigation. */
+@media (max-width: 700px) {
+  .mobile-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+  }
+  .mobile-nav button {
+    min-width: 0;
+    padding: 5px 2px;
+    font-size: 10px;
+  }
+  .mobile-nav button span {
+    max-width: 100%;
+  }
+  .connection-title > strong {
+    overflow-wrap: anywhere;
+  }
+  .connection-state {
+    flex-shrink: 0;
+  }
+  .workspace-toolbar .mode-badge {
+    max-width: 100%;
+  }
+  .setting-row > div {
+    min-width: 0;
+  }
+}

@@ -17,19 +17,26 @@ export interface WorkspaceStatus {
   sessionHours: number;
 }
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(path, {
-    ...init,
-    credentials: "same-origin",
-    signal: AbortSignal.timeout(20000),
-    headers: { Accept: "application/json", ...init?.headers },
-  });
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      ...init,
+      credentials: "same-origin",
+      signal: AbortSignal.timeout(20000),
+      headers: { Accept: "application/json", ...init?.headers },
+    });
+  } catch {
+    throw new Error(
+      "Не вдалося з’єднатися із сервером. Перевір інтернет-з’єднання та спробуй ще раз.",
+    );
+  }
   if (!response.headers.get("content-type")?.includes("application/json"))
     throw new Error(
-      "Live connections need a hosted Dayframe server. This static site supports personal tasks and demo mode.",
+      "Для реальних підключень потрібен сервер Dayframe. На цьому статичному сайті доступні особисті завдання та деморежим.",
     );
   const data = await response.json();
   if (!response.ok)
-    throw new Error(data.error || "Could not load this source.");
+    throw new Error(data.error || "Не вдалося завантажити дані цього джерела.");
   return data as T;
 }
 export const live = {

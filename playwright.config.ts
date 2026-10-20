@@ -10,6 +10,7 @@ export default defineConfig({
     baseURL: "http://localhost:4317",
     browserName: "chromium",
     timezoneId: "Europe/Kyiv",
+    locale: "uk-UA",
     viewport: { width: 1440, height: 1000 },
     launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
       ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }

@@ -1,2 +1,30 @@
-import type { ConfluencePage } from '../types';
-export const mockConfluence:ConfluencePage[]=[{id:'f1',title:'UI guidelines · motion & feedback',space:'Design system',author:'Maya Chen',updated:'1 hour ago',summary:'Updated motion principles and examples for reward states. Relevant to the upcoming UI review.'},{id:'f2',title:'Addressables build troubleshooting',space:'Gamepoint engineering',author:'Nina Park',updated:'Yesterday',summary:'A shared checklist for investigating asset loading and build pipeline failures.'},{id:'f3',title:'Release 2.8 · what’s changing',space:'Gamepoint',author:'Sam Rivera',updated:'Yesterday',summary:'Release scope, key milestones and the UI changes to review this week.'}];
+import type { ConfluencePage } from "../types";
+export const mockConfluence: ConfluencePage[] = [
+  {
+    id: "f1",
+    title: "Рекомендації з інтерфейсу · рух і зворотний зв’язок",
+    space: "Дизайн-система",
+    author: "Maya Chen",
+    updated: "1 год тому",
+    summary:
+      "Оновлені принципи руху та приклади станів нагород. Стане в пригоді для обговорення інтерфейсу.",
+  },
+  {
+    id: "f2",
+    title: "Усунення проблем зі збіркою Addressables",
+    space: "Інженерна команда Gamepoint",
+    author: "Nina Park",
+    updated: "Учора",
+    summary:
+      "Спільний список перевірок для дослідження завантаження ресурсів і помилок збірки.",
+  },
+  {
+    id: "f3",
+    title: "Випуск 2.8 · що змінюється",
+    space: "Gamepoint",
+    author: "Sam Rivera",
+    updated: "Учора",
+    summary:
+      "Обсяг випуску, основні етапи та зміни інтерфейсу для перегляду цього тижня.",
+  },
+];

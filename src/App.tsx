@@ -1,3 +1,4 @@
+import { uk, locale, shortDate, plural } from "./locale";
 import { nextOccurrence, reopenDueTasks } from "./recurrence";
 import { IntegrationSettings } from "./components/IntegrationSettings";
 import { useWorkspace } from "./useWorkspace";
@@ -148,9 +149,9 @@ export default function App() {
     if (!result) return;
     if (result === "success") {
       workspace.setMode("live");
-      setToast("Account connected. Refreshing your sources.");
+      setToast("Обліковий запис підключено. Оновлюємо дані.");
     } else if (result === "cancelled")
-      setToast("Connection cancelled. You can try again in Settings.");
+      setToast("Підключення скасовано. Спробуй ще раз у налаштуваннях.");
     url.searchParams.delete("connection");
     window.history.replaceState(null, "", url.pathname + url.search + url.hash);
   }, []);
@@ -202,11 +203,11 @@ export default function App() {
     );
     if (!t.completed) {
       setBurst((b) => b + 1);
-      setToast("A tiny win. Look at you go! ♡");
+      setToast("Маленька перемога. Ти молодець! ♡");
     }
   };
   const postpone = (t: PersonalTask) => {
-    const d = new Date(`${t.date}T12:00:00`);
+    const d = new Date(`${shortDate(t.date)}T12:00:00`);
     d.setDate(d.getDate() + 1);
     setTasks((ts) =>
       ts.map((x) =>
@@ -222,19 +223,32 @@ export default function App() {
       ),
     );
     setToast(
-      "Task postponed to " +
-        d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+      "Завдання перенесено на " +
+        d.toLocaleDateString(locale, { month: "short", day: "numeric" }),
     );
   };
   const todaysTasks = tasks.filter(
     (t) => t.category === "Day" && !t.disabled && t.date <= today,
   );
+  useEffect(() => {
+    setTasks((current) => {
+      let changed = false;
+      const localized = current.map((t) => {
+        if (!/^(Day|Month|Quarter|Year)-\d+$/.test(t.id)) return t;
+        const title = uk(t.title);
+        if (title === t.title) return t;
+        changed = true;
+        return { ...t, title };
+      });
+      return changed ? localized : current;
+    });
+  }, [setTasks]);
   const done = todaysTasks.filter((t) => t.completed).length;
   const taskRows = (list: PersonalTask[], full = false) => (
     <div className="task-list">
       {list.length === 0 && (
         <p className="empty">
-          All clear here. Add something you’d like to take care of.
+          Тут усе зроблено. Додай те, про що хочеш подбати.
         </p>
       )}
       {list.map((t) => (
@@ -243,7 +257,7 @@ export default function App() {
           key={t.id}
         >
           <button
-            aria-label={`${t.completed ? "Uncomplete" : "Complete"} ${t.title}`}
+            aria-label={`${t.completed ? "Позначити невиконаним" : "Виконати"} ${t.title}`}
             className={`checkbox ${t.completed ? "checked" : ""}`}
             onClick={() => toggleTask(t)}
           >
@@ -253,31 +267,31 @@ export default function App() {
             {t.title}
             {full && (
               <small>
-                {t.recurrence}
+                {uk(t.recurrence)}
                 {t.recurrence === "custom"
-                  ? ` · every ${t.customDays || 2} days`
+                  ? ` · кожні ${t.customDays || 2} ${plural(t.customDays || 2, "день", "дні", "днів")}`
                   : ""}{" "}
-                · {t.date}
-                {t.disabled ? " · Disabled" : ""}
+                · {shortDate(t.date)}
+                {t.disabled ? " · Призупинено" : ""}
               </small>
             )}
           </button>
           {full ? (
             <div className="task-actions">
               <button
-                aria-label={`Postpone ${t.title}`}
+                aria-label={`Перенести ${t.title}`}
                 onClick={() => postpone(t)}
               >
                 <SkipForward size={15} />
               </button>
               <button
-                aria-label={`Edit ${t.title}`}
+                aria-label={`Редагувати ${t.title}`}
                 onClick={() => setModal(t)}
               >
                 <Pencil size={14} />
               </button>
               <button
-                aria-label={`Delete ${t.title}`}
+                aria-label={`Видалити ${t.title}`}
                 onClick={() =>
                   setTasks((ts) => ts.filter((x) => x.id !== t.id))
                 }
@@ -286,9 +300,7 @@ export default function App() {
               </button>
             </div>
           ) : (
-            <span className="recurrence">
-              {t.recurrence === "daily" ? "Daily" : t.recurrence}
-            </span>
+            <span className="recurrence">{uk(t.recurrence)}</span>
           )}
         </div>
       ))}
@@ -302,7 +314,7 @@ export default function App() {
         onClick={() =>
           openItem(
             e.title,
-            `${e.date} · ${e.start}–${e.end}\n${e.location}\n${e.participants.length ? e.participants.join(", ") : "Time for yourself"}\n${e.reminder ? "Reminder: 10 minutes before" : "No reminder"}`,
+            `${shortDate(e.date)} · ${e.start}–${e.end}\n${e.location}\n${e.participants.length ? e.participants.join(", ") : "Час для себе"}\n${e.reminder ? "Нагадування за 10 хвилин" : "Без нагадування"}`,
             e.source,
             e.url,
           )
@@ -328,7 +340,7 @@ export default function App() {
           <div className="avatars">
             {e.participants.slice(0, 3).map((p, j) => (
               <span
-                key={p}
+                key={uk(p)}
                 style={{ background: ["#e8e3da", "#dce4e1", "#e7dce3"][j] }}
               >
                 {p[0]}
@@ -346,7 +358,7 @@ export default function App() {
             .some(
               (x) =>
                 !x.allDay && x.start > new Date().toTimeString().slice(0, 5),
-            ) && <span className="soon">UP NEXT</span>}
+            ) && <span className="soon">НЕЗАБАРОМ</span>}
       </button>
     ));
   const digest = () => (
@@ -355,23 +367,25 @@ export default function App() {
         {["All", "Direct mentions", "Could help here"].map((g) => (
           <button
             className={digestGroup === g ? "active" : ""}
-            key={g}
+            key={uk(g)}
             onClick={() => setDigestGroup(g)}
           >
-            {g}
+            {uk(g)}
             {g === "Direct mentions" && (
               <span>{slack.filter((s) => s.group === g).length}</span>
             )}
           </button>
         ))}
         <select
-          aria-label="Digest category"
+          aria-label="Категорія огляду"
           value={digestGroup}
           onChange={(e) => setDigestGroup(e.target.value)}
         >
-          <option>All</option>
+          <option value="All">Усе</option>
           {slack.map((s) => (
-            <option key={s.id}>{s.group}</option>
+            <option key={s.id} value={s.group}>
+              {uk(s.group)}
+            </option>
           ))}
         </select>
       </div>
@@ -381,8 +395,8 @@ export default function App() {
             <MessageSquare size={22} />
             <p>
               {workspace.mode === "live"
-                ? "No Slack activity loaded. Connect Slack in Settings, or refresh your sources."
-                : "No matching activity."}
+                ? "Дані Slack не завантажено. Підключи Slack у налаштуваннях або онови джерела."
+                : "Відповідних повідомлень немає."}
             </p>
           </div>
         )}
@@ -405,15 +419,16 @@ export default function App() {
                 </span>
                 <div className="grow">
                   <div className="digest-meta">
-                    <strong>{s.group}</strong>
+                    <strong>{uk(s.group)}</strong>
                     <span>#{s.channel}</span>
                     <span>
                       {workspace.mode === "live"
-                        ? new Date(s.time).toLocaleString(undefined, {
+                        ? new Date(s.time).toLocaleString(locale, {
                             month: "short",
                             day: "numeric",
                             hour: "2-digit",
                             minute: "2-digit",
+                            hour12: false,
                           })
                         : s.time}
                     </span>
@@ -441,13 +456,13 @@ export default function App() {
                       )
                     }
                   >
-                    Open in Slack <ArrowUpRight size={13} />
+                    Відкрити у Slack <ArrowUpRight size={13} />
                   </button>
                   <button
                     className="text-button"
                     onClick={() => {
                       if (tasks.some((t) => t.notes === s.id)) {
-                        setToast("Already in your tasks");
+                        setToast("Уже є серед твоїх завдань");
                         return;
                       }
                       setTasks((ts) => [
@@ -464,10 +479,11 @@ export default function App() {
                           disabled: false,
                         },
                       ]);
-                      setToast("Added to your personal tasks");
+                      setToast("Додано до особистих завдань");
                     }}
                   >
-                    <Plus size={13} /> Add to tasks
+                    <Plus size={13} />
+                    Додати до завдань
                   </button>
                 </div>
               )}
@@ -484,7 +500,7 @@ export default function App() {
       source: "Slack",
       title: s.summary,
       summary: `#${s.channel} · ${s.author}`,
-      badge: "Mention",
+      badge: "Згадка",
       body: s.why,
       url: s.url,
     }));
@@ -507,7 +523,7 @@ export default function App() {
       .map((t) => ({
         id: t.id,
         title: t.title,
-        body: "Personal task · " + t.recurrence,
+        body: "Особисте завдання · " + uk(t.recurrence),
         source: "Personal",
       })),
   ];
@@ -533,7 +549,7 @@ export default function App() {
       items: tasks.map((x) => ({
         id: x.id,
         title: x.title,
-        body: `${x.category} · ${x.recurrence}`,
+        body: `${uk(x.category)} · ${uk(x.recurrence)}`,
       })),
     },
   ].map((g) => ({
@@ -563,14 +579,14 @@ export default function App() {
     } else days = [d];
     return (
       <Section
-        title={calendarDate.toLocaleDateString(undefined, {
+        title={calendarDate.toLocaleDateString(locale, {
           month: "long",
           year: "numeric",
         })}
         action={
           <div className="calendar-controls">
             <button
-              aria-label="Previous period"
+              aria-label="Попередній період"
               onClick={() => {
                 const d = new Date(calendarDate);
                 calendarView === "Month"
@@ -581,9 +597,11 @@ export default function App() {
             >
               <ChevronLeft size={17} />
             </button>
-            <button onClick={() => setCalendarDate(new Date())}>Today</button>
+            <button onClick={() => setCalendarDate(new Date())}>
+              Сьогодні
+            </button>
             <button
-              aria-label="Next period"
+              aria-label="Наступний період"
               onClick={() => {
                 const d = new Date(calendarDate);
                 calendarView === "Month"
@@ -601,17 +619,17 @@ export default function App() {
           <div className="segmented">
             {["Month", "Week", "Day"].map((v) => (
               <button
-                key={v}
+                key={uk(v)}
                 className={calendarView === v ? "active" : ""}
                 onClick={() => setCalendarView(v)}
               >
-                {v}
+                {uk(v)}
               </button>
             ))}
           </div>
           <div className="calendar-filters">
             {["Outlook", "Google", "Personal"].map((s) => (
-              <label key={s}>
+              <label key={uk(s)}>
                 <input
                   type="checkbox"
                   checked={filters.includes(s)}
@@ -621,7 +639,7 @@ export default function App() {
                     )
                   }
                 />
-                {s}
+                {uk(s)}
               </label>
             ))}
           </div>
@@ -636,7 +654,7 @@ export default function App() {
               >
                 <div className="cell-date">
                   <small>
-                    {day.toLocaleDateString(undefined, { weekday: "short" })}
+                    {day.toLocaleDateString(locale, { weekday: "short" })}
                   </small>
                   <b>{day.getDate()}</b>
                 </div>
@@ -711,22 +729,22 @@ export default function App() {
           <span className="workspace-avatar">{initials}</span>
           <div>
             {displayName.trim()
-              ? displayName.trim() + "’s space"
-              : "Your space"}
-            <small>Personal workspace</small>
+              ? displayName.trim() + " — мій простір"
+              : "Твій простір"}
+            <small>Особистий простір</small>
           </div>
           <span className="workspace-chevron">⌄</span>
         </div>
-        <div className="nav-label">YOUR SPACE</div>
+        <div className="nav-label">ТВІЙ ПРОСТІР</div>
         <nav>
           {nav.map(([name, Icon]) => (
             <button
-              key={name}
+              key={uk(name)}
               className={page === name ? "selected" : ""}
               onClick={() => setPage(name)}
             >
               <Icon size={18} />
-              {name}
+              {uk(name)}
               {name === "Today" && attention.length > 0 && (
                 <span className="nav-count">{attention.length}</span>
               )}
@@ -735,22 +753,22 @@ export default function App() {
         </nav>
         <div className="sidebar-divider" />
         <div className="nav-label">
-          YOUR SOURCES{" "}
+          ТВОЇ ДЖЕРЕЛА{" "}
           <span>
             {workspace.mode === "demo"
-              ? "DEMO"
+              ? "ДЕМО"
               : workspace.status?.providers.filter((p) => p.connected).length ||
                 0}
           </span>
         </div>
         <div className="connections">
           {["Outlook", "Google", "Slack"].map((s) => (
-            <button key={s} onClick={() => setPage("Settings")}>
+            <button key={uk(s)} onClick={() => setPage("Settings")}>
               <Source name={s} />
               {s === "Google"
-                ? "Google Calendar"
+                ? "Календар Google"
                 : s === "Outlook"
-                  ? "Outlook Calendar"
+                  ? "Календар Outlook"
                   : s}
               <i
                 className={
@@ -772,9 +790,9 @@ export default function App() {
           <div className="quiet-note">
             <Leaf size={18} />
             <p>
-              A little less noise.
+              Трохи менше шуму.
               <br />
-              <strong>A little more joy. ♡</strong>
+              <strong>Трохи більше радості. ♡</strong>
             </p>
           </div>
           <button
@@ -782,26 +800,26 @@ export default function App() {
             className={page === "Settings" ? "selected" : ""}
           >
             <Settings size={17} />
-            Settings
+            Налаштування
           </button>
           <button
             onClick={() =>
               openMock(
-                "A calmer place to start",
-                "Dayframe brings your day together. Connect Outlook, Google Calendar and Slack in Settings, or explore demo mode. External sources are read-only; Jira and Confluence are disabled. Your personal tasks stay in this browser.",
+                "Спокійний початок дня",
+                "Dayframe збирає твій день в одному місці. Підключи Outlook, Календар Google і Slack у налаштуваннях або спробуй деморежим. Зовнішні джерела доступні лише для читання; Jira та Confluence вимкнені. Особисті завдання зберігаються в цьому браузері.",
                 "Dayframe",
               )
             }
           >
             <CircleHelp size={17} />
-            Help & getting started
+            Допомога й перші кроки
             <ArrowUpRight size={13} />
           </button>
           <button className="profile" onClick={() => setPage("Settings")}>
             <span className="profile-avatar">{initials}</span>
             <span>
-              {displayName.trim() || "Personal profile"}
-              <small>Make room for what matters</small>
+              {displayName.trim() || "Особистий профіль"}
+              <small>Залиши місце для важливого</small>
             </span>
             <MoreHorizontal size={16} />
           </button>
@@ -812,8 +830,8 @@ export default function App() {
           <div className="breadcrumb">
             <PanelLeftClose size={17} />
             <span className="crumb-divider" />
-            Your space <ChevronRight size={13} />
-            <strong>{page}</strong>
+            Твій простір <ChevronRight size={13} />
+            <strong>{uk(page)}</strong>
           </div>
           <div className="top-actions">
             <button
@@ -821,13 +839,13 @@ export default function App() {
               onClick={() => setSearchOpen(true)}
             >
               <Search size={16} />
-              <span>Search anything...</span>
+              <span>Знайти щось…</span>
               <kbd>⌘ K</kbd>
             </button>
             <span className="top-divider" />
             <button
               className="notification-trigger"
-              aria-label="Notifications"
+              aria-label="Сповіщення"
               onClick={() => setNotifications(!notifications)}
             >
               <Bell size={19} />
@@ -836,7 +854,7 @@ export default function App() {
             <button
               className="mini-avatar"
               onClick={() => setPage("Settings")}
-              aria-label="Profile settings"
+              aria-label="Налаштування профілю"
             >
               {initials}
             </button>
@@ -846,7 +864,7 @@ export default function App() {
           <div className="page-heading">
             <div>
               <div className="date-eyebrow">
-                {new Date().toLocaleDateString("en-US", {
+                {new Date().toLocaleDateString(locale, {
                   weekday: "long",
                   month: "long",
                   day: "numeric",
@@ -855,25 +873,25 @@ export default function App() {
               </div>
               <h1>
                 {page === "Today"
-                  ? "A little clarity for your day."
+                  ? "Трохи ясності у твоєму дні."
                   : page === "Personal"
-                    ? "Make room for your life."
+                    ? "Залиши місце для життя."
                     : page === "Work"
-                      ? "Your work, in perspective."
+                      ? "Твоя робота — як на долоні."
                       : page === "Calendar"
-                        ? "A little space to plan."
-                        : "Make yourself at home."}
+                        ? "Трохи простору для планів."
+                        : "Почувайся як удома."}
               </h1>
               <p>
                 {page === "Today"
-                  ? "Your schedule, your priorities, and a little room to breathe."
+                  ? "Твій розклад, твої пріоритети й трохи простору для себе."
                   : page === "Personal"
-                    ? "Small responsibilities. A lighter mind."
+                    ? "Маленькі справи. Більше спокою."
                     : page === "Work"
-                      ? "The context you need, without all the noise."
+                      ? "Усе потрібне — без зайвого шуму."
                       : page === "Calendar"
-                        ? "One view for work, life, and everything in between."
-                        : "A few thoughtful choices to make Dayframe yours."}
+                        ? "Робота, життя й усе між ними — в одному календарі."
+                        : "Налаштуй Dayframe так, як зручно саме тобі."}
               </p>
             </div>
             {page === "Today" ? (
@@ -883,13 +901,19 @@ export default function App() {
               >
                 <CalendarDays size={20} />
                 <span>
-                  Today<small>{visibleEvents.length} calendar events</small>
+                  Сьогодні
+                  <small>
+                    {visibleEvents.length}{" "}
+                    {plural(visibleEvents.length, "подія", "події", "подій")} у
+                    календарі
+                  </small>
                 </span>
                 <ArrowUpRight size={16} />
               </button>
             ) : page === "Personal" ? (
               <button className="primary" onClick={addTask}>
-                <Plus size={16} /> Add task
+                <Plus size={16} />
+                Додати завдання
               </button>
             ) : null}
           </div>
@@ -898,27 +922,30 @@ export default function App() {
               className={`mode-badge ${workspace.mode === "demo" ? "demo" : ""}`}
             >
               <span className="live-dot" />
-              {workspace.mode === "demo" ? "Demo data" : "Live workspace"}
+              {workspace.mode === "demo"
+                ? "Демонстраційні дані"
+                : "Власні дані"}
             </span>
             <span className="sync-time">
               {workspace.updated
-                ? "Updated " +
-                  workspace.updated.toLocaleTimeString(undefined, {
+                ? "Оновлено о " +
+                  workspace.updated.toLocaleTimeString(locale, {
                     hour: "2-digit",
                     minute: "2-digit",
+                    hour12: false,
                   })
-                : "Waiting for connections"}
+                : "Очікуємо підключення"}
             </span>
             <button
               className="secondary"
               onClick={() => void workspace.refresh()}
               disabled={workspace.loading}
             >
-              {workspace.loading ? "Refreshing…" : "Refresh"}
+              {workspace.loading ? "Оновлюємо…" : "Оновити"}
             </button>
             <button className="primary quick-add" onClick={addTask}>
               <Plus size={16} />
-              Add task
+              Додати завдання
             </button>
           </div>
           {prefs.cozyMode !== false && <CozyCompanion />}
@@ -927,7 +954,7 @@ export default function App() {
               <CircleHelp size={18} />
               <p>{e}</p>
               <button onClick={() => setPage("Settings")}>
-                Connections <ArrowRight size={15} />
+                Підключення <ArrowRight size={15} />
               </button>
             </div>
           ))}
@@ -935,42 +962,50 @@ export default function App() {
             <>
               <div className="day-summary">
                 <span>
-                  <span className="summary-dot" /> YOUR DAY AT A GLANCE
+                  <span className="summary-dot" />
+                  ТВІЙ ДЕНЬ КОРОТКО
                 </span>
                 <div>
                   <CalendarDays size={15} />
-                  <b>{visibleEvents.length}</b> events
+                  <b>{visibleEvents.length}</b>{" "}
+                  {plural(visibleEvents.length, "подія", "події", "подій")}
                   <span className="summary-divider" />
                   <Circle size={14} />
-                  <b>{attention.length}</b> mentions
+                  <b>{attention.length}</b>{" "}
+                  {plural(attention.length, "згадка", "згадки", "згадок")}
                   <span className="summary-divider" />
                   <CheckCheck size={16} />
                   <b>{todaysTasks.filter((t) => !t.completed).length}</b>{" "}
-                  personal tasks
+                  {plural(
+                    todaysTasks.filter((t) => !t.completed).length,
+                    "особисте завдання",
+                    "особисті завдання",
+                    "особистих завдань",
+                  )}
                 </div>
                 <span className="summary-end">
-                  One thing at a time.
+                  Одна справа за раз.
                   <Leaf size={14} />
                 </span>
               </div>
               <div className="dashboard">
                 <div className="dashboard-main">
                   <Section
-                    title="Your schedule"
-                    eyebrow="A LITTLE STRUCTURE"
+                    title="Твій розклад"
+                    eyebrow="ТРОХИ ПОРЯДКУ"
                     action={
                       <button
                         className="text-button"
                         onClick={() => setPage("Calendar")}
                       >
-                        Open calendar <ArrowUpRight size={14} />
+                        Відкрити календар <ArrowUpRight size={14} />
                       </button>
                     }
                   >
                     <div className="schedule-caption">
                       <span>
-                        Today,{" "}
-                        {new Date().toLocaleDateString("en-US", {
+                        Сьогодні,{" "}
+                        {new Date().toLocaleDateString(locale, {
                           month: "short",
                           day: "numeric",
                         })}
@@ -988,38 +1023,36 @@ export default function App() {
                       ) : (
                         <div className="empty schedule-empty">
                           <CalendarDays size={25} />
-                          <strong>Your day has room.</strong>
+                          <strong>У твоєму дні є простір.</strong>
                           <p>
                             {workspace.mode === "live"
-                              ? "No calendar events loaded for today. Connect Outlook or Google Calendar in Settings."
-                              : "No events scheduled for today."}
+                              ? "Події на сьогодні не завантажено. Підключи Outlook або Календар Google у налаштуваннях."
+                              : "На сьогодні подій не заплановано."}
                           </p>
                           <button
                             className="text-button"
                             onClick={() => setPage("Settings")}
                           >
-                            Manage calendars <ArrowRight size={15} />
+                            Налаштувати календарі <ArrowRight size={15} />
                           </button>
                         </div>
                       )}
                     </div>
                     <div className="schedule-footer">
                       <Leaf size={14} />
-                      <span>
-                        All times are shown in your device’s time zone.
-                      </span>
+                      <span>Час указано в часовому поясі твого пристрою.</span>
                     </div>
                   </Section>
                   <Section
-                    title="Your relevant Slack activity"
-                    eyebrow="YOUR SLACK DIGEST"
+                    title="Важливе для тебе у Slack"
+                    eyebrow="ТВІЙ ОГЛЯД SLACK"
                     className="slack-card"
                     action={
                       <span className="ai-label">
                         <Sparkles size={13} />
                         {workspace.mode === "demo"
-                          ? "Demo summary"
-                          : "Last 24 hours · Search results"}
+                          ? "Демонстраційний огляд"
+                          : "Останні 24 години · Результати пошуку"}
                       </span>
                     }
                   >
@@ -1027,32 +1060,32 @@ export default function App() {
                     <div className="card-footer">
                       <span>
                         {workspace.mode === "demo"
-                          ? "Sample summaries, for exploration."
-                          : "Read-only messages. You decide what matters."}
+                          ? "Приклади оглядів для знайомства із застосунком."
+                          : "Повідомлення лише для читання. Ти обираєш важливе."}
                       </span>
                       <button
                         className="text-button"
                         onClick={() => setPage("Work")}
                       >
-                        All activity <ArrowRight size={14} />
+                        Усі повідомлення <ArrowRight size={14} />
                       </button>
                     </div>
                   </Section>
                 </div>
                 <div className="dashboard-side">
                   <Section
-                    title="Worth your attention"
+                    title="Варте твоєї уваги"
                     action={
                       <span className="number-badge">{attention.length}</span>
                     }
                   >
                     <p className="section-description">
-                      A few things you may want to look at.
+                      Кілька речей, які можна переглянути.
                     </p>
                     {attention.length === 0 && (
                       <p className="section-description">
-                        No direct mentions loaded. Nothing is automatically
-                        marked as missed.
+                        Прямих згадок не завантажено. Нічого не позначається
+                        пропущеним автоматично.
                       </p>
                     )}
                     {attention.map((a) => (
@@ -1068,9 +1101,9 @@ export default function App() {
                           <div className="attention-source">
                             {a.source}
                             <span
-                              className={a.badge === "Due today" ? "due" : ""}
+                              className={a.badge === "На сьогодні" ? "due" : ""}
                             >
-                              {a.badge}
+                              {uk(a.badge)}
                             </span>
                           </div>
                           <strong>{a.title}</strong>
@@ -1082,14 +1115,14 @@ export default function App() {
                   </Section>
                   {prefs.showPersonal && (
                     <Section
-                      title="For you, outside of work"
+                      title="Для тебе, поза роботою"
                       className="personal-card"
                       action={<Leaf size={18} />}
                     >
                       <div className="personal-caption">
-                        <span>MY TASKS</span>
+                        <span>МОЇ ЗАВДАННЯ</span>
                         <span>
-                          {done} of {todaysTasks.length} done
+                          Виконано {done} із {todaysTasks.length}
                         </span>
                       </div>
                       <div className="progress-track">
@@ -1102,12 +1135,12 @@ export default function App() {
                       {taskRows(todaysTasks)}
                       <button className="add-task-inline" onClick={addTask}>
                         <Plus size={15} />
-                        Add a personal task
+                        Додати особисте завдання
                       </button>
                       <div className="card-footer">
-                        <span>Little things count, too.</span>
+                        <span>Маленькі справи теж важливі.</span>
                         <button
-                          aria-label="Open personal tasks"
+                          aria-label="Відкрити особисті завдання"
                           onClick={() => setPage("Personal")}
                         >
                           <ArrowRight size={16} />
@@ -1119,24 +1152,30 @@ export default function App() {
                     <span className="review-icon">
                       <Sun size={21} />
                     </span>
-                    <div className="eyebrow">BEFORE YOU CALL IT A DAY</div>
-                    <h2>Leave with a clear mind.</h2>
+                    <div className="eyebrow">ПЕРЕД ЗАВЕРШЕННЯМ ДНЯ</div>
+                    <h2>Заверши день зі спокоєм.</h2>
                     <p>
-                      {attention.length} direct mentions to review.
+                      {attention.length}{" "}
+                      {plural(
+                        attention.length,
+                        "пряма згадка для перегляду.",
+                        "прямі згадки для перегляду.",
+                        "прямих згадок для перегляду.",
+                      )}
                       <br />
-                      {todaysTasks.filter((t) => !t.completed).length} personal
-                      tasks still open.
+                      Невиконаних особистих завдань:{" "}
+                      {todaysTasks.filter((t) => !t.completed).length}.
                     </p>
                     <button
                       onClick={() =>
                         openMock(
-                          "Your daily review",
-                          `${attention.length} direct mentions may need a look.\n${todaysTasks.filter((t) => !t.completed).length} personal tasks remain open.\n\n${attention.map((a) => a.title).join("\n")}\n\nNo meetings are automatically marked as missed. You can postpone unfinished tasks from Personal.`,
-                          "Daily review",
+                          "Підсумки твого дня",
+                          `Згадок для перегляду: ${attention.length}.\nНевиконаних особистих завдань: ${todaysTasks.filter((t) => !t.completed).length}.\n\n${attention.map((a) => a.title).join("\n")}\n\nЗустрічі не позначаються пропущеними автоматично. Невиконані завдання можна перенести в розділі «Особисте».`,
+                          "Підсумки дня",
                         )
                       }
                     >
-                      Review your day <ArrowRight size={15} />
+                      Переглянути підсумки дня <ArrowRight size={15} />
                     </button>
                   </section>
                 </div>
@@ -1145,10 +1184,10 @@ export default function App() {
                 <span>
                   <span className="live-dot" />
                   {workspace.mode === "demo"
-                    ? "Demo workspace · Sample activity"
-                    : "Read-only connections · Your accounts stay yours"}
+                    ? "Деморежим · Приклади активності"
+                    : "Лише читання · Твої облікові записи залишаються твоїми"}
                 </span>
-                <span>Made for a more intentional day.</span>
+                <span>Для дня з турботою про себе.</span>
               </div>
             </>
           )}
@@ -1158,18 +1197,18 @@ export default function App() {
               <div className="personal-intro">
                 <Leaf size={20} />
                 <span>
-                  A home for the little things that keep life running.
+                  Місце для маленьких справ, які підтримують лад у житті.
                 </span>
-                <span className="muted">Your lists, your pace.</span>
+                <span className="muted">Твої списки, твій ритм.</span>
               </div>
               <div className="period-tabs">
                 {(["Day", "Month", "Quarter", "Year"] as Period[]).map((p) => (
                   <button
                     className={period === p ? "active" : ""}
                     onClick={() => setPeriod(p)}
-                    key={p}
+                    key={uk(p)}
                   >
-                    {p}
+                    {uk(p)}
                     <span>
                       {
                         tasks.filter(
@@ -1184,13 +1223,17 @@ export default function App() {
               <Section
                 title={
                   {
-                    Day: "The everyday things",
-                    Month: "A monthly reset",
-                    Quarter: "A little seasonal care",
-                    Year: "The bigger picture",
+                    Day: "Щоденні справи",
+                    Month: "Щомісячне оновлення",
+                    Quarter: "Трохи сезонної турботи",
+                    Year: "Важливе на рік",
                   }[period]
                 }
-                action={<span className="muted">Editable starter library</span>}
+                action={
+                  <span className="muted">
+                    Початкові списки можна редагувати
+                  </span>
+                }
               >
                 {taskRows(
                   tasks.filter((t) => t.category === period),
@@ -1202,12 +1245,12 @@ export default function App() {
           {page === "Work" && (
             <div className="work-stack">
               <Section
-                title="Slack · Your relevant activity"
+                title="Slack · Важливе для тебе"
                 action={
                   <span className="ai-label">
                     {workspace.mode === "demo"
-                      ? "Demo summaries"
-                      : "Read-only · Not an AI digest"}
+                      ? "Демонстраційні огляди"
+                      : "Лише читання · Без ШІ-огляду"}
                   </span>
                 }
               >
@@ -1217,32 +1260,32 @@ export default function App() {
                 <Source name="Jira" />
                 <Source name="Confluence" />
                 <p>
-                  Jira and Confluence are disabled. No access is requested and
-                  no data is loaded.
+                  Jira та Confluence вимкнені. Доступ не запитується, дані не
+                  завантажуються.
                 </p>
               </div>
             </div>
           )}
           {page === "Settings" && (
             <div className="settings-stack">
-              <Section title="Your profile">
+              <Section title="Твій профіль">
                 <label className="setting-row">
                   <div>
-                    <strong>Display name</strong>
-                    <small>Only stored in this browser.</small>
+                    <strong>Ім’я у застосунку</strong>
+                    <small>Зберігається лише в цьому браузері.</small>
                   </div>
                   <input
-                    aria-label="Display name"
+                    aria-label="Ім’я у застосунку"
                     maxLength={40}
-                    placeholder="Your name"
+                    placeholder="Твоє ім’я"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                   />
                 </label>
               </Section>
-              <Section title="Appearance" eyebrow="YOUR SPACE, YOUR STYLE">
+              <Section title="Оформлення" eyebrow="ТВІЙ ПРОСТІР, ТВІЙ СТИЛЬ">
                 <p className="section-description">
-                  Choose the palette that feels right for your day.
+                  Обери кольори під свій настрій.
                 </p>
                 <div className="theme-grid">
                   {themes.map((t, i) => (
@@ -1283,45 +1326,45 @@ export default function App() {
                         <span />
                         <span />
                       </span>
-                      <b>{t}</b>
+                      <b>{uk(t)}</b>
                       {theme === t && <Check size={14} />}
                     </button>
                   ))}
                 </div>
                 <p className="muted">
-                  Theme controls accents, surfaces, text, selected states and
-                  calendar colors.
+                  Тема визначає кольори акцентів, фону, тексту, вибраних
+                  елементів і календаря.
                 </p>
               </Section>
               <IntegrationSettings workspace={workspace} />
-              <Section title="Dayframe on your Mac">
+              <Section title="Dayframe на твоєму Mac">
                 <div className="mac-install">
-                  <strong>Your own window. A little flower in the Dock.</strong>
+                  <strong>Окреме вікно. Маленька квіточка в Dock.</strong>
                   <p>
-                    In Safari on macOS Sonoma or later, open Dayframe and choose{" "}
-                    <b>File → Add to Dock</b>. Use the hosted live workspace for
-                    account connections.
+                    У Safari на macOS Sonoma або новішій відкрий Dayframe та
+                    вибери <b>Файл → Додати до Dock</b>. Для підключення
+                    облікових записів використовуй серверну версію.
                   </p>
                   <small>
-                    Tasks may use a separate browser store; they are not
-                    automatically transferred. A native .dmg installer is not
-                    included.
+                    Вебзастосунок може мати окреме сховище: завдання не
+                    переносяться автоматично. Окремого інсталятора .dmg поки
+                    немає.
                   </small>
                   <a
                     href="https://github.com/Anastasiia1001/dayframe/blob/main/docs/MAC.md"
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Mac installation guide <ArrowUpRight size={14} />
+                    Як установити на Mac <ArrowUpRight size={14} />
                   </a>
                 </div>
               </Section>
-              <Section title="Personal task preferences">
+              <Section title="Особисті завдання">
                 <label className="setting-row">
                   <div>
-                    <strong>Show the little companion</strong>
+                    <strong>Показувати маленького помічника</strong>
                     <small>
-                      Keep a little encouragement, or hide it for more focus.
+                      Залиш трохи підтримки або приховай її, щоб зосередитися.
                     </small>
                   </div>
                   <input
@@ -1334,8 +1377,10 @@ export default function App() {
                 </label>
                 <label className="setting-row">
                   <div>
-                    <strong>Show personal tasks on Today</strong>
-                    <small>Keep a little room for life alongside work.</small>
+                    <strong>Показувати особисті завдання на сьогодні</strong>
+                    <small>
+                      Залиши трохи місця для життя поряд із роботою.
+                    </small>
                   </div>
                   <input
                     type="checkbox"
@@ -1347,8 +1392,8 @@ export default function App() {
                 </label>
                 <label className="setting-row">
                   <div>
-                    <strong>Default recurrence</strong>
-                    <small>Used when creating a new personal task.</small>
+                    <strong>Типове повторення</strong>
+                    <small>Використовується для нових особистих завдань.</small>
                   </div>
                   <select
                     value={prefs.defaultRecurrence}
@@ -1365,7 +1410,9 @@ export default function App() {
                       "yearly",
                       "custom",
                     ].map((r) => (
-                      <option key={r}>{r}</option>
+                      <option key={r} value={r}>
+                        {uk(r)}
+                      </option>
                     ))}
                   </select>
                 </label>
@@ -1382,15 +1429,16 @@ export default function App() {
             onClick={() => setPage(n)}
           >
             <I size={20} />
-            <span>{n}</span>
+            <span>{uk(n)}</span>
           </button>
         ))}
         <button
           className={page === "Settings" ? "active" : ""}
+          aria-label="Налаштування"
           onClick={() => setPage("Settings")}
         >
           <Settings size={20} />
-          <span>Settings</span>
+          <span>Опції</span>
         </button>
       </nav>
       {notifications && (
@@ -1401,9 +1449,9 @@ export default function App() {
           />
           <aside className="notification-panel">
             <div className="section-head">
-              <h2>Notifications</h2>
+              <h2>Сповіщення</h2>
               <button
-                aria-label="Close notifications"
+                aria-label="Закрити сповіщення"
                 onClick={() => setNotifications(false)}
               >
                 <X size={18} />
@@ -1414,8 +1462,13 @@ export default function App() {
               onClick={() => setRead(notificationsList.map((n) => n.id))}
             >
               <CheckCheck size={15} />
-              Mark all as read
+              Позначити все прочитаним
             </button>
+            {notificationsList.length === 0 && (
+              <p className="empty">
+                Нових сповіщень немає. Можна трохи видихнути.
+              </p>
+            )}
             {notificationsList.map((n) => (
               <button
                 key={n.id}
@@ -1442,19 +1495,19 @@ export default function App() {
             className="search-dialog"
             role="dialog"
             aria-modal="true"
-            aria-label="Global search"
+            aria-label="Пошук усюди"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="search-input">
               <Search size={20} />
               <input
                 autoFocus
-                placeholder="Search your day, work, and life..."
+                placeholder="Пошук серед подій, повідомлень і завдань…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
               <button
-                aria-label="Close search"
+                aria-label="Закрити пошук"
                 onClick={() => setSearchOpen(false)}
               >
                 <X size={18} />
@@ -1464,8 +1517,8 @@ export default function App() {
               {searchGroups.map(
                 (g) =>
                   g.items.length > 0 && (
-                    <div key={g.source}>
-                      <div className="eyebrow">{g.source}</div>
+                    <div key={uk(g.source)}>
+                      <div className="eyebrow">{uk(g.source)}</div>
                       {g.items.slice(0, 8).map((i) => (
                         <button
                           key={i.id}
@@ -1489,12 +1542,13 @@ export default function App() {
               )}
               {searchGroups.every((g) => !g.items.length) && (
                 <p className="empty">
-                  No results for “{query}”. Try a title, person, or channel.
+                  Нічого не знайдено за запитом «{query}». Спробуй назву, ім’я
+                  або канал.
                 </p>
               )}
             </div>
             <div className="search-foot">
-              Search across all five sources <kbd>esc to close</kbd>
+              Пошук серед усіх доступних джерел <kbd>Esc — закрити</kbd>
             </div>
           </section>
         </div>
@@ -1502,10 +1556,21 @@ export default function App() {
       {modal && (
         <div className="overlay" onClick={() => setModal(null)}>
           <form
+            onInvalidCapture={(e) => {
+              const field = e.target as HTMLInputElement;
+              field.setCustomValidity(
+                field.validity.valueMissing
+                  ? "Заповни це поле."
+                  : "Перевір значення цього поля.",
+              );
+            }}
+            onInputCapture={(e) =>
+              (e.target as HTMLInputElement).setCustomValidity?.("")
+            }
             className="task-modal"
             role="dialog"
             aria-modal="true"
-            aria-label="Personal task"
+            aria-label="Особисте завдання"
             onClick={(e) => e.stopPropagation()}
             onSubmit={(e) => {
               e.preventDefault();
@@ -1520,53 +1585,55 @@ export default function App() {
                   : [...ts, { ...modal, title: modal.title.trim() }],
               );
               setModal(null);
-              setToast("Task saved");
+              setToast("Завдання збережено");
             }}
           >
             <div className="section-head">
               <div>
-                <span className="eyebrow">A LITTLE THING FOR YOU</span>
+                <span className="eyebrow">МАЛЕНЬКА СПРАВА ДЛЯ СЕБЕ</span>
                 <h2>
                   {tasks.some((t) => t.id === modal.id)
-                    ? "Edit task"
-                    : "Add a personal task"}
+                    ? "Редагувати завдання"
+                    : "Додати особисте завдання"}
                 </h2>
               </div>
               <button
                 type="button"
-                aria-label="Close task"
+                aria-label="Закрити завдання"
                 onClick={() => setModal(null)}
               >
                 <X size={20} />
               </button>
             </div>
             <label>
-              Title
+              Назва
               <input
                 autoFocus
                 required
                 value={modal.title}
-                placeholder="What would you like to take care of?"
+                placeholder="Про що хочеш подбати?"
                 onChange={(e) => setModal({ ...modal, title: e.target.value })}
               />
             </label>
             <div className="form-grid">
               <label>
-                Category
+                Категорія
                 <select
-                  aria-label="Category"
+                  aria-label="Категорія"
                   value={modal.category}
                   onChange={(e) =>
                     setModal({ ...modal, category: e.target.value as Period })
                   }
                 >
                   {["Day", "Month", "Quarter", "Year"].map((p) => (
-                    <option key={p}>{p}</option>
+                    <option key={p} value={p}>
+                      {uk(p)}
+                    </option>
                   ))}
                 </select>
               </label>
               <label>
-                Date
+                Дата
                 <input
                   type="date"
                   required
@@ -1575,9 +1642,9 @@ export default function App() {
                 />
               </label>
               <label>
-                Recurrence
+                Повторення
                 <select
-                  aria-label="Recurrence"
+                  aria-label="Повторення"
                   value={modal.recurrence}
                   onChange={(e) =>
                     setModal({ ...modal, recurrence: e.target.value })
@@ -1592,27 +1659,31 @@ export default function App() {
                     "yearly",
                     "custom",
                   ].map((r) => (
-                    <option key={r}>{r}</option>
+                    <option key={r} value={r}>
+                      {uk(r)}
+                    </option>
                   ))}
                 </select>
               </label>
               <label>
-                Priority
+                Пріоритет
                 <select
-                  aria-label="Priority"
+                  aria-label="Пріоритет"
                   value={modal.priority}
                   onChange={(e) =>
                     setModal({ ...modal, priority: e.target.value })
                   }
                 >
                   {["Low", "Normal", "High"].map((r) => (
-                    <option key={r}>{r}</option>
+                    <option key={r} value={r}>
+                      {uk(r)}
+                    </option>
                   ))}
                 </select>
               </label>
               {modal.recurrence === "custom" && (
                 <label>
-                  Repeat every (days)
+                  Повторювати кожні (днів)
                   <input
                     type="number"
                     min="1"
@@ -1626,12 +1697,12 @@ export default function App() {
               )}
             </div>
             <label>
-              Notes
+              Нотатки
               <textarea
                 rows={3}
                 value={modal.notes}
                 onChange={(e) => setModal({ ...modal, notes: e.target.value })}
-                placeholder="Anything useful to remember"
+                placeholder="Що корисно пам’ятати"
               />
             </label>
             <label className="check-label">
@@ -1642,7 +1713,7 @@ export default function App() {
                   setModal({ ...modal, disabled: e.target.checked })
                 }
               />
-              Pause this task
+              Призупинити це завдання
             </label>
             <div className="modal-footer">
               {tasks.some((t) => t.id === modal.id) && (
@@ -1654,7 +1725,8 @@ export default function App() {
                     setModal(null);
                   }}
                 >
-                  <Trash2 size={15} /> Delete
+                  <Trash2 size={15} />
+                  Видалити
                 </button>
               )}
               <button
@@ -1662,10 +1734,10 @@ export default function App() {
                 className="secondary"
                 onClick={() => setModal(null)}
               >
-                Cancel
+                Скасувати
               </button>
               <button className="primary" type="submit">
-                Save task <Check size={15} />
+                Зберегти завдання <Check size={15} />
               </button>
             </div>
           </form>
@@ -1683,10 +1755,10 @@ export default function App() {
             <div className="section-head">
               <span className="source-label">
                 <Source name={detail.source} />
-                {detail.source}
+                {uk(detail.source)}
               </span>
               <button
-                aria-label="Close details"
+                aria-label="Закрити подробиці"
                 onClick={() => setDetail(null)}
               >
                 <X size={20} />
@@ -1698,12 +1770,12 @@ export default function App() {
               <CircleHelp size={16} />
               <span>
                 {workspace.mode === "demo"
-                  ? "Demo preview · Sample data."
-                  : "Your workspace · Read-only source data."}
+                  ? "Демонстраційний перегляд · Приклади даних."
+                  : "Твій простір · Дані джерел лише для читання."}
               </span>
             </div>
             <button className="primary" onClick={() => setDetail(null)}>
-              Got it <Check size={15} />
+              Зрозуміло <Check size={15} />
             </button>
           </section>
         </div>

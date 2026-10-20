@@ -357,7 +357,7 @@ test("mappers preserve all-day dates and account for device timezone", () => {
   );
   assert.equal(g.date, "2026-10-20");
   assert.equal(g.endDate, "2026-10-22");
-  assert.equal(g.start, "All day");
+  assert.equal(g.start, "Увесь день");
   const o = mapOutlookEvent(
     {
       id: "night",
@@ -538,5 +538,5 @@ test("Outlook all-day UTC responses retain the correct day in the device timezon
   );
   assert.equal(event.date, "2026-10-20");
   assert.equal(event.endDate, "2026-10-21");
-  assert.equal(event.start, "All day");
+  assert.equal(event.start, "Увесь день");
 });

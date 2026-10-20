@@ -1,10 +1,10 @@
 export function providerConfig(env = process.env) {
   const tenant = env.MICROSOFT_TENANT_ID || "common";
   if (!/^[a-zA-Z0-9.-]+$/.test(tenant))
-    throw new Error("Invalid MICROSOFT_TENANT_ID");
+    throw new Error("Некоректний MICROSOFT_TENANT_ID");
   return {
     "outlook-work": {
-      name: "Outlook · Work",
+      name: "Outlook · Робочий",
       clientId: env.MICROSOFT_CLIENT_ID,
       secret: env.MICROSOFT_CLIENT_SECRET,
       authorize: `https://login.microsoftonline.com/${tenant === "common" ? "organizations" : tenant}/oauth2/v2.0/authorize`,
@@ -14,7 +14,7 @@ export function providerConfig(env = process.env) {
       required: ["MICROSOFT_CLIENT_ID", "MICROSOFT_CLIENT_SECRET"],
     },
     "outlook-personal": {
-      name: "Outlook · Personal",
+      name: "Outlook · Особистий",
       clientId: env.MICROSOFT_CLIENT_ID,
       secret: env.MICROSOFT_CLIENT_SECRET,
       authorize: `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize`,
@@ -24,7 +24,7 @@ export function providerConfig(env = process.env) {
       required: ["MICROSOFT_CLIENT_ID", "MICROSOFT_CLIENT_SECRET"],
     },
     google: {
-      name: "Google Calendar",
+      name: "Календар Google",
       clientId: env.GOOGLE_CLIENT_ID,
       secret: env.GOOGLE_CLIENT_SECRET,
       authorize: "https://accounts.google.com/o/oauth2/v2/auth",

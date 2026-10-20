@@ -1,14 +1,14 @@
-# Dayframe on Mac
+# Dayframe на Mac
 
-## Install the web app now
+## Установлення вебзастосунку
 
-On macOS Sonoma or later, open the Dayframe site in Safari and choose **File → Add to Dock**. This creates a standalone Dayframe web app with its own window and Dock entry. The project includes a web app manifest and a flower icon. You can also use your browser's Install app / Create shortcut option when offered.
+На macOS Sonoma або новішій відкрий Dayframe у Safari й вибери **Файл → Додати до Dock**. Якщо система англійською: **File → Add to Dock**. Отримаєш окреме вікно Dayframe та квіточку в Dock. Для цього вже додані маніфест вебзастосунку й піктограми. У Chrome можна скористатися встановленням застосунку, якщо браузер пропонує цю дію.
 
-Use the **hosted live workspace** URL for real account connections. The GitHub Pages site supports local personal tasks and demo data. Web-app storage may be separate from browser storage; installing does not migrate or synchronize tasks automatically. There is no service worker or offline-readiness guarantee, and no background reminder process.
+Для реальних підключень відкривай адресу **серверної версії**. GitHub Pages підтримує особисті завдання та демонстраційні дані. Сховище встановленого вебзастосунку може відрізнятися від сховища браузера: завдання не переносяться й не синхронізуються автоматично. Робота без інтернету та фонові нагадування не реалізовані.
 
-## Build the frontend on a Mac
+## Збірка на Mac
 
-Install Node.js 24, clone the repository, then run:
+Установи Node.js 24, склонуй репозиторій і виконай:
 
 ```sh
 npm ci
@@ -16,10 +16,12 @@ npm run build
 npm start
 ```
 
-This produces `dist/` and runs the same Node backend as on other systems. For real connections, configure the local OAuth apps and `.env` as described in CONNECTIONS.md.
+Збірка створює каталог `dist/` і запускає той самий сервер Node.js, що й на інших системах. Для реальних підключень потрібні локальні OAuth-застосунки та `.env` за [інструкцією](CONNECTIONS.md).
 
-## Native .app / .dmg
+## Нативні .app та .dmg
 
-A native distributable is feasible with Electron or Tauri, but this repository does **not** currently produce a .dmg. It requires a desktop shell, testing on macOS/Apple Silicon and Intel where supported, and a compatible system-browser OAuth return flow. Shipping confidential OAuth client secrets inside a desktop application is not acceptable: the desktop version should use the hosted backend or provider-supported public-client flows.
+Нативний застосунок можна створити за допомогою Electron або Tauri, але поточний репозиторій **не створює .dmg**. Потрібні оболонка застосунку, перевірка на macOS та підтримуваних процесорах Apple Silicon/Intel, а також коректна авторизація через системний браузер.
 
-Distribution without Gatekeeper warnings requires Apple Developer signing and notarization. Those credentials and a macOS build machine are not configured here. The Dock web-app route does not require them.
+Не можна вбудовувати конфіденційні OAuth-секрети в інсталятор. Нативна версія має використовувати серверну авторизацію або підтримуваний сервісом потік для публічного клієнта.
+
+Для розповсюдження без попереджень Gatekeeper потрібні підпис Apple Developer та нотаризація. Облікові дані підпису й машина для збірки macOS зараз не налаштовані. Установлення через Dock їх не потребує.

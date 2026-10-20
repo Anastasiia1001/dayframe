@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Dayframe",
   "short_name": "Dayframe",
-  "description": "Your schedule, your priorities, a little room to breathe.",
+  "description": "Твій розклад, твої пріоритети й трохи простору для себе.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -27,5 +27,6 @@
       "type": "image/svg+xml",
       "purpose": "any"
     }
-  ]
+  ],
+  "lang": "uk"
 }

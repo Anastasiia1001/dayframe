@@ -1,2 +1,39 @@
-import type { JiraIssue } from '../types';
-export const mockJira:JiraIssue[]=[{id:'GAME-89322',title:'Addressables build investigation',status:'In progress',priority:'High',due:'Today',project:'Gamepoint',labels:['Build','UI'],updated:'24 min ago',assigned:true,mentioned:false},{id:'GAME-88879',title:'Refine reward reveal animation',status:'To do',priority:'Medium',due:'Tomorrow',project:'Gamepoint',labels:['Animation'],updated:'1 hour ago',assigned:true,mentioned:false},{id:'GAME-89104',title:'Review UI masking approach',status:'In review',priority:'Medium',due:'Friday',project:'Gamepoint',labels:['UI'],updated:'2 hours ago',assigned:false,mentioned:true}];
+import type { JiraIssue } from "../types";
+export const mockJira: JiraIssue[] = [
+  {
+    id: "GAME-89322",
+    title: "Дослідження збірки Addressables",
+    status: "У роботі",
+    priority: "Високий",
+    due: "Сьогодні",
+    project: "Gamepoint",
+    labels: ["Збірка", "Інтерфейс"],
+    updated: "24 хв тому",
+    assigned: true,
+    mentioned: false,
+  },
+  {
+    id: "GAME-88879",
+    title: "Удосконалити анімацію появи нагороди",
+    status: "До виконання",
+    priority: "Середній",
+    due: "Завтра",
+    project: "Gamepoint",
+    labels: ["Анімація"],
+    updated: "1 год тому",
+    assigned: true,
+    mentioned: false,
+  },
+  {
+    id: "GAME-89104",
+    title: "Переглянути підхід до маскування інтерфейсу",
+    status: "На перевірці",
+    priority: "Середній",
+    due: "П’ятниця",
+    project: "Gamepoint",
+    labels: ["Інтерфейс"],
+    updated: "2 год тому",
+    assigned: false,
+    mentioned: true,
+  },
+];

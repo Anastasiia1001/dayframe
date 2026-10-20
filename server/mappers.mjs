@@ -1,10 +1,10 @@
 function eventTime(value, allDay = false, timeZone = "UTC") {
-  if (!value) throw new Error("Event is missing its time");
+  if (!value) throw new Error("Не вказано час події");
   // All-day dates are dates, not UTC timestamps. Keep them in the selected local day.
   const date = new Date(allDay ? value.slice(0, 10) + "T12:00:00" : value);
   if (!Number.isFinite(date.getTime()))
-    throw new Error("Invalid calendar timestamp");
-  if (allDay) return { date: value.slice(0, 10), time: "All day" };
+    throw new Error("Некоректна дата або час події");
+  if (allDay) return { date: value.slice(0, 10), time: "Увесь день" };
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone,
     year: "numeric",
@@ -44,17 +44,17 @@ export function mapOutlookEvent(e, timeZone = "UTC") {
   );
   return {
     id: `outlook:${e.id}`,
-    title: e.subject || "Untitled event",
+    title: e.subject || "Подія без назви",
     date: start.date,
-    start: e.isAllDay ? "All day" : start.time,
-    end: e.isAllDay ? "All day" : end.time,
+    start: e.isAllDay ? "Увесь день" : start.time,
+    end: e.isAllDay ? "Увесь день" : end.time,
     endDate: end.date,
     allDay: !!e.isAllDay,
     source: "Outlook",
     location:
-      e.location?.displayName || e.onlineMeeting?.joinUrl || "No location",
+      e.location?.displayName || e.onlineMeeting?.joinUrl || "Місце не вказано",
     participants: (e.attendees || []).map(
-      (a) => a.emailAddress?.name || a.emailAddress?.address || "Guest",
+      (a) => a.emailAddress?.name || a.emailAddress?.address || "Учасник",
     ),
     externalUid: e.iCalUId,
     reminder: !!e.isReminderOn,
@@ -67,14 +67,14 @@ export function mapGoogleEvent(e, timeZone = "UTC") {
   const end = eventTime(e.end?.date || e.end?.dateTime, allDay, timeZone);
   return {
     id: `google:${e.id}`,
-    title: e.summary || "Untitled event",
+    title: e.summary || "Подія без назви",
     date: start.date,
     start: start.time,
     end: end.time,
     endDate: end.date,
     allDay,
     source: "Google",
-    location: e.location || e.hangoutLink || "No location",
+    location: e.location || e.hangoutLink || "Місце не вказано",
     participants: (e.attendees || []).map((a) => a.displayName || a.email),
     externalUid: e.iCalUID,
     reminder: !!e.reminders?.useDefault || !!e.reminders?.overrides?.length,
@@ -85,12 +85,12 @@ export function mapSlackMatch(m, group) {
   return {
     id: `slack:${m.channel?.id}:${m.ts}`,
     channel: m.channel?.name || "conversation",
-    author: m.user || "Slack member",
-    summary: m.text || "(Message has no text)",
+    author: m.user || "Учасник Slack",
+    summary: m.text || "(Повідомлення без тексту)",
     why:
       group === "Direct mentions"
-        ? "You were directly mentioned."
-        : "Matched the channels or terms you chose. This is a search result, not an AI summary.",
+        ? "Тебе згадали особисто."
+        : "Знайдено у вибраних каналах. Це результат пошуку, а не ШІ-огляд.",
     time: new Date(Number(m.ts) * 1000).toISOString(),
     group,
     url: m.permalink,

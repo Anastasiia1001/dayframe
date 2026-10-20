@@ -18,29 +18,33 @@ export function IntegrationSettings({
       await live.disconnect(id);
       await workspace.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not disconnect.");
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Не вдалося відключити обліковий запис.",
+      );
     } finally {
       setBusy("");
     }
   };
   return (
     <Section
-      title="Your connections"
-      eyebrow="READ-ONLY · YOUR ACCOUNTS, YOUR CHOICE"
+      title="Твої підключення"
+      eyebrow="ЛИШЕ ЧИТАННЯ · ТВОЇ ОБЛІКОВІ ЗАПИСИ, ТВІЙ ВИБІР"
     >
       <p className="section-description">
-        Connect work and personal Outlook accounts, then Google Calendar and
-        Slack. Jira and Confluence are disabled.
+        Підключи робочий і особистий Outlook, а потім Календар Google та Slack.
+        Jira й Confluence вимкнені.
       </p>
       <div className="connection-mode">
         <div>
           <strong>
-            {workspace.mode === "live" ? "Live workspace" : "Demo workspace"}
+            {workspace.mode === "live" ? "Власні дані" : "Демопростір"}
           </strong>
           <p>
             {workspace.mode === "live"
-              ? "Only connected accounts appear in your dashboard."
-              : "Sample calendar and Slack activity. No accounts are connected by demo mode."}
+              ? "На головній сторінці відображаються лише дані підключених облікових записів."
+              : "Приклади календарних подій і повідомлень Slack. Деморежим не підключає облікові записи."}
           </p>
         </div>
         <button
@@ -49,7 +53,9 @@ export function IntegrationSettings({
             workspace.setMode(workspace.mode === "live" ? "demo" : "live")
           }
         >
-          {workspace.mode === "live" ? "Try demo" : "Use live data"}
+          {workspace.mode === "live"
+            ? "Спробувати деморежим"
+            : "Використовувати власні дані"}
         </button>
       </div>
       {(
@@ -63,10 +69,10 @@ export function IntegrationSettings({
         const c = workspace.status?.providers.find((p) => p.id === id),
           name = id.startsWith("outlook-")
             ? id === "outlook-work"
-              ? "Outlook · Work"
-              : "Outlook · Personal"
+              ? "Outlook · Робочий"
+              : "Outlook · Особистий"
             : id === "google"
-              ? "Google Calendar"
+              ? "Календар Google"
               : "Slack";
         return (
           <div className="connection-card" key={id}>
@@ -85,16 +91,16 @@ export function IntegrationSettings({
                 className={`connection-state ${c?.connected ? "is-connected" : ""}`}
               >
                 {c?.connected
-                  ? "Connected"
+                  ? "Підключено"
                   : c?.configured
-                    ? "Ready to connect"
-                    : "Not connected"}
+                    ? "Можна підключити"
+                    : "Не підключено"}
               </span>
             </div>
             <p>
               {id === "slack"
-                ? "Read direct mentions and the channels you choose. No messages are sent."
-                : "Read calendar events, meeting details and attendees. No events are changed."}
+                ? "Читання прямих згадок і вибраних каналів. Повідомлення не надсилаються."
+                : "Читання подій, подробиць зустрічей і списків учасників. Події не змінюються."}
             </p>
             {c?.connected ? (
               <button
@@ -103,22 +109,25 @@ export function IntegrationSettings({
                 onClick={() => void disconnect(id)}
               >
                 <Unplug size={15} />
-                {busy === id ? "Disconnecting…" : "Disconnect"}
+                {busy === id ? "Відключаємо…" : "Відключити"}
               </button>
             ) : c?.configured ? (
               <a className="primary" href={`/api/auth/${id}/connect`}>
                 <Link2 size={15} />
-                Connect {name}
+                Підключити {name}
               </a>
             ) : (
               <span className="setup-required">
                 {workspace.status
-                  ? "Account app registration required — see setup guide below."
-                  : "Requires the hosted workspace. GitHub Pages cannot run account connections."}
+                  ? "Потрібна реєстрація OAuth-застосунку — інструкція нижче."
+                  : "Потрібна серверна версія. GitHub Pages не підтримує підключення облікових записів."}
               </span>
             )}
             {c?.configured && workspace.mode === "demo" && (
-              <small>Switch to live data to see your connected account.</small>
+              <small>
+                Перемкнися на власні дані, щоб побачити підключений обліковий
+                запис.
+              </small>
             )}
           </div>
         );
@@ -128,16 +137,15 @@ export function IntegrationSettings({
           <div key={s}>
             <Source name={s} />
             <span>{s}</span>
-            <strong>Disabled · no access</strong>
+            <strong>Вимкнено · немає доступу</strong>
           </div>
         ))}
       </div>
       <div className="slack-preferences">
         <label htmlFor="slack-channels">
-          <strong>Your Slack channels</strong>
+          <strong>Твої канали Slack</strong>
           <small>
-            Up to 5 channel names, separated by commas. Direct mentions are
-            included automatically.
+            До 5 назв каналів через кому. Прямі згадки додаються автоматично.
           </small>
         </label>
         <div>
@@ -159,7 +167,7 @@ export function IntegrationSettings({
                 names.some((n) => !/^[-_a-zA-Z0-9]+$/.test(n))
               ) {
                 setError(
-                  "Enter up to five channel names using letters, numbers, hyphens or underscores.",
+                  "Укажи до п’яти назв каналів: латинські літери, цифри, дефіси або підкреслення.",
                 );
                 return;
               }
@@ -169,7 +177,7 @@ export function IntegrationSettings({
             }}
           >
             <Check size={15} />
-            Save
+            Зберегти
           </button>
         </div>
       </div>
@@ -184,7 +192,7 @@ export function IntegrationSettings({
           target="_blank"
           rel="noreferrer"
         >
-          Deploy live workspace <ArrowUpRight size={14} />
+          Розмістити серверну версію <ArrowUpRight size={14} />
         </a>
         <button
           className="text-button"
@@ -195,21 +203,21 @@ export function IntegrationSettings({
             size={15}
             className={workspace.loading ? "spinning" : ""}
           />
-          Refresh connections
+          Оновити підключення
         </button>
         <a
           href="https://github.com/Anastasiia1001/dayframe/blob/main/docs/CONNECTIONS.md"
           target="_blank"
           rel="noreferrer"
         >
-          Connection setup guide <ArrowUpRight size={14} />
+          Інструкція з підключення <ArrowUpRight size={14} />
         </a>
       </div>
       <p className="connection-footnote">
-        Your account tokens stay on the server, never in browser storage.
-        Sessions last up to 8 hours; a server restart requires reconnecting.
-        Disconnect removes this session’s token; revoke app access in the
-        provider’s settings to revoke the permission itself.
+        Токени облікових записів зберігаються на сервері, а не в браузері. Сеанс
+        триває до 8 годин; після перезапуску сервера потрібно підключитися
+        знову. Відключення видаляє токен поточного сеансу. Щоб відкликати сам
+        дозвіл, видали доступ застосунку в налаштуваннях сервісу.
       </p>
     </Section>
   );

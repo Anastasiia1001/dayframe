@@ -54,7 +54,7 @@ export function useWorkspace(date: Date) {
       results.forEach((r, i) => {
         if (r.status === "rejected") {
           failures.push(
-            `${selected[i].name}: ${r.reason instanceof Error ? r.reason.message : "Could not sync."}`,
+            `${selected[i].name}: ${r.reason instanceof Error ? r.reason.message : "Не вдалося оновити дані."}`,
           );
           return;
         }
@@ -66,7 +66,7 @@ export function useWorkspace(date: Date) {
           nextSlack.push(...d.items);
           if (d.truncated)
             failures.push(
-              "Slack: showing up to 30 latest results per query. Narrow your channel selection for more focus.",
+              "Slack: показано до 30 останніх результатів на запит. Зменш кількість каналів, щоб зосередитися на важливому.",
             );
         } else nextEvents.push(...(r.value.data as CalendarEvent[]));
       });
@@ -96,9 +96,7 @@ export function useWorkspace(date: Date) {
         setEvents([]);
         setSlack([]);
         setErrors([
-          e instanceof Error
-            ? e.message
-            : "Could not reach the workspace server.",
+          e instanceof Error ? e.message : "Не вдалося з’єднатися із сервером.",
         ]);
       }
     } finally {

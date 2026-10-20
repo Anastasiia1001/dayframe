@@ -30,7 +30,7 @@ export function createApp({
       !["localhost", "127.0.0.1"].includes(publicUrl.hostname))
   )
     throw new Error(
-      "DAYFRAME_PUBLIC_URL must use HTTPS (HTTP is allowed only on localhost)",
+      "DAYFRAME_PUBLIC_URL має використовувати HTTPS (HTTP дозволено лише для localhost)",
     );
   const origin = publicUrl.origin,
     secure = publicUrl.protocol === "https:";
@@ -62,32 +62,39 @@ export function createApp({
     } catch {
       throw new ApiError(
         502,
-        "The provider could not be reached. Please try again.",
+        "Не вдалося з’єднатися із сервісом. Спробуй ще раз.",
       );
     }
     if (!r.ok)
       throw new ApiError(
         r.status === 401 ? 401 : r.status === 429 ? 429 : 502,
         r.status === 401
-          ? "Connection expired. Please reconnect."
+          ? "Термін підключення минув. Підключи обліковий запис знову."
           : r.status === 429
-            ? "Provider rate limit reached. Please wait before refreshing."
-            : "Provider request failed. Check account permissions and try again.",
+            ? "Досягнуто ліміту запитів сервісу. Зачекай перед оновленням."
+            : "Сервіс не виконав запит. Перевір дозволи облікового запису та спробуй ще раз.",
       );
     const data = await r.json();
     if (data.error || data.ok === false)
       throw new ApiError(
         502,
-        "The provider declined the request. Check permissions or reconnect.",
+        "Сервіс відхилив запит. Перевір дозволи або підключи обліковий запис знову.",
       );
     return data;
   }
   async function access(session, id) {
     const c = session?.connections[id];
-    if (!c) throw new ApiError(401, "Connect this account in Settings first.");
+    if (!c)
+      throw new ApiError(
+        401,
+        "Спочатку підключи цей обліковий запис у налаштуваннях.",
+      );
     if (c.expires > now() + 60000) return c.token;
     if (!c.refresh)
-      throw new ApiError(401, "Connection expired. Please reconnect.");
+      throw new ApiError(
+        401,
+        "Термін підключення минув. Підключи обліковий запис знову.",
+      );
     // One refresh per connection, even if calendar and status are requested together.
     if (!c.refreshing)
       c.refreshing = (async () => {
@@ -102,7 +109,8 @@ export function createApp({
         c.token = t.access_token;
         c.refresh = t.refresh_token || c.refresh;
         c.expires = now() + (t.expires_in || 3600) * 1000;
-        if (!c.token) throw new ApiError(401, "Please reconnect this account.");
+        if (!c.token)
+          throw new ApiError(401, "Підключи цей обліковий запис знову.");
         return c.token;
       })().finally(() => {
         delete c.refreshing;
@@ -113,12 +121,12 @@ export function createApp({
     let data = "";
     for await (const chunk of req) {
       data += chunk;
-      if (data.length > 4096) throw new ApiError(413, "Request too large");
+      if (data.length > 4096) throw new ApiError(413, "Запит завеликий");
     }
     try {
       return JSON.parse(data || "{}");
     } catch {
-      throw new ApiError(400, "Invalid JSON");
+      throw new ApiError(400, "Некоректні дані JSON");
     }
   }
   const server = createServer(async (req, res) => {
@@ -140,7 +148,7 @@ export function createApp({
         session = undefined;
       }
       if (req.method === "POST" && req.headers.origin !== origin)
-        throw new ApiError(403, "Request origin did not match this workspace.");
+        throw new ApiError(403, "Джерело запиту не відповідає цьому простору.");
       if (path === "/api/status" && req.method === "GET")
         return json(res, 200, {
           providers: Object.entries(providers).map(([id, p]) => ({
@@ -171,11 +179,12 @@ export function createApp({
           }
           return json(res, 200, { ok: true });
         }
-        if (req.method !== "GET") throw new ApiError(405, "Method not allowed");
+        if (req.method !== "GET")
+          throw new ApiError(405, "Метод запиту не підтримується");
         if (!p.clientId || !p.secret)
           throw new ApiError(
             503,
-            `${p.name} is not configured on this server.`,
+            `${p.name}: підключення не налаштовано на цьому сервері.`,
           );
         if (action === "connect") {
           if (!session) {
@@ -221,13 +230,13 @@ export function createApp({
         )
           throw new ApiError(
             400,
-            "Authorization expired or state did not match. Start again in Settings.",
+            "Авторизація застаріла або її перевірка не пройшла. Почни знову в налаштуваннях.",
           );
         delete session.pending;
         if (url.searchParams.has("error"))
           return redirect(res, "/?connection=cancelled");
         const code = url.searchParams.get("code");
-        if (!code) throw new ApiError(400, "Authorization code is missing.");
+        if (!code) throw new ApiError(400, "Відсутній код авторизації.");
         const body = new URLSearchParams({
           grant_type: "authorization_code",
           client_id: p.clientId,
@@ -241,7 +250,7 @@ export function createApp({
         if (!token?.access_token)
           throw new ApiError(
             502,
-            "The provider did not return a user access token.",
+            "Сервіс не повернув токен доступу користувача.",
           );
         session.connections[id] = {
           token: token.access_token,
@@ -268,7 +277,7 @@ export function createApp({
         )
           throw new ApiError(
             400,
-            "Choose a valid calendar range of at most 62 days.",
+            "Обери коректний період календаря тривалістю до 62 днів.",
           );
         let target = id.startsWith("outlook-")
           ? `https://graph.microsoft.com/v1.0/me/calendarView?${new URLSearchParams({ startDateTime: start, endDateTime: end, $top: "100", $select: "id,subject,start,end,isAllDay,isCancelled,location,onlineMeeting,attendees,isReminderOn,webLink,iCalUId" })}`
@@ -277,7 +286,7 @@ export function createApp({
         try {
           new Intl.DateTimeFormat("en", { timeZone }).format();
         } catch {
-          throw new ApiError(400, "Invalid time zone.");
+          throw new ApiError(400, "Некоректний часовий пояс.");
         }
         const events = [];
         let pages = 0;
@@ -285,7 +294,7 @@ export function createApp({
           if (++pages > 20)
             throw new ApiError(
               422,
-              "Too many events in this range. Choose a shorter calendar range.",
+              "Забагато подій у цьому періоді. Обери коротший проміжок.",
             );
           const data = await remote(target, {
             headers: {
@@ -309,7 +318,10 @@ export function createApp({
           if (id.startsWith("outlook-")) {
             const next = data["@odata.nextLink"];
             if (next && new URL(next).origin !== "https://graph.microsoft.com")
-              throw new ApiError(502, "Invalid provider pagination.");
+              throw new ApiError(
+                502,
+                "Некоректне посилання на наступну сторінку даних сервісу.",
+              );
             target = next || null;
           } else {
             target = data.nextPageToken
@@ -335,9 +347,12 @@ export function createApp({
           channels.length > 5 ||
           channels.some((c) => !/^[-_a-zA-Z0-9]+$/.test(c))
         )
-          throw new ApiError(400, "Choose up to five Slack channel names.");
+          throw new ApiError(400, "Укажи до п’яти назв каналів Slack.");
         if (!who.user_id)
-          throw new ApiError(502, "Slack did not identify the connected user.");
+          throw new ApiError(
+            502,
+            "Slack не визначив підключеного користувача.",
+          );
         const since = new Date(now() - 86400000).toISOString().slice(0, 10),
           queries = [
             {
@@ -399,12 +414,12 @@ export function createApp({
         });
       }
       if (path.startsWith("/api/"))
-        throw new ApiError(404, "Endpoint not found");
+        throw new ApiError(404, "Шлях API не знайдено");
       if (!["GET", "HEAD"].includes(req.method))
-        throw new ApiError(405, "Method not allowed");
+        throw new ApiError(405, "Метод запиту не підтримується");
       const file = resolve(dist, "." + decodeURIComponent(path));
       if (!file.startsWith(dist + sep) && file !== dist)
-        throw new ApiError(403, "Invalid path");
+        throw new ApiError(403, "Некоректний шлях");
       let asset = file;
       try {
         if (!(await stat(file)).isFile()) asset = resolve(dist, "index.html");
@@ -430,7 +445,7 @@ export function createApp({
       res.end(req.method === "HEAD" ? undefined : data);
     } catch (e) {
       json(res, e.status || 500, {
-        error: e.status ? e.message : "An unexpected server error occurred.",
+        error: e.status ? e.message : "Сталася непередбачена помилка сервера.",
       });
     }
   });
@@ -448,6 +463,6 @@ if (
   server.listen(
     Number(process.env.PORT || 4317),
     process.env.HOST || "0.0.0.0",
-    () => console.log("Dayframe server is ready."),
+    () => console.log("Сервер Dayframe готовий до роботи."),
   );
 }
