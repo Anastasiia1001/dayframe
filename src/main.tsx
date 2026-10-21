@@ -5,4 +5,5 @@ import './styles.css';
 import './planner.css';
 import './planner-layout.css';
 import './theme-finish.css';
+import './touch-feedback.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);

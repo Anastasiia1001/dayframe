@@ -1,3 +1,4 @@
+import { TouchFeedback } from "./components/TouchFeedback";
 import { planInHorizon } from "./domain/horizons";
 import { ThemeAtmosphere } from "./components/ThemeAtmosphere";
 import { CalendarBoard } from "./components/CalendarBoard";
@@ -1519,6 +1520,7 @@ export default function App() {
         />
       )}
       <HappyPetals burst={burst} />
+      <TouchFeedback />
     </div>
   );
 }

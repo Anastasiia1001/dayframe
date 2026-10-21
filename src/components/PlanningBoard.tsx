@@ -41,7 +41,7 @@ export function PlanningBoard({ tasks, today, onSchedule, onPlan, onEdit, onTogg
           onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(""); }}
           onDrop={e => { e.preventDefault(); setOver(""); const task = tasks.find(t => t.id === e.dataTransfer.getData("application/x-dayframe-task")); if (task && !task.completed && !task.disabled && taskHorizon(task) !== column.id) onPlan(task, column.id); }}>
           <h2>{column.name} <span>{list.length}</span></h2><small>{column.hint}</small>
-          {list.map(t => <article className="planning-card" data-cadence={taskCadence(t)} key={t.id} draggable onDragStart={e => { e.dataTransfer.setData("application/x-dayframe-task", t.id); e.dataTransfer.effectAllowed = "copyMove"; }} onDragEnd={() => setOver("")}>
+          {list.map(t => <article className="planning-card" data-cadence={taskCadence(t)} key={t.id} draggable onDragStart={e => { e.currentTarget.dataset.dragging="true"; e.dataTransfer.setData("application/x-dayframe-task", t.id); e.dataTransfer.effectAllowed = "copyMove"; }} onDragEnd={e => { delete e.currentTarget.dataset.dragging; setOver(""); }}>
             <span className="cadence-badge"><span className="drag-grip" aria-hidden="true" title="Перетягнути картку">⠿ </span>{cadenceLabel(t)}</span>
             <button className="planning-title" onClick={() => onEdit(t)}>{t.title}</button>
             {t.origin?.source === "Slack" && <small>Додано зі Slack</small>}

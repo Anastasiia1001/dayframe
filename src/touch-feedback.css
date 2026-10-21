@@ -1,0 +1,341 @@
+/* Short, local feedback. Effects never own focus or receive pointer input. */
+.touch-feedback {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  pointer-events: none;
+  overflow: hidden;
+}
+.touch-pulse {
+  position: absolute;
+  width: 0;
+  height: 0;
+  color: var(--accent);
+}
+.touch-ring {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  left: -11px;
+  top: -11px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  animation: touch-ring 0.62s ease-out both;
+}
+.touch-mote {
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  animation: touch-flight 0.75s cubic-bezier(0.15, 0.75, 0.3, 1) both;
+}
+.touch-mote svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 1px var(--ui-cast));
+}
+.touch-success .touch-mote {
+  width: 13px;
+  height: 13px;
+  left: -6.5px;
+  top: -6.5px;
+}
+@keyframes touch-ring {
+  from {
+    opacity: 0.6;
+    transform: scale(0.35);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+@keyframes touch-flight {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(0)
+      rotate(calc(-1 * var(--angle))) scale(0.3);
+  }
+  18% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(calc(-1 * var(--flight)))
+      rotate(var(--turn)) scale(0.6);
+  }
+}
+:root[data-theme] [data-touch-pressed="true"] {
+  scale: 0.94;
+  filter: brightness(1.06);
+  transition:
+    scale 0.09s ease-out,
+    filter 0.09s;
+}
+:root[data-theme] :is(button, summary, a) {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    scale 0.28s cubic-bezier(0.2, 1.6, 0.4, 1),
+    filter 0.2s;
+}
+:root[data-theme] .checkbox.checked {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 13%, transparent),
+    inset 0 1px 1px #ffffff60;
+}
+:root[data-theme] .checkbox.checked svg {
+  stroke-dasharray: 25;
+  stroke-dashoffset: 0;
+  animation: touch-check 0.3s ease-out;
+}
+@keyframes touch-check {
+  from {
+    stroke-dashoffset: 25;
+    scale: 0.6;
+  }
+  to {
+    stroke-dashoffset: 0;
+    scale: 1;
+  }
+}
+:root[data-theme] .planning-card[data-dragging="true"] {
+  opacity: 0.55;
+  scale: 0.97;
+  rotate: -2deg;
+  box-shadow: 0 12px 24px var(--ui-cast);
+}
+:root[data-theme] .planning-column.drop-active {
+  background-color: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-style: dashed;
+  box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent),
+    0 0 24px var(--ui-cast);
+}
+:root[data-theme] .planning-column.drop-active > h2 {
+  color: var(--accent);
+}
+:root[data-theme] :is(input, textarea, select):focus-visible {
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--accent) 11%, transparent),
+    inset 0 1px 3px var(--ui-cast);
+}
+.calendar-companion {
+  position: relative;
+  padding: 0;
+  flex-shrink: 0;
+  width: 160px;
+  min-height: 145px;
+  border-radius: 35%;
+  touch-action: manipulation;
+}
+.calendar-companion.clay-companion {
+  width: 225px;
+  min-height: 162px;
+}
+.calendar-companion .planner-hero-art {
+  display: block;
+  width: 100%;
+  height: 162px;
+}
+.calendar-companion > .planner-decoration {
+  width: 120px;
+  height: 100px;
+}
+.calendar-companion .theme-mascot-vignette {
+  width: 100%;
+}
+.companion-greeting {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 210px;
+  padding: 9px 12px;
+  border: 1px solid var(--ui-frame);
+  border-radius: 16px 16px 16px 4px;
+  box-shadow:
+    0 5px 0 color-mix(in srgb, var(--ui-frame) 40%, var(--surface)),
+    0 9px 15px var(--ui-cast);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.5;
+  z-index: 3;
+  pointer-events: none;
+  animation: greeting-in 0.2s ease-out;
+}
+@keyframes greeting-in {
+  from {
+    opacity: 0;
+    translate: 0 7px;
+    scale: 0.9;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+:root[data-theme]
+  .calendar-companion.is-greeting
+  :is(.planner-hero-art, .planner-decoration, .mascot-art) {
+  animation: companion-wave 0.6s ease-in-out;
+}
+@keyframes companion-wave {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  25% {
+    transform: rotate(-6deg) translateY(-8px);
+  }
+  60% {
+    transform: rotate(5deg) translateY(-3px);
+  }
+}
+.planner-view-month .clay-companion,
+.planner-view-week .clay-companion {
+  width: 165px;
+  min-height: 115px;
+}
+.planner-view-month .calendar-companion .planner-hero-art,
+.planner-view-week .calendar-companion .planner-hero-art {
+  height: 115px;
+}
+@media (hover: hover) {
+  :root[data-theme] .sheet-tab:hover {
+    translate: 0 -2px;
+    rotate: -1deg;
+  }
+  :root[data-theme] .task-row:hover {
+    box-shadow:
+      inset 3px 0 var(--cadence-ink, var(--accent)),
+      0 4px 9px var(--ui-cast);
+  }
+  :root[data-theme] .calendar-cell:hover .month-day {
+    scale: 1.13;
+  }
+  :root[data-theme] .calendar-event:hover {
+    filter: brightness(1.05);
+    box-shadow:
+      0 4px 8px var(--ui-cast),
+      inset 0 1px 0 var(--ui-light);
+  }
+  .calendar-companion:hover {
+    filter: drop-shadow(0 6px 6px var(--ui-cast));
+  }
+}
+@media (max-width: 700px) {
+  .calendar-companion,
+  .calendar-companion.clay-companion {
+    width: 100px;
+    min-height: 105px;
+  }
+  .calendar-companion .planner-hero-art {
+    height: 105px;
+  }
+  .calendar-companion > .planner-decoration {
+    width: 65px;
+    height: 65px;
+  }
+  .planner-view-month .clay-companion,
+  .planner-view-week .clay-companion {
+    width: 90px;
+    min-height: 90px;
+  }
+  .planner-view-month .calendar-companion .planner-hero-art,
+  .planner-view-week .calendar-companion .planner-hero-art {
+    height: 90px;
+  }
+  .companion-greeting {
+    max-width: 145px;
+    left: auto;
+    right: -3px;
+    transform: none;
+    top: -24px;
+    font-size: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .touch-feedback {
+    display: none;
+  }
+  :root[data-theme] [data-touch-pressed="true"] {
+    scale: 1;
+    filter: brightness(1.08);
+  }
+  :root[data-theme] *,
+  :root[data-theme] *::before,
+  :root[data-theme] *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+:root[data-theme] .app :is(button, summary, a) {
+  transition:
+    scale 0.3s cubic-bezier(0.2, 1.7, 0.4, 1),
+    filter 0.2s,
+    transform 0.18s,
+    box-shadow 0.18s,
+    background-color 0.18s;
+}
+:root[data-theme] .app [data-touch-pressed="true"] {
+  transition:
+    scale 0.08s ease-out,
+    filter 0.08s;
+}
+:root[data-theme] .task-row.completed {
+  animation: task-settle 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes task-settle {
+  0% {
+    scale: 1;
+  }
+  40% {
+    scale: 0.98;
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  100% {
+    scale: 1;
+  }
+}
+@media (min-width: 701px) and (max-width: 1150px) {
+  .calendar-companion.clay-companion {
+    width: 145px;
+    min-height: 120px;
+  }
+  .calendar-companion .planner-hero-art {
+    height: 120px;
+  }
+  .calendar-companion:not(.clay-companion) {
+    width: 110px;
+    min-height: 110px;
+  }
+  .calendar-companion .theme-mascot-vignette {
+    height: 110px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .app :is(button, summary, a) {
+    transition: none !important;
+  }
+}
+:root[data-theme] .planner-sheet:focus-within {
+  border-color: var(--accent);
+  box-shadow:
+    var(--ui-shadow),
+    0 0 0 4px color-mix(in srgb, var(--accent) 9%, transparent);
+}
+:root[data-theme] button[data-touch-pressed="true"] > svg {
+  rotate: -8deg;
+}
+@media (hover: hover) {
+  :root[data-theme] .sidebar nav button:hover > svg {
+    rotate: -9deg;
+    scale: 1.1;
+  }
+}
+@media(max-width:700px) { .companion-greeting { left:0; right:0; top:-16px; width:100%; max-width:100%; padding:7px; } }

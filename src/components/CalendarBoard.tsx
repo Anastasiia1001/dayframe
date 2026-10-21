@@ -1,7 +1,6 @@
-import { Mascot } from "./Mascot";
+import { CalendarCompanion } from "./CalendarCompanion";
 import { DayPlanner } from "./DayPlanner";
-import { themes, isPlannerTheme, type MascotId } from "../appearance";
-import { PlannerDecoration } from "./PlannerDecoration";
+import { themes, type MascotId } from "../appearance";
 import { taskCadence } from "../taskCadence";
 import { useState, useEffect, useRef } from "react";
 import {
@@ -403,17 +402,7 @@ export function CalendarBoard(p: Props) {
               : "Твої зустрічі й справи, дбайливо впорядковані."}
           </p>
         </div>
-        {["Pastel", "CutePlanner"].includes(p.theme) ? (
-          <img
-            className="planner-hero-art"
-            data-decoration={p.theme}
-            src={`${import.meta.env.BASE_URL}assets/planner/bunny-calendar.png`}
-            alt=""
-            aria-hidden="true"
-          />
-        ) : (
-          isPlannerTheme(p.theme) ? <PlannerDecoration theme={p.theme} /> : <div className="theme-mascot-vignette" aria-hidden="true"><Mascot kind={p.mascot}/></div>
-        )}
+        <CalendarCompanion theme={p.theme} mascot={p.mascot}/>
         <label className="planner-theme-picker">
           Оформлення
           <select
