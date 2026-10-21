@@ -466,3 +466,48 @@
   bottom: -10px;
   right: -3px;
 }
+
+/* Materials live in the surface paint, so they never cover text or intercept input. */
+:root[data-theme] {
+  --material-ink: color-mix(in srgb, var(--accent) 12%, transparent);
+  --material-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23807870' opacity='.065' filter='url(%23g)' d='M0 0h160v160H0z'/%3E%3C/svg%3E");
+  --material-pattern: radial-gradient(circle at 1px 1px, var(--material-ink) .65px, transparent .95px);
+  --material-size: 12px 12px;
+}
+:root:is([data-theme="Pastel"], [data-theme="CutePlanner"], [data-theme="Peach"], [data-theme="Strawberry"]) {
+  --material-pattern: repeating-linear-gradient(0deg, transparent 0 5px, var(--material-ink) 5px 5.5px), repeating-linear-gradient(90deg, transparent 0 5px, var(--material-ink) 5px 5.5px);
+  --material-size: 6px 6px;
+  --material-ink: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+:root:is([data-theme="Vintage"], [data-theme="Warm"], [data-theme="Parchment"]) {
+  --material-pattern: repeating-linear-gradient(3deg, transparent 0 3px, var(--material-ink) 3px 3.6px, transparent 3.6px 8px);
+  --material-size: 90px 90px;
+  --material-ink: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+:root:is([data-theme="Blue"], [data-theme="Lagoon"], [data-theme="Graphite"]) {
+  --material-pattern: repeating-linear-gradient(125deg, transparent 0 14px, var(--material-ink) 14px 15px, transparent 15px 28px);
+  --material-size: 36px 36px;
+  --material-ink: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+:root:is([data-theme="Dark"], [data-theme="Moonlight"], [data-theme="Blueberry"]) {
+  --material-pattern: radial-gradient(circle at 3px 5px, var(--material-ink) .8px, transparent 1.2px), radial-gradient(circle at 19px 23px, var(--material-ink) .5px, transparent 1px);
+  --material-size: 32px 32px;
+  --material-ink: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+:root[data-theme] :is(.card, .personal-board, .planner-sheet, .planner-calendar-surface, .planning-column, .calendar-pocket, .task-modal, .detail-modal, .search-modal, .notification-panel) {
+  background-image: var(--material-grain), linear-gradient(135deg, #ffffff13, transparent 55%), var(--material-pattern);
+  background-size: 160px 160px, 100% 100%, var(--material-size);
+  box-shadow: inset 0 1px 0 var(--ui-light), inset 0 -1px 0 color-mix(in srgb, var(--accent) 7%, transparent), 0 8px 24px color-mix(in srgb, var(--accent) 9%, transparent);
+}
+:root[data-theme] .notes-sheet {
+  background-image: var(--material-grain), repeating-linear-gradient(transparent 0 27px, var(--material-ink) 27px 28px);
+  background-size: 160px 160px, 100% 28px;
+  background-position: 0 0, 0 57px;
+}
+:root[data-theme] .planning-card {
+  background-image: var(--material-grain), linear-gradient(115deg, #ffffff15, transparent 70%);
+  background-size: 160px 160px, 100% 100%;
+}
+:root[data-theme] .mascot-pug .mascot-tongue { transform-origin: 61px 61px; }
+:root[data-theme] .pug-ear-left { transform-origin: 25px 20px; }
+:root[data-theme] .pug-ear-right { transform-origin: 76px 24px; }
