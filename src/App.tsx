@@ -510,6 +510,7 @@ export default function App() {
     return (
       <CalendarBoard
         theme={theme}
+        mascot={safeMascot(mascot)}
         onTheme={setTheme}
         events={events}
         tasks={tasks}

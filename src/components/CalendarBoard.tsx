@@ -1,5 +1,6 @@
+import { Mascot } from "./Mascot";
 import { DayPlanner } from "./DayPlanner";
-import { themes } from "../appearance";
+import { themes, isPlannerTheme, type MascotId } from "../appearance";
 import { PlannerDecoration } from "./PlannerDecoration";
 import { taskCadence } from "../taskCadence";
 import { useState, useEffect, useRef } from "react";
@@ -22,6 +23,7 @@ import {
 } from "../domain/planning";
 type Props = {
   theme: string;
+  mascot: MascotId;
   onTheme: (theme: string) => void;
   events: CalendarEvent[];
   tasks: PersonalTask[];
@@ -410,7 +412,7 @@ export function CalendarBoard(p: Props) {
             aria-hidden="true"
           />
         ) : (
-          <PlannerDecoration theme={p.theme} />
+          isPlannerTheme(p.theme) ? <PlannerDecoration theme={p.theme} /> : <div className="theme-mascot-vignette" aria-hidden="true"><Mascot kind={p.mascot}/></div>
         )}
         <label className="planner-theme-picker">
           Оформлення
