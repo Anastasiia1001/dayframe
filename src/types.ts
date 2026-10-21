@@ -6,7 +6,7 @@ export interface CalendarEvent {
   date: string;
   start: string;
   end: string;
-  source: "Outlook" | "Google";
+  source: "Outlook" | "Google" | "Jira";
   location: string;
   participants: string[];
   reminder: boolean;

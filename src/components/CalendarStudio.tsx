@@ -1175,7 +1175,7 @@ export function CalendarStudio(p: Props) {
                 checked={externalVisible}
                 onChange={(e) => setExternalVisible(e.target.checked)}
               />
-              Outlook і Google
+              Підключені календарі та Jira
             </label>
             <div className="studio-panel-top">
               <h2>

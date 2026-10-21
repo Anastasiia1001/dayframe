@@ -105,7 +105,16 @@ export function createApp({
           client_secret: p.secret,
           refresh_token: c.refresh,
         });
-        const t = await remote(p.token, { method: "POST", body });
+        const t = await remote(
+          p.token,
+          id === "jira"
+            ? {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(Object.fromEntries(body)),
+              }
+            : { method: "POST", body },
+        );
         c.token = t.access_token;
         c.refresh = t.refresh_token || c.refresh;
         c.expires = now() + (t.expires_in || 3600) * 1000;
@@ -160,14 +169,14 @@ export function createApp({
             missing: p.required.filter((n) => !env[n]),
             redirectUri: callback(id),
           })),
-          disabled: ["Jira", "Confluence"],
+          disabled: ["Confluence"],
           sessionStorage: "memory",
           sessionHours: 8,
         });
       if (path === "/api/health" && req.method === "GET")
         return json(res, 200, { ok: true });
       const auth = path.match(
-        /^\/api\/auth\/(outlook-work|outlook-personal|google|slack)\/(connect|callback|disconnect)$/,
+        /^\/api\/auth\/(outlook-work|outlook-personal|google|slack|jira)\/(connect|callback|disconnect)$/,
       );
       if (auth) {
         const [, id, action] = auth,
@@ -207,6 +216,9 @@ export function createApp({
             ...(id.startsWith("outlook-") ? { prompt: "select_account" } : {}),
             state,
             ...(id === "slack" ? { user_scope: p.scope } : { scope: p.scope }),
+            ...(id === "jira"
+              ? { audience: "api.atlassian.com", prompt: "consent" }
+              : {}),
             ...(p.pkce
               ? {
                   code_challenge: createHash("sha256")
@@ -245,7 +257,16 @@ export function createApp({
           redirect_uri: callback(id),
           ...(p.pkce ? { code_verifier: pending.verifier } : {}),
         });
-        const t = await remote(p.token, { method: "POST", body });
+        const t = await remote(
+          p.token,
+          id === "jira"
+            ? {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(Object.fromEntries(body)),
+              }
+            : { method: "POST", body },
+        );
         const token = id === "slack" ? t.authed_user : t;
         if (!token?.access_token)
           throw new ApiError(
@@ -331,6 +352,66 @@ export function createApp({
         }
         return json(res, 200, {
           events: [...new Map(events.map((e) => [e.id, e])).values()],
+        });
+      }
+      if (path === "/api/jira" && req.method === "GET") {
+        const token = await access(session, "jira"),
+          headers = { Authorization: `Bearer ${token}` };
+        const resources = await remote(
+          "https://api.atlassian.com/oauth/token/accessible-resources",
+          { headers },
+        );
+        if (!Array.isArray(resources))
+          throw new ApiError(502, "Jira повернула некоректний список сайтів.");
+        const sites = resources.filter(
+          (s) =>
+            /^[a-zA-Z0-9-]+$/.test(s.id) &&
+            s.scopes?.includes("read:jira-work") &&
+            /^https:\/\/[a-zA-Z0-9-]+\.atlassian\.net\/?$/.test(s.url),
+        );
+        if (!sites.length)
+          throw new ApiError(
+            403,
+            "Цей акаунт не надав доступу до сайтів Jira Cloud.",
+          );
+        const issues = [];
+        let truncated = sites.length > 5;
+        for (const site of sites.slice(0, 5)) {
+          let next = "",
+            pages = 0;
+          do {
+            const params = new URLSearchParams({
+              jql: "assignee = currentUser() AND statusCategory != Done ORDER BY updated DESC",
+              fields: "summary,status,priority,duedate,project",
+              maxResults: "100",
+            });
+            if (next) params.set("nextPageToken", next);
+            const data = await remote(
+              `https://api.atlassian.com/ex/jira/${site.id}/rest/api/3/search/jql?${params}`,
+              { headers },
+            );
+            for (const issue of data.issues || []) {
+              if (!/^[A-Za-z][A-Za-z0-9_]*-\d+$/.test(issue.key)) continue;
+              issues.push({
+                id: `${site.id}:${issue.id}`,
+                key: issue.key,
+                title: issue.fields?.summary || issue.key,
+                status: issue.fields?.status?.name || "",
+                priority: issue.fields?.priority?.name || "",
+                due: /^\d{4}-\d{2}-\d{2}$/.test(issue.fields?.duedate)
+                  ? issue.fields.duedate
+                  : "",
+                url: `${site.url.replace(/\/$/, "")}/browse/${issue.key}`,
+                site: site.name || site.url,
+              });
+            }
+            next = data.nextPageToken || "";
+          } while (next && ++pages < 5);
+          truncated ||= !!next;
+        }
+        return json(res, 200, {
+          issues: [...new Map(issues.map((i) => [i.id, i])).values()],
+          truncated,
         });
       }
       if (path === "/api/slack" && req.method === "GET") {

@@ -76,7 +76,7 @@ const labels: Record<string, string> = {
   "A little more joy. ♡": "Трохи більше радості. ♡",
   "A calmer place to start": "Спокійний початок дня",
   "Dayframe brings your day together. Connect Outlook, Google Calendar and Slack in Settings, or explore demo mode. External sources are read-only; Jira and Confluence are disabled. Your personal tasks stay in this browser.":
-    "Dayframe збирає твій день в одному місці. Підключи Outlook, Календар Google і Slack у налаштуваннях або спробуй деморежим. Зовнішні джерела доступні лише для читання; Jira та Confluence вимкнені. Особисті завдання зберігаються в цьому браузері.",
+    "Dayframe збирає твій день в одному місці. Підключи Outlook, Календар Google і Slack у налаштуваннях або спробуй деморежим. Зовнішні джерела доступні лише для читання; Confluence вимкнена. Особисті завдання зберігаються в цьому браузері.",
   "Help & getting started": "Допомога й перші кроки",
   "Personal profile": "Особистий профіль",
   "Make room for what matters": "Залиши місце для важливого",
@@ -166,7 +166,7 @@ const labels: Record<string, string> = {
   "Demo summaries": "Демонстраційні огляди",
   "Read-only · Not an AI digest": "Лише читання · Без ШІ-огляду",
   "Jira and Confluence are disabled. No access is requested and no data is loaded.":
-    "Jira та Confluence вимкнені. Доступ не запитується, дані не завантажуються.",
+    "Confluence вимкнена. Дані Jira завантажуються лише після офіційного входу.",
   "Your profile": "Твій профіль",
   "Display name": "Ім’я у застосунку",
   "Only stored in this browser.": "Зберігається лише в цьому браузері.",
@@ -236,7 +236,7 @@ const labels: Record<string, string> = {
   "READ-ONLY · YOUR ACCOUNTS, YOUR CHOICE":
     "ЛИШЕ ЧИТАННЯ · ТВОЇ ОБЛІКОВІ ЗАПИСИ, ТВІЙ ВИБІР",
   "Connect work and personal Outlook accounts, then Google Calendar and Slack. Jira and Confluence are disabled.":
-    "Підключи робочий і особистий Outlook, а потім Календар Google та Slack. Jira й Confluence вимкнені.",
+    "Підключи робочий і особистий Outlook, а потім Календар Google та Slack. Confluence вимкнена.",
   "Demo workspace": "Демопростір",
   "Only connected accounts appear in your dashboard.":
     "На головній сторінці відображаються лише дані підключених облікових записів.",

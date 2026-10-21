@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpRight, Check, Link2, RefreshCw, Unplug } from "lucide-react";
 import { Section, Source } from "./Primitives";
 import { live, type IntegrationId } from "../data/live";
+import {
+  connectDirect,
+  directIds,
+  directRedirect,
+  saveDirectIds,
+  warmDirectLogin,
+  type DirectId,
+} from "../data/browserConnections";
 import type { useWorkspace } from "../useWorkspace";
 export function IntegrationSettings({
   workspace,
@@ -11,6 +19,22 @@ export function IntegrationSettings({
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(""),
     [draft, setDraft] = useState(workspace.channels);
+  const [clientIds, setClientIds] = useState(directIds);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => warmDirectLogin(), []);
+  const connect = async (id: DirectId) => {
+    setBusy(id);
+    setError("");
+    try {
+      await connectDirect(id);
+      workspace.setMode("live");
+      await workspace.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Не вдалося увійти.");
+    } finally {
+      setBusy("");
+    }
+  };
   const disconnect = async (id: IntegrationId) => {
     setBusy(id);
     setError("");
@@ -64,6 +88,7 @@ export function IntegrationSettings({
           "outlook-personal",
           "google",
           "slack",
+          "jira",
         ] as IntegrationId[]
       ).map((id) => {
         const c = workspace.status?.providers.find((p) => p.id === id),
@@ -73,7 +98,9 @@ export function IntegrationSettings({
               : "Outlook · Особистий"
             : id === "google"
               ? "Календар Google"
-              : "Slack";
+              : id === "jira"
+                ? "Jira"
+                : "Slack";
         return (
           <div className="connection-card" key={id}>
             <div className="connection-title">
@@ -98,9 +125,11 @@ export function IntegrationSettings({
               </span>
             </div>
             <p>
-              {id === "slack"
-                ? "Читання прямих згадок і вибраних каналів. Повідомлення не надсилаються."
-                : "Читання подій, подробиць зустрічей і списків учасників. Події не змінюються."}
+              {id === "jira"
+                ? "Твої активні завдання. Дедлайни відображаються в календарі; завдання без дати можна запланувати в розділі «Робота»."
+                : id === "slack"
+                  ? "Читання прямих згадок і вибраних каналів. Повідомлення не надсилаються."
+                  : "Читання подій, подробиць зустрічей і списків учасників. Події не змінюються."}
             </p>
             {c?.connected ? (
               <button
@@ -110,6 +139,15 @@ export function IntegrationSettings({
               >
                 <Unplug size={15} />
                 {busy === id ? "Відключаємо…" : "Відключити"}
+              </button>
+            ) : c?.configured && c.transport === "browser" ? (
+              <button
+                className="primary"
+                disabled={!!busy}
+                onClick={() => void connect(id as DirectId)}
+              >
+                <Link2 size={15} />
+                {busy === id ? "Входимо…" : `Увійти через ${name}`}
               </button>
             ) : c?.configured ? (
               <a
@@ -130,8 +168,12 @@ export function IntegrationSettings({
                 </button>
                 <span className="setup-required">
                   {workspace.status
-                    ? "Вхід ще не активовано: на сервері бракує налаштувань цього сервісу."
-                    : "Вхід доступний у серверній версії Dayframe."}
+                    ? id === "slack" || id === "jira"
+                      ? `${name} потребує одноразової реєстрації застосунку для читання даних.`
+                      : "Додай публічний Client ID нижче — події завантажуватимуться прямо в календар."
+                    : id === "slack" || id === "jira"
+                      ? `Для ${name} потрібен налаштований офіційний застосунок.`
+                      : "Прямий вхід працює без сервера після одноразової активації нижче."}
                 </span>
               </div>
             )}
@@ -145,7 +187,7 @@ export function IntegrationSettings({
         );
       })}
       <div className="disabled-connections">
-        {["Jira", "Confluence"].map((s) => (
+        {["Confluence"].map((s) => (
           <div key={s}>
             <Source name={s} />
             <span>{s}</span>
@@ -198,17 +240,90 @@ export function IntegrationSettings({
           {error}
         </p>
       )}
-      {!workspace.status && (
-        <p className="connection-server-link">
-          <a className="primary" href="https://dayframe-q62m.onrender.com/">
-            Відкрити Dayframe з входом <ArrowUpRight size={14} />
-          </a>
-          <small>
-            Завдання в цьому браузері зберігаються окремо для кожної адреси
-            сайту.
-          </small>
+      <details className="connection-direct-setup">
+        <summary>Активація прямого входу в календарі · один раз</summary>
+        <p>
+          Це публічні ідентифікатори Dayframe, не паролі та не секрети. Після
+          активації — лише звичайний вхід Microsoft або Google. Сервер для
+          календарів не потрібен.
         </p>
-      )}
+        <label>
+          Microsoft Application (client) ID
+          <input
+            value={clientIds.microsoft}
+            onChange={(e) => {
+              setClientIds({ ...clientIds, microsoft: e.target.value });
+              setSaved(false);
+            }}
+            autoComplete="off"
+          />
+        </label>
+        <label>
+          Google Client ID
+          <input
+            value={clientIds.google}
+            onChange={(e) => {
+              setClientIds({ ...clientIds, google: e.target.value });
+              setSaved(false);
+            }}
+            autoComplete="off"
+          />
+        </label>
+        <button
+          className="secondary"
+          onClick={() => {
+            try {
+              saveDirectIds(clientIds);
+              warmDirectLogin();
+              setError("");
+              setSaved(true);
+              void workspace.refresh();
+            } catch (e) {
+              setError(
+                e instanceof Error
+                  ? e.message
+                  : "Не вдалося зберегти налаштування.",
+              );
+            }
+          }}
+        >
+          Зберегти прямий вхід
+        </button>
+        {saved && (
+          <p role="status">
+            Налаштування збережено. Тепер натисни «Увійти» біля календаря.
+          </p>
+        )}
+        <p>
+          <a
+            href="https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Microsoft: реєстрація застосунку
+          </a>{" "}
+          → робочі й особисті акаунти → платформа Single-page application →
+          Calendars.Read. Адреса повернення:
+        </p>
+        <input
+          aria-label="Адреса повернення прямого входу"
+          readOnly
+          value={directRedirect()}
+          onFocus={(e) => e.currentTarget.select()}
+        />
+        <p>
+          <a
+            href="https://console.cloud.google.com/apis/credentials"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Google: OAuth Web client
+          </a>{" "}
+          → увімкни Calendar API. Authorized JavaScript origin:{" "}
+          <code>{location.origin}</code>. Додай свій акаунт до тестових
+          користувачів, якщо застосунок у тестовому режимі.
+        </p>
+      </details>
       <div className="connection-help">
         <button
           className="text-button"
@@ -225,7 +340,7 @@ export function IntegrationSettings({
       <details className="connection-admin">
         <summary>Технічні налаштування підключень</summary>
         {workspace.status?.providers
-          .filter((c) => !c.configured)
+          .filter((c) => !c.configured && c.transport !== "browser")
           .map((c) => {
             const id = c.id,
               name = c.name;
@@ -242,7 +357,9 @@ export function IntegrationSettings({
                               ? "https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade"
                               : id === "google"
                                 ? "https://console.cloud.google.com/apis/credentials"
-                                : "https://api.slack.com/apps"
+                                : id === "jira"
+                                  ? "https://developer.atlassian.com/console/myapps/"
+                                  : "https://api.slack.com/apps"
                           }
                           target="_blank"
                           rel="noreferrer"
@@ -274,7 +391,9 @@ export function IntegrationSettings({
                             ? "Calendars.Read, offline_access"
                             : id === "google"
                               ? "calendar.events.readonly"
-                              : "search:read, users:read (User Token Scopes)"}
+                              : id === "jira"
+                                ? "read:jira-work, offline_access"
+                                : "search:read, users:read (User Token Scopes)"}
                         </code>
                         .
                       </li>
@@ -305,10 +424,11 @@ export function IntegrationSettings({
         </div>
       </details>
       <p className="connection-footnote">
-        Токени облікових записів зберігаються на сервері, а не в браузері. Сеанс
-        триває до 8 годин; після перезапуску сервера потрібно підключитися
-        знову. Відключення видаляє токен поточного сеансу. Щоб відкликати сам
-        дозвіл, видали доступ застосунку в налаштуваннях сервісу.
+        Прямі підключення календарів тримають токени лише в пам’яті вкладки;
+        після перезавантаження сторінки потрібно увійти знову. Для серверних
+        підключень сеанс триває до 8 годин; після перезапуску сервера потрібно
+        підключитися знову. Відключення видаляє токен поточного сеансу. Щоб
+        відкликати сам дозвіл, видали доступ застосунку в налаштуваннях сервісу.
       </p>
     </Section>
   );

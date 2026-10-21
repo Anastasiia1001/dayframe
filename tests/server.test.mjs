@@ -47,7 +47,7 @@ test("status exposes presence only; unsupported sources are disabled; missing se
   try {
     const r = await h.get("/api/status");
     const data = await r.json();
-    assert.deepEqual(data.disabled, ["Jira", "Confluence"]);
+    assert.deepEqual(data.disabled, ["Confluence"]);
     assert.equal(data.providers[0].configured, false);
     assert.equal(data.providers[0].connected, false);
     assert.equal((await h.get("/api/auth/outlook-work/connect")).status, 503);
@@ -61,7 +61,7 @@ test("status exposes presence only; unsupported sources are disabled; missing se
       ).status,
       401,
     );
-    assert.equal((await h.get("/api/jira")).status, 404);
+    assert.equal((await h.get("/api/jira")).status, 401);
   } finally {
     await h.close();
   }
@@ -371,8 +371,9 @@ test("mappers preserve all-day dates and account for device timezone", () => {
 });
 
 test("recurrence handles month ends, leap days and delayed reopening without changing one-time tasks", async () => {
-  const { nextOccurrence, reopenDueTasks } =
-    await import("../src/recurrence.ts");
+  const { nextOccurrence, reopenDueTasks } = await import(
+    "../src/recurrence.ts"
+  );
   assert.equal(
     nextOccurrence({ recurrence: "monthly" }, "2026-01-31"),
     "2026-02-28",
@@ -539,4 +540,88 @@ test("Outlook all-day UTC responses retain the correct day in the device timezon
   assert.equal(event.date, "2026-10-20");
   assert.equal(event.endDate, "2026-10-21");
   assert.equal(event.start, "Увесь день");
+});
+
+test("Jira OAuth reads only assigned tasks through trusted cloud sites and keeps secrets server-side", async () => {
+  const requests = [];
+  const h = await harness(
+    {
+      ATLASSIAN_CLIENT_ID: "jira-client",
+      ATLASSIAN_CLIENT_SECRET: "jira-secret",
+    },
+    async (url, options) => {
+      requests.push({ url: String(url), options });
+      if (url === "https://auth.atlassian.com/oauth/token") {
+        const body = JSON.parse(options.body);
+        assert.equal(body.client_secret, "jira-secret");
+        assert.equal(options.headers["Content-Type"], "application/json");
+        return Response.json({
+          access_token: "private-jira-token",
+          refresh_token: "private-jira-refresh",
+          expires_in: 3600,
+        });
+      }
+      assert.equal(options.headers.Authorization, "Bearer private-jira-token");
+      if (String(url).endsWith("accessible-resources"))
+        return Response.json([
+          {
+            id: "cloud-1",
+            name: "Команда",
+            url: "https://team.atlassian.net",
+            scopes: ["read:jira-work"],
+          },
+          {
+            id: "cloud-evil",
+            url: "https://evil.example",
+            scopes: ["read:jira-work"],
+          },
+        ]);
+      assert.ok(
+        String(url).startsWith(
+          "https://api.atlassian.com/ex/jira/cloud-1/rest/api/3/search/jql?",
+        ),
+      );
+      assert.ok(
+        new URL(url).searchParams
+          .get("jql")
+          .includes("assignee = currentUser()"),
+      );
+      return Response.json({
+        issues: [
+          {
+            id: "17",
+            key: "ART-17",
+            fields: {
+              summary: "Матеріал",
+              status: { name: "In progress" },
+              duedate: "2026-10-21",
+            },
+          },
+        ],
+      });
+    },
+  );
+  try {
+    const { cookie, location } = await login(h, "jira");
+    assert.equal(location.origin, "https://auth.atlassian.com");
+    assert.equal(
+      location.searchParams.get("scope"),
+      "read:jira-work offline_access",
+    );
+    assert.equal(location.searchParams.get("audience"), "api.atlassian.com");
+    const data = await (
+      await h.get("/api/jira", { headers: { cookie } })
+    ).json();
+    assert.equal(
+      data.issues[0].url,
+      "https://team.atlassian.net/browse/ART-17",
+    );
+    assert.equal(data.issues[0].due, "2026-10-21");
+    assert.equal(data.issues.length, 1);
+    assert.ok(!JSON.stringify(data).includes("private-jira"));
+    assert.equal((await h.get("/api/jira")).status, 401);
+    assert.equal(requests.filter((r) => r.options.method === "POST").length, 1);
+  } finally {
+    await h.close();
+  }
 });

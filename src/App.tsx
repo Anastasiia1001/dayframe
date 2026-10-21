@@ -121,6 +121,7 @@ export default function App() {
   const [filters, setFilters] = useLocal<string[]>("dayframe-filters", [
     "Outlook",
     "Google",
+    "Jira",
     "Personal",
   ]);
   const [calendarView, setCalendarView] = useLocal(
@@ -645,7 +646,7 @@ export default function App() {
           </span>
         </div>
         <div className="connections">
-          {["Outlook", "Google", "Slack"].map((s) => (
+          {["Outlook", "Google", "Slack", "Jira"].filter(s => s !== "Jira" || workspace.status?.providers.some(p => p.id === "jira" && p.configured)).map((s) => (
             <button key={uk(s)} onClick={() => setPage("Settings")}>
               <Source name={s} />
               {s === "Google"
@@ -689,7 +690,7 @@ export default function App() {
             onClick={() =>
               openMock(
                 "Спокійний початок дня",
-                "Dayframe збирає твій день в одному місці. Підключи Outlook, Календар Google і Slack у налаштуваннях або спробуй деморежим. Зовнішні джерела доступні лише для читання; Jira та Confluence вимкнені. Особисті завдання зберігаються в цьому браузері.",
+                "Dayframe збирає твій день в одному місці. Підключи Outlook, Календар Google і Slack у налаштуваннях або спробуй деморежим. Зовнішні джерела доступні лише для читання; Confluence вимкнена. Особисті завдання зберігаються в цьому браузері.",
                 "Dayframe",
               )
             }
@@ -1057,6 +1058,56 @@ export default function App() {
           )}
           {page === "Work" && (
             <div className="work-stack">
+              {workspace.jira.length > 0 && (
+                <Section
+                  title="Jira · Твої завдання"
+                  eyebrow="ДЕДЛАЙНИ В КАЛЕНДАРІ · БЕЗ ДАТИ — ЗАПЛАНУЙ САМА"
+                >
+                  <div className="jira-plans">
+                    {workspace.jira.map((issue) => (
+                      <article key={issue.id}>
+                        <div>
+                          <a href={issue.url} target="_blank" rel="noreferrer">
+                            {issue.key}
+                          </a>
+                          <strong>{issue.title}</strong>
+                          <small>
+                            {issue.status}
+                            {issue.due
+                              ? ` · Дедлайн ${issue.due}`
+                              : " · Без дати"}
+                          </small>
+                        </div>
+                        <button
+                          className="secondary"
+                          disabled={tasks.some((t) =>
+                            t.links?.includes(issue.url),
+                          )}
+                          onClick={() =>
+                            setModal({
+                              id: crypto.randomUUID(),
+                              title: `${issue.key} · ${issue.title}`,
+                              category: "Day",
+                              date: issue.due || today,
+                              recurrence: "once",
+                              priority: "Normal",
+                              notes: "",
+                              links: [issue.url],
+                              completed: false,
+                              disabled: false,
+                            })
+                          }
+                        >
+                          {tasks.some((t) => t.links?.includes(issue.url))
+                            ? "У планах"
+                            : "Запланувати"}
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                </Section>
+              )}
+
               <Section
                 title="Slack · Важливе для тебе"
                 action={

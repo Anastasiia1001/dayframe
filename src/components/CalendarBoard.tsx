@@ -481,6 +481,7 @@ export function CalendarBoard(p: Props) {
           {[
             ["Outlook", "Outlook"],
             ["Google", "Google"],
+            ["Jira", "Jira"],
             ["Personal", "Завдання"],
           ]
             .filter(

@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CalendarEvent, SlackDigestItem } from "./types";
-import { live, calendarRange, type WorkspaceStatus } from "./data/live";
+import {
+  live,
+  calendarRange,
+  type JiraPlan,
+  type WorkspaceStatus,
+} from "./data/live";
 import { providers } from "./data/providers";
 import { useLocal } from "./useLocal";
 export function useWorkspace(date: Date) {
@@ -10,6 +15,7 @@ export function useWorkspace(date: Date) {
   );
   const [channels, setChannels] = useLocal("dayframe-slack-channels", "");
   const [status, setStatus] = useState<WorkspaceStatus | null>(null);
+  const [jira, setJira] = useState<JiraPlan[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]),
     [slack, setSlack] = useState<SlackDigestItem[]>([]);
   const [errors, setErrors] = useState<string[]>([]),
@@ -32,6 +38,7 @@ export function useWorkspace(date: Date) {
         setLoadedMode(mode);
         setEvents(e);
         setSlack(s);
+        setJira([]);
         setUpdated(new Date());
         return;
       }
@@ -42,14 +49,17 @@ export function useWorkspace(date: Date) {
       const selected = current.providers.filter((p) => p.connected);
       const results = await Promise.allSettled(
         selected.map(async (p) =>
-          p.id === "slack"
-            ? { id: p.id, data: await live.slack(channels) }
-            : { id: p.id, data: await live.calendar(p.id, start, end) },
+          p.id === "jira"
+            ? { id: p.id, data: await live.jira() }
+            : p.id === "slack"
+              ? { id: p.id, data: await live.slack(channels) }
+              : { id: p.id, data: await live.calendar(p.id, start, end) },
         ),
       );
       if (g !== generation.current) return;
       const nextEvents: CalendarEvent[] = [],
         nextSlack: SlackDigestItem[] = [],
+        nextJira: JiraPlan[] = [],
         failures: string[] = [];
       results.forEach((r, i) => {
         if (r.status === "rejected") {
@@ -58,7 +68,36 @@ export function useWorkspace(date: Date) {
           );
           return;
         }
-        if (r.value.id === "slack") {
+        if (r.value.id === "jira") {
+          const data = r.value.data as {
+            issues: JiraPlan[];
+            truncated: boolean;
+          };
+          nextJira.push(...data.issues);
+          if (data.truncated)
+            failures.push(
+              "Jira: показано до 500 активних завдань на кожному з перших п’яти сайтів.",
+            );
+          for (const issue of data.issues)
+            if (issue.due) {
+              const endDate = new Date(issue.due + "T12:00:00Z");
+              endDate.setUTCDate(endDate.getUTCDate() + 1);
+              nextEvents.push({
+                id: `jira:${issue.id}`,
+                title: `${issue.key} · ${issue.title}`,
+                source: "Jira",
+                date: issue.due,
+                start: "Увесь день",
+                end: "Увесь день",
+                endDate: endDate.toISOString().slice(0, 10),
+                allDay: true,
+                location: issue.site,
+                participants: [],
+                reminder: false,
+                url: issue.url,
+              });
+            }
+        } else if (r.value.id === "slack") {
           const d = r.value.data as {
             items: SlackDigestItem[];
             truncated: boolean;
@@ -87,6 +126,7 @@ export function useWorkspace(date: Date) {
         ),
       );
       setSlack(nextSlack);
+      setJira(nextJira);
       setErrors(failures);
       setUpdated(new Date());
     } catch (e) {
@@ -95,6 +135,7 @@ export function useWorkspace(date: Date) {
         setStatus(null);
         setEvents([]);
         setSlack([]);
+        setJira([]);
         setErrors([
           e instanceof Error ? e.message : "Не вдалося з’єднатися із сервером.",
         ]);
@@ -115,6 +156,16 @@ export function useWorkspace(date: Date) {
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [refresh]);
+  useEffect(() => {
+    if (mode !== "live" || !status?.providers.some((p) => p.connected)) return;
+    const timer = setInterval(
+      () => {
+        if (!document.hidden) void refresh();
+      },
+      5 * 60 * 1000,
+    );
+    return () => clearInterval(timer);
+  }, [mode, status, refresh]);
   return {
     mode,
     setMode,
@@ -123,6 +174,7 @@ export function useWorkspace(date: Date) {
     status,
     events: loadedMode === mode ? events : [],
     slack: loadedMode === mode ? slack : [],
+    jira: loadedMode === mode ? jira : [],
     errors,
     loading,
     updated,

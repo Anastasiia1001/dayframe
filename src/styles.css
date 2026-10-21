@@ -5731,3 +5731,13 @@ button:disabled {
 .connection-server-link { display: grid; gap: 8px; margin: 18px 23px; }
 .connection-server-link > a { justify-self: start; }
 .connection-server-link > small { color: var(--muted); }
+.connection-direct-setup { margin: 20px 23px; border: 1px solid var(--border); border-radius: 14px; padding: 16px; overflow-wrap: anywhere; }
+.connection-direct-setup summary { cursor: pointer; font-weight: 600; }
+.connection-direct-setup label { display: grid; gap: 6px; margin: 14px 0; }
+.connection-direct-setup input { width: 100%; min-width: 0; font-size: 12px; }
+.connection-direct-setup p { font-size: 12px; line-height: 1.7; margin: 12px 0; }
+.jira-plans { padding: 0 23px 20px; }
+.jira-plans article { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.jira-plans article > div { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.jira-plans small { color: var(--muted); }
+.source-jira { --event-color: #647fe2; border-left-color: #647fe2; }

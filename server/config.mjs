@@ -33,6 +33,16 @@ export function providerConfig(env = process.env) {
       pkce: true,
       required: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
     },
+    jira: {
+      name: "Jira",
+      clientId: env.ATLASSIAN_CLIENT_ID,
+      secret: env.ATLASSIAN_CLIENT_SECRET,
+      authorize: "https://auth.atlassian.com/authorize",
+      token: "https://auth.atlassian.com/oauth/token",
+      scope: "read:jira-work offline_access",
+      pkce: false,
+      required: ["ATLASSIAN_CLIENT_ID", "ATLASSIAN_CLIENT_SECRET"],
+    },
     slack: {
       name: "Slack",
       clientId: env.SLACK_CLIENT_ID,

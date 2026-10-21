@@ -28,7 +28,7 @@ const status = {
     },
     { id: "slack", name: "Slack", configured: true, connected: true },
   ],
-  disabled: ["Jira", "Confluence"],
+  disabled: ["Confluence"],
   sessionStorage: "memory",
   sessionHours: 8,
 };
@@ -81,13 +81,13 @@ test("live defaults never imply fake connections; unsupported work sources stay 
   await go(page, "Settings");
   await expect(
     page.locator(".connection-state").filter({ hasText: "Не підключено" }),
-  ).toHaveCount(4);
+  ).toHaveCount(5);
   await expect(
     page.locator('.connection-card a[href^="/api/auth/"]'),
   ).toHaveCount(0);
   await expect(
     page.getByText("Вимкнено · немає доступу", { exact: true }),
-  ).toHaveCount(2);
+  ).toHaveCount(1);
   await go(page, "Work");
   await expect(
     page.getByText("Дані Slack не завантажено.", { exact: false }),
@@ -263,7 +263,7 @@ test("static site explains its limitation and can enter clearly labelled demo", 
   await expect(page.locator(".connect-strip")).toBeVisible();
   await go(page, "Settings");
   await expect(page.locator(".workspace-alert")).toContainText(
-    "Для реальних підключень потрібен сервер Dayframe",
+    "Для календарів налаштуй прямий вхід",
   );
   await page
     .getByRole("button", { name: "Спробувати деморежим", exact: true })
