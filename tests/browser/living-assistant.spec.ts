@@ -285,9 +285,9 @@ test("pug greets with its tail while the seated paw stays planted", async ({
   await page.goto("/");
   const pug = page.locator(".calendar-companion .mascot-pug");
   await expect(pug.locator(".mascot-paw")).toHaveCount(0);
-  await expect(pug.locator(".pug-paws-planted")).toHaveCSS(
-    "animation-name",
-    "none",
+  await expect(pug.locator("image").first()).toHaveAttribute(
+    "href",
+    /pug-plush\.png$/,
   );
   await expect(pug.locator(".pug-tail")).toHaveCSS(
     "animation-name",
@@ -298,7 +298,7 @@ test("pug greets with its tail while the seated paw stays planted", async ({
     "animation-name",
     "pug-tail-delight",
   );
-  await expect(pug.locator(".pug-paws-planted")).toHaveCSS("transform", "none");
+  await expect(pug.locator(".mascot-paw")).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(pug.locator(".pug-tail")).toHaveCSS("animation-name", "none");
 });

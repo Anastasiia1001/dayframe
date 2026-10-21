@@ -41,11 +41,10 @@ test("pug mascot keeps its palette in dark themes and has layered idles", async 
       .locator(".mascot-body")
       .evaluate((el) => getComputedStyle(el).animationName),
   ).toBe("soft-breathe");
-  expect(
-    await pug
-      .locator(".mascot-tongue")
-      .evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe("soft-pant");
+  await expect(pug.locator("image").first()).toHaveAttribute(
+    "href",
+    /pug-plush\.png$/,
+  );
   await page.reload();
   await page
     .locator(".sidebar")
@@ -144,34 +143,97 @@ for (const width of [320, 390, 1440])
     ).toBe(true);
   });
 
-test("task pocket creates and edits a real task and outside click dismisses it",async({page})=>{
-  await page.goto("/");await page.locator(".sidebar").getByRole("button",{name:"Календар",exact:true}).click();
-  const trigger=page.getByRole("button",{name:"Відкрити: Справи вибраного дня",exact:true});
-  await trigger.click();let popup=page.getByRole("dialog");
-  await popup.getByRole("button",{name:"Додати справу на цю дату",exact:true}).click();
-  await page.getByRole("dialog").getByLabel("Назва",{exact:true}).fill("Справжня справа з віконця");
-  await page.getByRole("button",{name:"Зберегти завдання",exact:true}).click();
-  await trigger.click();popup=page.getByRole("dialog");
-  await popup.getByRole("button",{name:"Редагувати Справжня справа з віконця",exact:true}).click();
-  await page.getByRole("dialog").getByLabel("Назва",{exact:true}).fill("Оновлена справа з віконця");
-  await page.getByRole("button",{name:"Зберегти завдання",exact:true}).click();
-  await trigger.click();popup=page.getByRole("dialog");await expect(popup.getByText("Оновлена справа з віконця",{exact:true})).toBeVisible();
-  await page.locator(".planner-kicker").click();await expect(popup).toBeHidden();await expect(trigger).toHaveAttribute("aria-expanded","false");
+test("task pocket creates and edits a real task and outside click dismisses it", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .locator(".sidebar")
+    .getByRole("button", { name: "Календар", exact: true })
+    .click();
+  const trigger = page.getByRole("button", {
+    name: "Відкрити: Справи вибраного дня",
+    exact: true,
+  });
+  await trigger.click();
+  let popup = page.getByRole("dialog");
+  await popup
+    .getByRole("button", { name: "Додати справу на цю дату", exact: true })
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByLabel("Назва", { exact: true })
+    .fill("Справжня справа з віконця");
+  await page
+    .getByRole("button", { name: "Зберегти завдання", exact: true })
+    .click();
+  await trigger.click();
+  popup = page.getByRole("dialog");
+  await popup
+    .getByRole("button", {
+      name: "Редагувати Справжня справа з віконця",
+      exact: true,
+    })
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByLabel("Назва", { exact: true })
+    .fill("Оновлена справа з віконця");
+  await page
+    .getByRole("button", { name: "Зберегти завдання", exact: true })
+    .click();
+  await trigger.click();
+  popup = page.getByRole("dialog");
+  await expect(
+    popup.getByText("Оновлена справа з віконця", { exact: true }),
+  ).toBeVisible();
+  await page.locator(".planner-kicker").click();
+  await expect(popup).toBeHidden();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
 });
 
-test("pug winks with one eye on greeting while the other keeps the normal blink",async({page})=>{
-  await page.addInitScript(()=>localStorage.setItem("dayframe-mascot",JSON.stringify("pug")));
-  await page.goto("/");await page.locator(".sidebar").getByRole("button",{name:"Календар",exact:true}).click();
-  const pug=page.locator(".calendar-companion .mascot-pug");
-  await page.getByRole("button",{name:"Привітатися з помічником",exact:true}).click();
-  expect(await pug.locator(".mascot-eye-right").evaluate(el=>getComputedStyle(el).animationName)).toContain("soft-wink");
-  expect(await pug.locator(".mascot-eye-left").evaluate(el=>getComputedStyle(el).animationName)).toBe("soft-blink");
-  expect(await pug.locator(".pug-tail").evaluate(el=>getComputedStyle(el).animationName)).toBe("pug-tail-delight");
-  expect(await pug.locator(".mascot-body").evaluate(el=>getComputedStyle(el).animationName)).toBe("soft-breathe");
+test("pug winks with one eye on greeting while the other keeps the normal blink", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("dayframe-mascot", JSON.stringify("pug")),
+  );
+  await page.goto("/");
+  await page
+    .locator(".sidebar")
+    .getByRole("button", { name: "Календар", exact: true })
+    .click();
+  const pug = page.locator(".calendar-companion .mascot-pug");
+  await page
+    .getByRole("button", { name: "Привітатися з помічником", exact: true })
+    .click();
+  expect(
+    await pug
+      .locator(".mascot-eye-right")
+      .evaluate((el) => getComputedStyle(el).animationName),
+  ).toContain("soft-wink");
+  expect(
+    await pug
+      .locator(".mascot-eye-left")
+      .evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe("soft-blink");
+  expect(
+    await pug
+      .locator(".pug-tail")
+      .evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe("pug-tail-delight");
+  expect(
+    await pug
+      .locator(".mascot-body")
+      .evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe("soft-breathe");
 });
 
 // These regression scenarios exercise the retained classic planner and dashboard.
-test.beforeEach(async ({page}) => { await page.addInitScript(() => {
-  localStorage.setItem("dayframe-classic-planner", "true");
-  if (!localStorage.getItem("dayframe-calendar-view")) localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
-}); });
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("dayframe-classic-planner", "true");
+    if (!localStorage.getItem("dayframe-calendar-view"))
+      localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
+  });
+});

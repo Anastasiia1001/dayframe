@@ -788,3 +788,5 @@
     animation: none !important;
   }
 }
+/* The plush illustration uses its own tail pivot and keeps its textured silhouette intact. */
+:root[data-theme] .mascot-pug-plush .pug-tail { transform-origin: 81px 79px; }
