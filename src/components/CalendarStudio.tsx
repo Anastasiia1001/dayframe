@@ -828,6 +828,13 @@ export function CalendarStudio(p: Props) {
       className={`calendar-studio ${left ? "has-left" : ""} ${right ? "has-right" : ""}`}
       aria-label="Творчий календар"
       data-view={view.toLowerCase()}
+      // Suppress only the click produced by the completed drag, never a new gesture.
+      onPointerDownCapture={() => {
+        suppressClick.current = false;
+      }}
+      onKeyDownCapture={() => {
+        suppressClick.current = false;
+      }}
       onPointerMove={pointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={cancelDrag}
