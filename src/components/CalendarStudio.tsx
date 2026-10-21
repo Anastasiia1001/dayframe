@@ -131,12 +131,33 @@ export function CalendarStudio(p: Props) {
     x: number;
     y: number;
     node: HTMLElement;
+    kind?: "task" | "event";
+    grabOffset?: number;
+    captureRoot?: boolean;
+    moved?: boolean;
   } | null>(null);
   const [dragPreview, setDragPreview] = useState<{
     id: string;
     date: string;
     start: number;
     duration: number;
+  } | null>(null);
+  const previewRef = useRef<{
+    id: string;
+    date: string;
+    start: number;
+    duration: number;
+    timed: boolean;
+    x: number;
+    y: number;
+  } | null>(null);
+  const [dragGhost, setDragGhost] = useState<{
+    title: string;
+    x: number;
+    y: number;
+    date: string;
+    start: number;
+    timed: boolean;
   } | null>(null);
   const key = dateKey(p.date),
     view = mobile && p.view === "Week" ? "Day" : p.view;
@@ -386,6 +407,33 @@ export function CalendarStudio(p: Props) {
         planningAnchor: date,
       });
   };
+  const beginTaskDrag = (
+    event: ReactPointerEvent<HTMLElement>,
+    task: PersonalTask,
+  ) => {
+    if (event.button !== 0) return;
+    event.stopPropagation();
+    const captureRoot =
+      mobile &&
+      !!event.currentTarget.closest(".studio-navigation,.studio-day-panel");
+    const captureNode = captureRoot
+      ? event.currentTarget.closest<HTMLElement>(".calendar-studio")!
+      : event.currentTarget;
+    captureNode.setPointerCapture(event.pointerId);
+    drag.current = {
+      captureRoot,
+      id: task.id,
+      occurrence: task.date,
+      date: task.date,
+      start: minutes(task.scheduledStart || "09:00"),
+      duration: task.scheduledDuration || 30,
+      action: "move",
+      x: event.clientX,
+      y: event.clientY,
+      node: event.currentTarget,
+      kind: "task",
+    };
+  };
   const beginDrag = (
     event: ReactPointerEvent<HTMLElement>,
     item: CalendarEvent,
@@ -393,8 +441,8 @@ export function CalendarStudio(p: Props) {
   ) => {
     if (!localEvent(item) || event.button !== 0) return;
     event.stopPropagation();
-    const node = event.currentTarget;
-    node.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const day = event.currentTarget.closest<HTMLElement>(".studio-time-day");
     drag.current = {
       id: item.taskId,
       occurrence: item.occurrence,
@@ -404,57 +452,109 @@ export function CalendarStudio(p: Props) {
       action,
       x: event.clientX,
       y: event.clientY,
-      node,
+      node: event.currentTarget,
+      kind: "event",
+      grabOffset: day
+        ? event.clientY - day.getBoundingClientRect().top - minutes(item.start)
+        : 0,
     };
   };
-  const pointerMove = (e: ReactPointerEvent) => {
+  const cancelDrag = () => {
+    drag.current = null;
+    previewRef.current = null;
+    setDragPreview(null);
+    setDragGhost(null);
+  };
+  const pointerMove = (event: ReactPointerEvent) => {
     const d = drag.current;
-    if (!d || Math.hypot(e.clientX - d.x, e.clientY - d.y) < 5) return;
-    const delta = Math.round((e.clientY - d.y) / 15) * 15;
-    const grid = document
-      .querySelector(".studio-time-grid")
-      ?.getBoundingClientRect();
-    const col = grid
-      ? Math.max(
-          0,
-          Math.min(
-            days.length - 1,
-            Math.floor(
-              (e.clientX - grid.left - 44) / ((grid.width - 44) / days.length),
-            ),
-          ),
-        )
-      : 0;
-    setDragPreview({
+    if (!d || Math.hypot(event.clientX - d.x, event.clientY - d.y) < 5) return;
+    d.moved = true;
+    if (d.captureRoot && mobilePanel) setMobilePanel(null);
+    const target = document
+      .elementFromPoint(event.clientX, event.clientY)
+      ?.closest<HTMLElement>("[data-studio-day]");
+    if (!target) {
+      previewRef.current = null;
+      setDragGhost(null);
+      return;
+    }
+    const timed = target.dataset.dropKind === "time";
+    const date = target.dataset.studioDay!;
+    let start = d.start,
+      duration = d.duration;
+    if (d.action === "resize")
+      duration = Math.max(
+        15,
+        Math.min(
+          1440 - start,
+          d.duration + Math.round((event.clientY - d.y) / 15) * 15,
+        ),
+      );
+    else if (timed)
+      start = Math.max(
+        0,
+        Math.min(
+          1440 - duration,
+          Math.round(
+            (event.clientY -
+              target.getBoundingClientRect().top -
+              (d.kind === "event" ? d.grabOffset || 0 : 0)) /
+              15,
+          ) * 15,
+        ),
+      );
+    const next = {
       id: d.id,
-      date: d.action === "move" ? days[col] : d.date,
-      start:
-        d.action === "move"
-          ? Math.max(0, Math.min(1425, d.start + delta))
-          : d.start,
-      duration:
-        d.action === "resize"
-          ? Math.max(15, Math.min(1440 - d.start, d.duration + delta))
-          : d.duration,
+      date: d.action === "resize" ? d.date : date,
+      start,
+      duration,
+      timed,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    previewRef.current = next;
+    setDragPreview(next);
+    setDragGhost({
+      title: p.tasks.find((t) => t.id === d.id)?.title || "Справа",
+      ...next,
     });
   };
   const finishDrag = () => {
-    const d = drag.current;
-    if (d && dragPreview) {
+    const d = drag.current,
+      next = previewRef.current;
+    if (d && next) {
       const task = p.tasks.find((t) => t.id === d.id);
-      if (task)
-        moveOccurrence(
-          task,
-          d.occurrence,
-          dragPreview.date,
-          timeString(dragPreview.start),
-          Math.min(dragPreview.duration, 1440 - dragPreview.start),
-        );
+      if (task) {
+        suppressClick.current = true;
+        if (d.kind === "event")
+          moveOccurrence(
+            task,
+            d.occurrence,
+            next.date,
+            timeString(next.start),
+            next.duration,
+          );
+        else
+          patchTask(task.id, {
+            date: next.date,
+            inBacklog: false,
+            planningHorizon: "day",
+            planningAnchor: next.date,
+            scheduledStart: next.timed
+              ? timeString(next.start)
+              : task.scheduledStart,
+            scheduledDuration: next.duration,
+          });
+        setTimeout(() => {
+          suppressClick.current = false;
+        }, 150);
+      }
     }
-    drag.current = null;
-    if (dragPreview) {
-      setTimeout(() => setDragPreview(null), 50);
+    if (d?.captureRoot && !d.moved) {
+      const task = p.tasks.find((t) => t.id === d.id);
+      if (task) open(task);
     }
+    cancelDrag();
   };
   const submit = () => {
     if (!draft?.title.trim()) return;
@@ -608,13 +708,19 @@ export function CalendarStudio(p: Props) {
     <div
       key={task.id}
       className="studio-task-row"
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData("text/dayframe-task", task.id);
-        e.dataTransfer.effectAllowed = "move";
-      }}
       style={styleColor(sectionOf(task)?.color || "#795875")}
     >
+      <button
+        className="studio-drag-grip"
+        aria-label={`Перетягнути ${task.title}`}
+        title="Перетягни на день або час"
+        onPointerDown={(e) => beginTaskDrag(e, task)}
+        onClick={() => {
+          if (!suppressClick.current) open(task);
+        }}
+      >
+        <GripVertical size={16} />
+      </button>
       <input
         type="checkbox"
         aria-label={`Вибрати ${task.title}`}
@@ -627,7 +733,13 @@ export function CalendarStudio(p: Props) {
           )
         }
       />
-      <button className="studio-task-title" onClick={() => open(task)}>
+      <button
+        onPointerDown={(e) => beginTaskDrag(e, task)}
+        className="studio-task-title"
+        onClick={() => {
+          if (!suppressClick.current) open(task);
+        }}
+      >
         <strong>{task.title}</strong>
         <small>
           {sectionOf(task)?.name}
@@ -679,6 +791,9 @@ export function CalendarStudio(p: Props) {
     <section
       className={`calendar-studio ${left ? "has-left" : ""} ${right ? "has-right" : ""}`}
       aria-label="Творчий календар"
+      onPointerMove={pointerMove}
+      onPointerUp={finishDrag}
+      onPointerCancel={cancelDrag}
     >
       <header className="studio-header">
         <div>
@@ -1142,6 +1257,8 @@ export function CalendarStudio(p: Props) {
                 {days.map((day) => (
                   <div
                     key={day}
+                    data-studio-day={day}
+                    data-drop-kind="date"
                     className={`${day === today ? "today" : ""} ${day === key ? "selected" : ""} ${fromDate(day).getMonth() !== p.date.getMonth() ? "outside" : ""}`}
                   >
                     <button
@@ -1167,9 +1284,34 @@ export function CalendarStudio(p: Props) {
                                 )?.color || "#795875"
                               : "#627790",
                           )}
-                          onClick={() => openEvent(e)}
+                          onPointerDown={(ev) => beginDrag(ev, e, "move")}
+                          onClick={() => {
+                            if (!suppressClick.current) openEvent(e);
+                          }}
                         >
                           {!e.allDay && e.start} {e.title}
+                        </button>
+                      ))}
+                    {visibleTasks
+                      .filter(
+                        (t) =>
+                          !t.completed &&
+                          !t.inBacklog &&
+                          t.date === day &&
+                          !t.scheduledStart &&
+                          !t.allDay,
+                      )
+                      .map((t) => (
+                        <button
+                          key={t.id}
+                          className="studio-month-event"
+                          style={styleColor(sectionOf(t)?.color || "#795875")}
+                          onPointerDown={(ev) => beginTaskDrag(ev, t)}
+                          onClick={() => {
+                            if (!suppressClick.current) open(t);
+                          }}
+                        >
+                          ✓ {t.title}
                         </button>
                       ))}
                     <button
@@ -1195,6 +1337,8 @@ export function CalendarStudio(p: Props) {
                 {days.map((day) => (
                   <button
                     key={day}
+                    data-studio-day={day}
+                    data-drop-kind="date"
                     className={`${day === today ? "today" : ""} ${day === key ? "selected" : ""}`}
                     onClick={() => {
                       p.onDate(fromDate(day));
@@ -1218,11 +1362,17 @@ export function CalendarStudio(p: Props) {
               >
                 <small>Увесь день</small>
                 {days.map((day) => (
-                  <div key={day}>
+                  <div key={day} data-studio-day={day} data-drop-kind="date">
                     {events
                       .filter((e) => e.allDay && eventOnDay(e, day))
                       .map((e) => (
-                        <button key={e.id} onClick={() => openEvent(e)}>
+                        <button
+                          key={e.id}
+                          onPointerDown={(ev) => beginDrag(ev, e, "move")}
+                          onClick={() => {
+                            if (!suppressClick.current) openEvent(e);
+                          }}
+                        >
                           {e.title}
                         </button>
                       ))}
@@ -1237,7 +1387,7 @@ export function CalendarStudio(p: Props) {
               >
                 <small>Без часу</small>
                 {days.map((day) => (
-                  <div key={day}>
+                  <div key={day} data-studio-day={day} data-drop-kind="date">
                     {" "}
                     {visibleTasks
                       .filter(
@@ -1252,7 +1402,10 @@ export function CalendarStudio(p: Props) {
                         <button
                           key={t.id}
                           style={styleColor(sectionOf(t)?.color || "#795875")}
-                          onClick={() => open(t)}
+                          onPointerDown={(ev) => beginTaskDrag(ev, t)}
+                          onClick={() => {
+                            if (!suppressClick.current) open(t);
+                          }}
                         >
                           {t.title}
                         </button>
@@ -1272,12 +1425,6 @@ export function CalendarStudio(p: Props) {
                   style={{
                     gridTemplateColumns: `44px repeat(${days.length},minmax(0,1fr))`,
                   }}
-                  onPointerMove={pointerMove}
-                  onPointerUp={finishDrag}
-                  onPointerCancel={() => {
-                    drag.current = null;
-                    setDragPreview(null);
-                  }}
                 >
                   <div className="studio-hours">
                     {Array.from({ length: 24 }, (_, h) => (
@@ -1290,6 +1437,7 @@ export function CalendarStudio(p: Props) {
                     <div
                       key={day}
                       data-studio-day={day}
+                      data-drop-kind="time"
                       className={`studio-time-day ${day === today ? "today" : ""}`}
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => {
@@ -1390,7 +1538,7 @@ export function CalendarStudio(p: Props) {
                               title={`${e.start}–${e.end} ${e.title}`}
                               onPointerDown={(ev) => beginDrag(ev, e, "move")}
                               onClick={() => {
-                                if (!dragPreview) openEvent(e);
+                                if (!suppressClick.current) openEvent(e);
                               }}
                             >
                               <span>
@@ -1417,7 +1565,7 @@ export function CalendarStudio(p: Props) {
                                   beginDrag(ev, e, "resize")
                                 }
                                 onClick={() => {
-                                  if (!dragPreview) openEvent(e);
+                                  if (!suppressClick.current) openEvent(e);
                                 }}
                               >
                                 <GripVertical size={12} />
@@ -1441,7 +1589,13 @@ export function CalendarStudio(p: Props) {
                 <div className="studio-upcoming">
                   <h2>Найближчі події</h2>
                   {upcoming.map((e) => (
-                    <button key={e.id} onClick={() => openEvent(e)}>
+                    <button
+                      key={e.id}
+                      onPointerDown={(ev) => beginDrag(ev, e, "move")}
+                      onClick={() => {
+                        if (!suppressClick.current) openEvent(e);
+                      }}
+                    >
                       <time>
                         {fromDate(e.date).toLocaleDateString("uk-UA", {
                           day: "numeric",
@@ -1596,7 +1750,10 @@ export function CalendarStudio(p: Props) {
                 <button
                   className="studio-day-event"
                   key={e.id}
-                  onClick={() => openEvent(e)}
+                  onPointerDown={(ev) => beginDrag(ev, e, "move")}
+                  onClick={() => {
+                    if (!suppressClick.current) openEvent(e);
+                  }}
                 >
                   <Clock size={14} />
                   <span>
@@ -1608,6 +1765,27 @@ export function CalendarStudio(p: Props) {
           </aside>
         )}
       </div>
+      {dragGhost && (
+        <div
+          className="studio-drag-ghost"
+          aria-hidden="true"
+          style={{
+            left: Math.min(dragGhost.x + 14, innerWidth - 220),
+            top: Math.max(8, dragGhost.y - 65),
+          }}
+        >
+          <strong>{dragGhost.title}</strong>
+          <span>
+            {fromDate(dragGhost.date).toLocaleDateString("uk-UA", {
+              day: "numeric",
+              month: "short",
+            })}
+            {dragGhost.timed
+              ? " · " + timeString(dragGhost.start)
+              : " · без зміни часу"}
+          </span>
+        </div>
+      )}
       <dialog
         ref={dialog}
         className="studio-editor"

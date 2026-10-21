@@ -1,7 +1,10 @@
+import { PocketMascot, type PocketKind } from "./PocketMascots";
 import { PugMascot } from "./PugMascot";
 import type { MascotId } from "../appearance";
 /** Original little characters drawn as SVG; all movement is local CSS. */
 export function Mascot({ kind }: { kind: MascotId }) {
+  if (["axolotl", "penguin", "dragon", "otter"].includes(kind))
+    return <PocketMascot kind={kind as PocketKind} />;
   if (kind === "pug") return <PugMascot />;
   const fill =
     kind === "fox"

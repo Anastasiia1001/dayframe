@@ -1,0 +1,220 @@
+:root[data-theme^="Neon"] {
+  color-scheme: dark;
+  --bg: #080f25;
+  --surface: #101d36;
+  --text: #eaf7ff;
+  --muted: #acbfd9;
+  --border: #294266;
+  --accent: #60d9ff;
+  --selected: #163e5c;
+  --soft: #152743;
+  --calendar: #65bbff;
+  --google: #6ae5cf;
+  --blush: #9a9de8;
+  --bunny: #fffaf8;
+  --bunny-line: #c69fc5;
+  --shadow: 0 20px 70px #0006;
+  --ui-light: #c7f7ff25;
+  --ui-cast: #0004;
+  --ui-frame: #295476;
+  --material-ink: #81dfff0d;
+  --material-pattern:
+    linear-gradient(#6baeff09 1px, transparent 1px),
+    linear-gradient(90deg, #6baeff09 1px, transparent 1px);
+  --material-size: 24px 24px;
+}
+:root[data-theme="NeonOcean"] {
+  --bg: #061b29;
+  --surface: #0c2937;
+  --soft: #123643;
+  --border: #245463;
+  --accent: #38ead4;
+  --selected: #164b53;
+  --muted: #a3c9d0;
+  --ui-frame: #237a82;
+}
+:root[data-theme="NeonCobalt"] {
+  --bg: #0e1132;
+  --surface: #1a2047;
+  --soft: #252d5b;
+  --border: #414e86;
+  --accent: #91a8ff;
+  --selected: #353f79;
+  --muted: #bdc6eb;
+  --ui-frame: #5266ad;
+}
+:root[data-theme="NeonAurora"] {
+  --bg: #10162b;
+  --surface: #19243d;
+  --soft: #24344c;
+  --border: #3a516e;
+  --accent: #76d8f5;
+  --selected: #314d68;
+  --muted: #b8c8dc;
+  --ui-frame: #56729b;
+}
+:root[data-theme="NeonIce"] {
+  color-scheme: light;
+  --bg: #eaf5ff;
+  --surface: #f7fcff;
+  --text: #173149;
+  --muted: #49677f;
+  --border: #b5d1e5;
+  --accent: #1c63be;
+  --soft: #deeffc;
+  --selected: #c8e6fc;
+  --calendar: #276ba9;
+  --google: #287c76;
+  --shadow: 0 15px 50px #1b65a51a;
+  --ui-light: #fff;
+  --ui-cast: #3273a322;
+  --ui-frame: #8ebedf;
+  --material-ink: #276aa00e;
+}
+:root[data-theme^="Neon"] body {
+  background: var(--bg);
+}
+:root[data-theme^="Neon"] .app {
+  background:
+    radial-gradient(
+      ellipse at 80% 0,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 45%
+    ),
+    var(--bg);
+}
+:root[data-theme="NeonAurora"] .app {
+  background:
+    radial-gradient(ellipse at 15% 0, #7f70ff20, transparent 45%),
+    radial-gradient(ellipse at 90% 15%, #32e4cd18, transparent 48%), var(--bg);
+}
+:root[data-theme^="Neon"]
+  :is(
+    .sidebar,
+    .studio-week,
+    .studio-month,
+    .studio-navigation,
+    .studio-day-panel,
+    .calendar-pocket,
+    .studio-editor
+  ) {
+  border-color: var(--border);
+  box-shadow:
+    inset 0 1px 0 var(--ui-light),
+    0 8px 30px #0001;
+  background-color: var(--surface);
+}
+:root[data-theme^="Neon"] :is(.studio-tools, .calendar-toolbar) {
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--border));
+}
+:root[data-theme^="Neon"]
+  :is(
+    .primary,
+    .studio-modes button[aria-pressed="true"],
+    .sidebar nav button.selected
+  ) {
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--accent) 15%, transparent),
+    inset 0 1px 0 var(--ui-light);
+}
+:root[data-theme^="Neon"] .primary {
+  color: var(--bg) !important;
+}
+:root[data-theme^="Neon"] .studio-event-main span {
+  color: var(--text);
+}
+:root[data-theme^="Neon"] .studio-timed-event {
+  background: color-mix(in srgb, var(--section-color) 24%, var(--surface));
+  border-left-color: color-mix(in srgb, var(--section-color) 65%, var(--text));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--section-color) 10%, transparent);
+}
+:root[data-theme^="Neon"] .studio-day-head .today strong {
+  box-shadow: 0 0 15px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+:root[data-theme^="Neon"] .studio-now {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+:root[data-theme^="Neon"] .studio-now:before {
+  background: var(--accent);
+}
+.studio-drag-grip {
+  cursor: grab !important;
+  touch-action: none;
+  flex-shrink: 0;
+  padding: 2px !important;
+  min-width: 22px;
+  user-select: none;
+}
+.studio-drag-grip:active {
+  cursor: grabbing !important;
+}
+.studio-task-title,
+.studio-untimed button,
+.studio-month-event,
+.studio-all-day button {
+  touch-action: none;
+  user-select: none;
+}
+.studio-drag-ghost {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  width: 210px;
+  padding: 10px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 10px 35px #0004;
+  color: var(--text);
+  font-size: 12px;
+}
+.studio-drag-ghost strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.studio-drag-ghost span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 5px;
+}
+.studio-task-row {
+  gap: 3px;
+}
+.studio-task-row .studio-task-title strong {
+  font-size: 12px;
+}
+:root[data-theme] .mascot-axolotl .mascot-ears {
+  transform-origin: 50px 48px;
+  animation: soft-ear 6s ease-in-out infinite;
+}
+:root[data-theme] .mascot-dragon .little-wing {
+  transform-origin: 50px 75px;
+  animation: soft-ear 4s ease-in-out infinite;
+}
+:root[data-theme] .mascot-otter .mascot-paw {
+  transform-origin: 50px 78px;
+  animation: soft-breathe 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .mascot-art * {
+    animation: none !important;
+  }
+}
+@media (min-width: 760px) {
+  .studio-navigation {
+    max-height: max(320px, calc(100dvh - 340px));
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}
+@media (min-width: 1201px) {
+  .studio-day-panel {
+    max-height: max(320px, calc(100dvh - 340px));
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}

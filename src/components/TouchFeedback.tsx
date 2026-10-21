@@ -9,7 +9,7 @@ type Pulse = {
 const motifFor = (theme: string) =>
   ["Green", "Pistachio", "Lagoon", "Vintage", "Warm"].includes(theme)
     ? "leaf"
-    : ["Dark", "Moonlight", "Blueberry", "Parchment"].includes(theme)
+    : ["Dark", "Moonlight", "Blueberry", "Parchment", "NeonAzure", "NeonOcean", "NeonCobalt", "NeonAurora", "NeonIce"].includes(theme)
       ? "star"
       : ["Blue", "Graphite"].includes(theme)
         ? "cloud"
