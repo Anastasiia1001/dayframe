@@ -1,3 +1,4 @@
+import { PlanningBoard } from "./PlanningBoard";
 import { taskCadence } from "../taskCadence";
 import { useState } from "react";
 import { Plus, Search, CheckCheck, BookOpen } from "lucide-react";
@@ -12,6 +13,8 @@ type Props = {
   onEdit: (t: PersonalTask) => void;
   onPostpone: (t: PersonalTask) => void;
   onDelete: (t: PersonalTask) => void;
+  onSchedule: (t: PersonalTask, date: string) => void;
+  onImportJira: (title: string, url: string) => void;
   onAdd: () => void;
   onUseTemplate: (t: PersonalTask) => void;
 };
@@ -20,10 +23,14 @@ export function PersonalBoard(p: Props) {
     [query, setQuery] = useState(""),
     [showDone, setShowDone] = useState(false),
     [period, setPeriod] = useState<Period>("Month");
+  const [importing, setImporting] = useState(false);
+  const [jiraTitle, setJiraTitle] = useState("");
+  const [jiraUrl, setJiraUrl] = useState("");
   const current = p.tasks.filter((t) => !t.isTemplate),
     open = current.filter((t) => !t.completed && !t.disabled),
     templates = p.tasks.filter((t) => t.isTemplate);
   const views = [
+    { id: "board", name: "Дошка", count: open.length },
     {
       id: "today",
       name: "Сьогодні",
@@ -70,6 +77,14 @@ export function PersonalBoard(p: Props) {
           ] as const);
   return (
     <section className="personal-board">
+      <div className="planning-toolbar"><button className="secondary" onClick={() => setImporting(v => !v)}>Додати з Jira вручну</button></div>
+      {importing && <form className="jira-copy-form" onSubmit={e => { e.preventDefault(); if (!jiraTitle.trim()) return; p.onImportJira(jiraTitle.trim(), jiraUrl.trim()); setJiraTitle(""); setJiraUrl(""); setImporting(false); }}>
+        <h2>Скопіюй назву тікета</h2>
+        <p>Локальне завдання без підключення до Jira. Назву вставляєш самостійно; статус і зміни не синхронізуються.</p>
+        <label>Назва тікета<input required maxLength={300} value={jiraTitle} onChange={e => setJiraTitle(e.target.value)} /></label>
+        <label>Посилання на тікет (необов’язково)<input type="url" pattern="https://.*" placeholder="https://company.atlassian.net/browse/TEAM-123" value={jiraUrl} onChange={e => setJiraUrl(e.target.value)} /></label>
+        <button className="primary" type="submit">Додати на сьогодні</button><button type="button" className="text-button" onClick={() => setImporting(false)}>Скасувати</button>
+      </form>}
       <div
         className="task-view-tabs"
         role="tablist"
@@ -90,7 +105,7 @@ export function PersonalBoard(p: Props) {
           </button>
         ))}
       </div>
-      {view === "templates" ? (
+      {view === "board" ? <PlanningBoard tasks={p.tasks} today={p.today} onSchedule={p.onSchedule} onEdit={p.onEdit} onToggle={p.onToggle} /> : view === "templates" ? (
         <>
           <div className="library-heading">
             <div>

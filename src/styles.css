@@ -5657,3 +5657,35 @@ button:disabled {
 @keyframes ambient-drift { 0% { transform:translate3d(-12px,-40px,0) rotate(-18deg); opacity:0; } 12%,85% { opacity:.16; } 50% { transform:translate3d(22px,50vh,0) rotate(20deg); } 100% { transform:translate3d(-10px,110vh,0) rotate(55deg); opacity:0; } }
 @media(max-width:700px) { .theme-atmosphere svg:nth-child(n+7) { display:none; } }
 @media(prefers-reduced-motion:reduce) { .theme-atmosphere { display:none; } .theme-atmosphere svg { animation:none; } }
+.planning-toolbar { display:flex; justify-content:flex-end; margin-bottom:14px; }
+.planning-help { font-size:13px; color:var(--muted); margin:12px 0 20px; }
+.planning-columns { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:start; }
+.planning-column { min-width:0; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; min-height:260px; transition:border-color .15s,box-shadow .15s; }
+.planning-column.drop-active { border-color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent); }
+.planning-column h2 { font-size:16px; display:flex; justify-content:space-between; margin:0 0 6px; }
+.planning-column > small { font-size:11px; color:var(--muted); display:block; margin-bottom:16px; }
+.planning-card { background:var(--cadence-wash); border:1px solid color-mix(in srgb,var(--cadence-ink) 25%,transparent); border-inline-start:3px solid var(--cadence-ink); border-radius:12px; padding:12px; margin:10px 0; display:flex; flex-direction:column; gap:9px; cursor:grab; }
+.planning-card:active { cursor:grabbing; }
+.planning-card .cadence-badge { color:var(--cadence-ink); font-size:11px; font-weight:650; }
+.planning-title { text-align:start; font-weight:650; font-size:14px; line-height:1.5; overflow-wrap:anywhere; color:var(--text); background:none; border:0; padding:0; }
+.planning-card small,.planning-date { font-size:11px; color:var(--muted); }
+.planning-date { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+.planning-date input { width:100%; min-width:0; background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:7px; }
+.planning-actions { display:flex; flex-wrap:wrap; gap:6px; }
+.planning-actions button { border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:7px; padding:7px; font-size:11px; min-height:34px; }
+.planning-card a { font-size:12px; color:var(--cadence-ink); }
+.planning-empty { font-size:12px; color:var(--muted); text-align:center; padding:25px 0; }
+.jira-copy-form { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; margin:14px 0; }
+.jira-copy-form h2 { font-size:18px; }
+.jira-copy-form p { font-size:13px; color:var(--muted); }
+.jira-copy-form label { display:flex; flex-direction:column; gap:6px; margin:14px 0; font-size:13px; }
+.jira-copy-form input { padding:10px; width:100%; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text); }
+@media(max-width:1200px) { .planning-columns { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { .planning-columns { grid-template-columns:minmax(0,1fr); } .planning-actions button { min-height:44px; } }
+@media(min-width:601px) { .planning-column { max-height:72vh; overflow-y:auto; scrollbar-gutter:stable; } .planning-column > h2 { position:sticky; top:-14px; z-index:1; background:var(--surface); padding-block:10px; } }
+@media(prefers-reduced-motion:reduce) { .planning-column { transition:none; } }
+.planning-title { display:block; width:100%; }
+.personal-board .planning-help { margin-inline:20px; }
+.personal-board .planning-columns { margin:0 16px 20px; }
+.planning-toolbar { padding:14px 16px 0; }
+.drag-grip { cursor:grab; font-size:16px; padding-inline-end:3px; }

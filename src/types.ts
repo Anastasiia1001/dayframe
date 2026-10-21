@@ -61,6 +61,7 @@ export interface PersonalTask {
   completed: boolean;
   disabled: boolean;
   origin?: { source: "Slack"; id: string };
+  jiraUrl?: string;
   isTemplate?: boolean;
   customDays?: number;
   completedOn?: string;

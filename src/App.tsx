@@ -911,6 +911,17 @@ export default function App() {
               onDelete={(t) =>
                 setTasks((ts) => ts.filter((x) => x.id !== t.id))
               }
+              onSchedule={(task, date) => {
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+                const planned = { ...task, id: task.isTemplate ? crypto.randomUUID() : task.id, isTemplate: false, date, completed: false, completedOn: undefined, nextOccurrence: undefined };
+                setTasks(ts => task.isTemplate ? [...ts, planned] : ts.map(t => t.id === task.id ? planned : t));
+                setToast(task.isTemplate ? "Справу заплановано, шаблон збережено" : "Дату завдання змінено");
+              }}
+              onImportJira={(title, url) => {
+                if (url) { try { if (new URL(url).protocol !== "https:") return; } catch { return; } }
+                setTasks(ts => [...ts, { id: crypto.randomUUID(), title, jiraUrl: url || undefined, category: "Day", date: today, recurrence: "once", priority: "Normal", notes: "Додано з Jira вручну. Без синхронізації.", completed: false, disabled: false }]);
+                setToast("Назву тікета додано як особисте завдання");
+              }}
               onAdd={() => addTask()}
               onUseTemplate={(t) =>
                 setModal({

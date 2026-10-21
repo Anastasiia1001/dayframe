@@ -66,6 +66,7 @@ export function TaskList({
             </span>
           </button>
           <div className="task-actions">
+            {t.jiraUrl?.startsWith("https://") && <a href={t.jiraUrl} target="_blank" rel="noopener noreferrer" aria-label={`Відкрити тікет ${t.title}`}>Jira ↗</a>}
             {!t.completed && (
               <button
                 title="Перенести на наступний день"
