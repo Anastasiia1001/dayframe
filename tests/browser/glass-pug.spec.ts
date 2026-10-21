@@ -40,12 +40,12 @@ test("pug mascot keeps its palette in dark themes and has layered idles", async 
     await pug
       .locator(".mascot-body")
       .evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe("companion-idle");
+  ).toBe("soft-breathe");
   expect(
     await pug
       .locator(".mascot-tongue")
       .evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe("pug-pant");
+  ).toBe("soft-pant");
   await page.reload();
   await page
     .locator(".sidebar")
@@ -157,4 +157,15 @@ test("task pocket creates and edits a real task and outside click dismisses it",
   await page.getByRole("button",{name:"Зберегти завдання",exact:true}).click();
   await trigger.click();popup=page.getByRole("dialog");await expect(popup.getByText("Оновлена справа з віконця",{exact:true})).toBeVisible();
   await page.locator(".planner-kicker").click();await expect(popup).toBeHidden();await expect(trigger).toHaveAttribute("aria-expanded","false");
+});
+
+test("pug winks with one eye on greeting while the other keeps the normal blink",async({page})=>{
+  await page.addInitScript(()=>localStorage.setItem("dayframe-mascot",JSON.stringify("pug")));
+  await page.goto("/");await page.locator(".sidebar").getByRole("button",{name:"Календар",exact:true}).click();
+  const pug=page.locator(".calendar-companion .mascot-pug");
+  await page.getByRole("button",{name:"Привітатися з помічником",exact:true}).click();
+  expect(await pug.locator(".mascot-eye-right").evaluate(el=>getComputedStyle(el).animationName)).toContain("soft-wink");
+  expect(await pug.locator(".mascot-eye-left").evaluate(el=>getComputedStyle(el).animationName)).toBe("soft-blink");
+  expect(await pug.locator(".pug-tail").evaluate(el=>getComputedStyle(el).animationName)).toBe("happy-tail");
+  expect(await pug.locator(".mascot-body").evaluate(el=>getComputedStyle(el).animationName)).toBe("soft-breathe");
 });

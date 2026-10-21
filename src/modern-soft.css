@@ -1,0 +1,468 @@
+/* Quiet frosted surfaces and light controls replace the heavy game frames. */
+:root[data-theme] {
+  --ui-shadow:
+    0 6px 22px color-mix(in srgb, var(--accent) 7%, transparent),
+    inset 0 1px 0 var(--ui-light);
+  --ui-radius: 22px;
+  --glass-edge: color-mix(in srgb, var(--accent) 15%, var(--border));
+}
+:root[data-theme]
+  :is(
+    .card,
+    .personal-board,
+    .planner-sheet,
+    .calendar-board,
+    .planner-calendar-surface,
+    .task-modal,
+    .detail-modal,
+    .search-modal,
+    .notification-panel,
+    .calendar-pocket
+  ) {
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--ui-shadow);
+  border-radius: 22px;
+  background-image: linear-gradient(145deg, #ffffff0e, transparent 65%);
+}
+:root[data-theme] .page-calendar .calendar-board {
+  border: 1px solid var(--glass-edge);
+  border-radius: 28px;
+}
+:root[data-theme] .planner-sheet {
+  border-radius: 20px;
+  outline: none;
+  transform: none;
+}
+:root[data-theme] .notes-sheet {
+  border-left: 1px solid var(--glass-edge);
+}
+:root[data-theme] .sheet-tab {
+  position: static;
+  display: flex;
+  width: fit-content;
+  margin: 0 0 19px;
+  padding: 0;
+  color: var(--text);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  transform: none;
+}
+:root[data-theme] .sheet-tab:hover {
+  translate: 0;
+  rotate: 0;
+}
+:root[data-theme] .planner-sheet {
+  padding: 22px 18px;
+}
+:root[data-theme] .schedule-sheet {
+  padding: 22px 0 10px;
+}
+:root[data-theme] .schedule-sheet > .sheet-tab {
+  margin-inline: 20px;
+}
+:root[data-theme] :is(.paper-tape, .stationery-sticker) {
+  opacity: 0.65;
+}
+:root[data-theme] .daily-priorities input {
+  font-size: 13px;
+}
+:root[data-theme] .daily-priorities li {
+  gap: 11px;
+  padding-block: 5px 13px;
+}
+:root[data-theme] .priority-check {
+  box-shadow: none;
+  background: var(--soft);
+  border: 0;
+}
+:root[data-theme]
+  :is(
+    .primary,
+    .secondary,
+    .calendar-controls button,
+    .planning-actions button,
+    .sheet-add,
+    .calendar-top .date-jump,
+    .calendar-pocket-tabs button
+  ) {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 5px #00000005;
+  background-image: none;
+}
+:root[data-theme]
+  :is(
+    .primary,
+    .secondary,
+    .calendar-controls button,
+    .planning-actions button,
+    .sheet-add
+  ):hover {
+  box-shadow: 0 4px 10px var(--ui-cast);
+  transform: translateY(-1px);
+}
+:root[data-theme]
+  :is(
+    .primary,
+    .secondary,
+    .calendar-controls button,
+    .planning-actions button,
+    .sheet-add
+  ):active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+:root[data-theme] .calendar-board .segmented {
+  padding: 4px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--soft);
+  box-shadow: none;
+}
+:root[data-theme] .calendar-board .segmented button {
+  border: 0;
+  border-radius: 10px;
+  font-size: 12px;
+  background-image: none;
+}
+:root[data-theme] .calendar-board .segmented button.active {
+  outline: none;
+  box-shadow: 0 1px 5px #0000000b;
+  border: 0;
+  background: var(--surface);
+}
+:root[data-theme] .calendar-controls button {
+  min-width: 36px;
+}
+:root[data-theme] .calendar-pocket-tabs {
+  gap: 8px;
+}
+:root[data-theme] .calendar-pocket-tabs button {
+  border: 0;
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  color: var(--muted);
+  padding: 8px 11px;
+  min-height: 36px;
+}
+:root[data-theme] .calendar-pocket-tabs .pocket-active {
+  background: var(--selected);
+  color: var(--accent);
+  translate: 0;
+  box-shadow: none;
+}
+:root[data-theme] .calendar-pocket-tabs small {
+  background: var(--soft);
+}
+:root[data-theme] :is(input:not([type="checkbox"]), select, textarea) {
+  box-shadow: none;
+}
+:root[data-theme] .planning-column {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: none;
+  background-image: none;
+}
+:root[data-theme] .planning-card {
+  border-radius: 13px;
+  box-shadow: 0 2px 4px #00000006;
+}
+:root[data-theme] .sidebar {
+  box-shadow: 1px 0 0 var(--border);
+  border-radius: 20px;
+}
+:root[data-theme] .sidebar nav button.selected {
+  border: 0;
+  box-shadow: none;
+}
+:root[data-theme] :is(.theme-choice, .mascot-choice, .connection-card) {
+  box-shadow: none;
+  border-radius: 16px;
+}
+:root[data-theme] .theme-choice:hover,
+:root[data-theme] .mascot-choice:hover {
+  transform: translateY(-2px);
+}
+:root[data-theme] .planner-cover-title h1 {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: clamp(26px, 2.5vw, 36px);
+  font-weight: 650;
+  letter-spacing: -1.1px;
+}
+:root[data-theme] .planner-cover {
+  min-height: 140px;
+  padding-bottom: 18px;
+}
+:root[data-theme] .mode-month .calendar-cell {
+  border: 1px solid var(--border);
+  outline: none;
+  border-radius: 10px;
+  box-shadow: none;
+}
+:root[data-theme] .calendar-board .calendar-event {
+  border-radius: 8px;
+  box-shadow: none;
+}
+:root[data-theme] .app::before {
+  opacity: 0.6;
+}
+:root[data-theme] .app [data-touch-pressed="true"] {
+  scale: 0.98;
+  transition: scale 0.1s ease-out;
+}
+/* Standard idle: tiny breathing, a blink lasting ~160 ms, occasional ear/tail motion. */
+:root[data-theme] .mascot-art .mascot-body {
+  transform-origin: 50px 94px;
+  animation: soft-breathe 4.8s ease-in-out infinite;
+}
+:root[data-theme] .mascot-art .mascot-eyes {
+  animation: none;
+  transform: none;
+}
+:root[data-theme] .mascot-art :is(.mascot-eye-left, .mascot-eye-right) {
+  animation: soft-blink 5.8s linear infinite;
+}
+:root[data-theme] .mascot-art .mascot-ears {
+  animation: soft-ear 13s ease-in-out infinite;
+}
+:root[data-theme] .mascot-art .mascot-paw {
+  animation: none;
+}
+:root[data-theme] .mascot-art .mascot-shadow {
+  animation: none;
+}
+:root[data-theme] .mascot-pug .mascot-ears {
+  animation: none;
+}
+:root[data-theme] .pug-ear-left {
+  transform-origin: 24px 28px;
+  animation: pug-ear-flick 11s ease-in-out infinite;
+}
+:root[data-theme] .pug-ear-right {
+  transform-origin: 76px 28px;
+  animation: pug-ear-flick 11s 1.2s ease-in-out infinite;
+}
+:root[data-theme] .pug-tail {
+  transform-origin: 77px 83px;
+  animation: soft-tail 8s ease-in-out infinite;
+}
+:root[data-theme] .mascot-pug .mascot-tongue {
+  animation: soft-pant 7s ease-in-out infinite;
+}
+:root[data-theme]
+  .calendar-companion
+  :is(.planner-hero-art, .planner-decoration, .mascot-art),
+:root[data-theme] .theme-mascot-vignette > svg {
+  animation: none;
+}
+:root[data-theme]
+  .calendar-companion.is-greeting
+  :is(.planner-hero-art, .planner-decoration, .mascot-art) {
+  animation: none;
+}
+:root[data-theme] .calendar-companion.is-greeting .mascot-body,
+:root[data-theme] .is-playing .mascot-art .mascot-body {
+  animation: soft-breathe 4.8s ease-in-out infinite;
+}
+:root[data-theme] .calendar-companion.is-greeting .mascot-eye-right,
+:root[data-theme] .is-playing .mascot-art .mascot-eye-right,
+:root[data-theme] .mascot-choice[aria-pressed="true"] .mascot-eye-right {
+  animation:
+    soft-wink 0.6s ease-in-out,
+    soft-blink 5.8s 0.6s linear infinite;
+}
+:root[data-theme] .calendar-companion.is-greeting .pug-tail {
+  animation: happy-tail 0.8s ease-in-out;
+}
+@keyframes soft-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-0.6px) scale(1.008, 1.012);
+  }
+}
+@keyframes soft-blink {
+  0%,
+  44%,
+  47%,
+  100% {
+    transform: scaleY(1);
+  }
+  45.3%,
+  45.8% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes soft-wink {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  35%,
+  65% {
+    transform: scaleY(0.08);
+  }
+}
+@keyframes soft-ear {
+  0%,
+  60%,
+  65%,
+  100% {
+    transform: rotate(0);
+  }
+  62% {
+    transform: rotate(1.8deg);
+  }
+  63.5% {
+    transform: rotate(-1deg);
+  }
+}
+@keyframes pug-ear-flick {
+  0%,
+  62%,
+  69%,
+  100% {
+    transform: rotate(0);
+  }
+  64%,
+  67% {
+    transform: rotate(6deg);
+  }
+  65.5% {
+    transform: rotate(-3deg);
+  }
+}
+@keyframes soft-tail {
+  0%,
+  62%,
+  80%,
+  100% {
+    transform: rotate(0);
+  }
+  66%,
+  74% {
+    transform: rotate(-8deg);
+  }
+  70%,
+  77% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes happy-tail {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20%,
+  60% {
+    transform: rotate(-13deg);
+  }
+  40%,
+  80% {
+    transform: rotate(12deg);
+  }
+}
+@keyframes soft-pant {
+  0%,
+  65%,
+  85%,
+  100% {
+    transform: scaleY(1);
+  }
+  72%,
+  79% {
+    transform: scaleY(1.12);
+  }
+  75.5%,
+  82% {
+    transform: scaleY(0.94);
+  }
+}
+@media (max-width: 700px) {
+  :root[data-theme] .planner-cover {
+    min-height: 0;
+  }
+  :root[data-theme] .planner-cover-title h1 {
+    font-size: 25px;
+  }
+  :root[data-theme] .page-calendar .calendar-board {
+    border-width: 1px;
+    border-radius: 22px;
+  }
+  :root[data-theme] .planner-sheet {
+    padding: 20px 16px;
+  }
+  :root[data-theme] .schedule-sheet {
+    padding: 20px 0 10px;
+  }
+  :root[data-theme] .calendar-pocket-tabs button {
+    min-height: 53px;
+    padding: 6px 2px;
+  }
+  :root[data-theme] .calendar-controls button,
+  :root[data-theme] .sheet-add {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] *,
+  :root[data-theme] *::before,
+  :root[data-theme] *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+:root[data-theme] body {
+  background-image: none;
+}
+:root[data-theme] .page-calendar .calendar-board {
+  border-color: transparent;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  padding: 8px 0;
+}
+:root[data-theme] .planner-kicker {
+  font-size: 10px;
+  letter-spacing: 1px;
+  font-weight: 550;
+}
+:root[data-theme] .planner-cover {
+  gap: 24px;
+}
+:root[data-theme] .day-planner-layout {
+  gap: 24px;
+}
+:root[data-theme] .page-calendar .calendar-top {
+  border-top-color: transparent;
+}
+:root[data-theme] .calendar-connection-hint {
+  border: 0;
+  background: transparent;
+  padding: 10px 0 24px;
+}
+@media (max-width: 700px) {
+  :root[data-theme] .planner-cover {
+    gap: 10px;
+  }
+  :root[data-theme] .page-calendar .calendar-board {
+    padding: 0;
+  }
+}
+:root[data-theme] .reminders-sheet {
+  padding-bottom: 68px;
+}
+:root[data-theme] .reminders-sheet .planner-plant {
+  width: 62px;
+  height: 78px;
+  bottom: -10px;
+  right: -3px;
+}

@@ -1,8 +1,8 @@
-import {PugMascot} from "./PugMascot";
+import { PugMascot } from "./PugMascot";
 import type { MascotId } from "../appearance";
 /** Original little characters drawn as SVG; all movement is local CSS. */
 export function Mascot({ kind }: { kind: MascotId }) {
-  if (kind === "pug") return <PugMascot/>;
+  if (kind === "pug") return <PugMascot />;
   const fill =
     kind === "fox"
       ? "#edb17c"
@@ -79,10 +79,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
               stroke="#cc8fa7"
               strokeWidth="1.6"
             />
-            <path
-              d="M26 39L26 29L36 39M64 39L74 29L74 39"
-              fill="#f3a8c3"
-            />
+            <path d="M26 39L26 29L36 39M64 39L74 29L74 39" fill="#f3a8c3" />
           </g>
         )}
         {kind === "fox" && (
@@ -173,36 +170,47 @@ export function Mascot({ kind }: { kind: MascotId }) {
         {kind === "bear" && (
           <ellipse cx="50" cy="75" rx="16" ry="12" fill="#f7e5cf" />
         )}
-        <g
-          className="bunny-eyes mascot-eyes"
-          style={{ transformOrigin: "50px 60px" }}
-        >
-          <ellipse
-            cx={kind === "frog" ? 30 : 38}
-            cy={kind === "frog" ? 41 : 60}
-            rx="2.7"
-            ry="3.6"
-            fill={ink}
-          />
-          <ellipse
-            cx={kind === "frog" ? 70 : 62}
-            cy={kind === "frog" ? 41 : 60}
-            rx="2.7"
-            ry="3.6"
-            fill={ink}
-          />
-          <circle
-            cx={kind === "frog" ? 31 : 39}
-            cy={kind === "frog" ? 40 : 59}
-            r=".85"
-            fill="white"
-          />
-          <circle
-            cx={kind === "frog" ? 71 : 63}
-            cy={kind === "frog" ? 40 : 59}
-            r=".85"
-            fill="white"
-          />
+        <g className="bunny-eyes mascot-eyes">
+          <g
+            className="mascot-eye-left"
+            style={{
+              transformOrigin: kind === "frog" ? "30px 41px" : "38px 60px",
+            }}
+          >
+            <ellipse
+              cx={kind === "frog" ? 30 : 38}
+              cy={kind === "frog" ? 41 : 60}
+              rx="2.7"
+              ry="3.6"
+              fill={ink}
+            />
+            <circle
+              cx={kind === "frog" ? 31 : 39}
+              cy={kind === "frog" ? 40 : 59}
+              r=".85"
+              fill="white"
+            />
+          </g>
+          <g
+            className="mascot-eye-right"
+            style={{
+              transformOrigin: kind === "frog" ? "70px 41px" : "62px 60px",
+            }}
+          >
+            <ellipse
+              cx={kind === "frog" ? 70 : 62}
+              cy={kind === "frog" ? 41 : 60}
+              rx="2.7"
+              ry="3.6"
+              fill={ink}
+            />
+            <circle
+              cx={kind === "frog" ? 71 : 63}
+              cy={kind === "frog" ? 40 : 59}
+              r=".85"
+              fill="white"
+            />
+          </g>
         </g>
         <ellipse cx="28" cy="71" rx="7" ry="4" fill="#f3a8c3" />
         <ellipse cx="72" cy="71" rx="7" ry="4" fill="#f3a8c3" />
