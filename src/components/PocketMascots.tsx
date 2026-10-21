@@ -35,6 +35,7 @@ export function PocketMascot({ kind }: { kind: PocketKind }) {
         {kind === "axolotl" && (
           <>
             <path
+              className="mascot-tail"
               d="M68 90Q95 95 88 72Q81 85 65 80"
               fill="#f4bbce"
               stroke="#d78ca6"
@@ -56,6 +57,7 @@ export function PocketMascot({ kind }: { kind: PocketKind }) {
         {kind === "dragon" && (
           <>
             <path
+              className="mascot-tail"
               d="M68 91Q95 96 89 72Q86 86 73 81"
               fill="#80c7b0"
               stroke="#518e80"
@@ -72,7 +74,11 @@ export function PocketMascot({ kind }: { kind: PocketKind }) {
         )}
         {kind === "otter" && (
           <>
-            <path d="M66 92Q91 91 85 103Q78 108 64 98" fill="#aa7358" />
+            <path
+              className="mascot-tail"
+              d="M66 92Q91 91 85 103Q78 108 64 98"
+              fill="#aa7358"
+            />
             <g className="mascot-ears">
               <circle cx="24" cy="35" r="10" fill="#c69371" />
               <circle cx="76" cy="35" r="10" fill="#c69371" />
@@ -130,44 +136,82 @@ export function PocketMascot({ kind }: { kind: PocketKind }) {
             <ellipse cx="73" cy="56" rx="4" ry="2.5" fill="#77baa5" />
           </>
         )}
-        <g className="mascot-eyes">
-          {[36, 64].map((x, i) => (
-            <g
-              key={x}
-              className={i ? "mascot-eye-right" : "mascot-eye-left"}
-              style={{ transformOrigin: `${x}px 50px` }}
-            >
-              <ellipse cx={x} cy="50" rx="5.5" ry="7" fill="#354052" />
-              <ellipse cx={x - 1.4} cy="47.6" rx="1.9" ry="2.1" fill="#fff" />
-              <circle cx={x + 2} cy="53" r=".8" fill="#fff" opacity=".8" />
-            </g>
-          ))}
-        </g>
-        <ellipse cx="26" cy="59" rx="6" ry="3" fill="#efacb7" opacity=".8" />
-        <ellipse cx="74" cy="59" rx="6" ry="3" fill="#efacb7" opacity=".8" />
-        {kind === "penguin" ? (
-          <path d="M44 59Q50 55 56 59L50 65Z" fill="#eab580" />
-        ) : kind === "otter" ? (
-          <>
-            <path
-              d="M46 57Q50 54 54 57Q53 62 50 62Q47 62 46 57"
-              fill="#65463f"
-            />
-            <path
-              d="M50 62V65M50 65Q45 69 42 65M50 65Q55 69 58 65M25 60L17 58M25 63L17 64M75 60L83 58M75 63L83 64"
-              stroke="#94664d"
-              strokeWidth="1.1"
-              strokeLinecap="round"
-            />
-          </>
-        ) : (
-          <path
-            d="M44 61Q50 68 56 61"
-            stroke="#876577"
-            strokeWidth="1.5"
-            strokeLinecap="round"
+        <g className="mascot-face" style={{ transformOrigin: "50px 53px" }}>
+          <g className="mascot-eyes">
+            {[36, 64].map((x, i) => (
+              <g
+                key={x}
+                className={i ? "mascot-eye-right" : "mascot-eye-left"}
+                style={{ transformOrigin: `${x}px 50px` }}
+              >
+                <ellipse cx={x} cy="50" rx="5.5" ry="7" fill="#354052" />
+                <ellipse cx={x - 1.4} cy="47.6" rx="1.9" ry="2.1" fill="#fff" />
+                <circle cx={x + 2} cy="53" r=".8" fill="#fff" opacity=".8" />
+              </g>
+            ))}
+          </g>
+          <ellipse
+            className="mascot-cheek"
+            cx="26"
+            cy="59"
+            rx="6"
+            ry="3"
+            fill="#efacb7"
+            opacity=".8"
           />
-        )}
+          <ellipse
+            className="mascot-cheek"
+            cx="74"
+            cy="59"
+            rx="6"
+            ry="3"
+            fill="#efacb7"
+            opacity=".8"
+          />
+          <g className="mascot-mouth" style={{ transformOrigin: "50px 63px" }}>
+            <g className="mascot-mouth-rest">
+              {kind === "penguin" ? (
+                <path d="M44 59Q50 55 56 59L50 65Z" fill="#eab580" />
+              ) : kind === "otter" ? (
+                <>
+                  <path
+                    d="M46 57Q50 54 54 57Q53 62 50 62Q47 62 46 57"
+                    fill="#65463f"
+                  />
+                  <path
+                    d="M50 62V65M50 65Q45 69 42 65M50 65Q55 69 58 65M25 60L17 58M25 63L17 64M75 60L83 58M75 63L83 64"
+                    stroke="#94664d"
+                    strokeWidth="1.1"
+                    strokeLinecap="round"
+                  />
+                </>
+              ) : (
+                <path
+                  d="M44 61Q50 68 56 61"
+                  stroke="#876577"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              )}
+            </g>
+            <g className="mascot-smile">
+              <path
+                d="M43 60Q50 64 57 60Q57 70 50 70Q43 70 43 60Z"
+                fill="#594451"
+              />
+              <path d="M46 67Q50 63 54 67Q50 71 46 67Z" fill="#f1a6b9" />
+              {kind === "otter" && (
+                <path
+                  d="M46 57Q50 54 54 57Q53 62 50 62Q47 62 46 57"
+                  fill="#65463f"
+                />
+              )}
+              {kind === "penguin" && (
+                <path d="M44 59Q50 55 56 59L50 62Z" fill="#eab580" />
+              )}
+            </g>
+          </g>
+        </g>
         {kind === "otter" ? (
           <>
             <ellipse

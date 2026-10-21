@@ -1,7 +1,7 @@
+import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
-import { type MascotId, isPlannerTheme } from "../appearance";
+import { type MascotId } from "../appearance";
 import { Mascot } from "./Mascot";
-import { PlannerDecoration } from "./PlannerDecoration";
 const greetings = [
   "Я поруч. Одна справа за раз!",
   "Маленький крок — теж перемога.",
@@ -17,40 +17,43 @@ export function CalendarCompanion({
 }) {
   const [greeting, setGreeting] = useState(-1);
   const count = useRef(0);
+  const button = useRef<HTMLButtonElement>(null);
+  const [interaction, setInteraction] = useState(0);
   useEffect(() => {
     if (greeting < 0) return;
     const timer = setTimeout(() => setGreeting(-1), 2600);
     return () => clearTimeout(timer);
   }, [greeting]);
-  const clay = ["Pastel", "CutePlanner"].includes(theme) && mascot === "bunny";
   return (
-    <button
-      className={`calendar-companion ${clay ? "clay-companion" : ""} ${greeting >= 0 ? "is-greeting" : ""}`}
-      aria-label="Привітатися з помічником"
-      onClick={() => {
-        setGreeting(count.current++ % greetings.length);
-      }}
-    >
-      {greeting >= 0 && (
-        <span className="companion-greeting" role="status">
-          {greetings[greeting]}
-        </span>
-      )}
-      {clay ? (
-        <img
-          className="planner-hero-art"
+    <>
+      <button
+        ref={button}
+        className={`calendar-companion ${greeting >= 0 ? "is-greeting" : ""}`}
+        aria-label="Привітатися з помічником"
+        onClick={() => {
+          setGreeting(count.current++ % greetings.length);
+          setInteraction((value) => value + 1);
+        }}
+      >
+        <div
+          className="theme-mascot-vignette"
           data-decoration={theme}
-          src={`${import.meta.env.BASE_URL}assets/planner/bunny-calendar.png`}
-          alt=""
           aria-hidden="true"
-        />
-      ) : isPlannerTheme(theme) && mascot === "bunny" ? (
-        <PlannerDecoration theme={theme} />
-      ) : (
-        <div className="theme-mascot-vignette" aria-hidden="true">
-          <Mascot kind={mascot} />
+        >
+          <Mascot key={`${mascot}:${interaction}`} kind={mascot} />
         </div>
-      )}
-    </button>
+      </button>
+      {greeting >= 0 &&
+        button.current &&
+        createPortal(
+          <div className="companion-reply" role="status">
+            <span className="companion-reply-bubble">
+              {greetings[greeting]}
+            </span>
+          </div>,
+          button.current.closest(".studio-header,.planner-cover") ||
+            button.current.parentElement!,
+        )}
+    </>
   );
 }

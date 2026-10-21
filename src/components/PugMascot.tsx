@@ -83,134 +83,172 @@ export function PugMascot() {
           stroke="#f6b3bd"
           strokeWidth=".8"
         />
-        <g className="pug-head" transform="rotate(3 50 44)">
-          <g className="mascot-ears">
+        <g className="mascot-head-idle">
+          <g className="pug-head" transform="rotate(3 50 44)">
+            <g className="mascot-ears">
+              <path
+                className="pug-ear-left"
+                d="M28 18Q13 12 7 31Q5 39 16 44L29 28Z"
+                fill="#484440"
+                stroke="#353330"
+                strokeWidth="1.3"
+              />
+              <path
+                className="pug-ear-right"
+                d="M74 20Q90 20 94 38Q97 51 86 53Q79 49 74 35Z"
+                fill="#484440"
+                stroke="#353330"
+                strokeWidth="1.3"
+              />
+            </g>
             <path
-              className="pug-ear-left"
-              d="M28 18Q13 12 7 31Q5 39 16 44L29 28Z"
-              fill="#484440"
-              stroke="#353330"
-              strokeWidth="1.3"
+              d="M15 42C15 21 30 12 50 12C72 12 85 24 85 45C86 67 73 75 51 75C28 75 14 65 15 42Z"
+              fill={`url(#${id})`}
+              stroke="#b99e80"
+              strokeWidth="1.2"
             />
             <path
-              className="pug-ear-right"
-              d="M74 20Q90 20 94 38Q97 51 86 53Q79 49 74 35Z"
-              fill="#484440"
-              stroke="#353330"
-              strokeWidth="1.3"
+              d="M35 23Q39 16 46 23Q50 32 50 34M65 23Q61 16 54 23Q51 27 51 30M49 16Q46 21 49 25"
+              stroke="#bd966e"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              opacity=".6"
             />
-          </g>
-          <path
-            d="M15 42C15 21 30 12 50 12C72 12 85 24 85 45C86 67 73 75 51 75C28 75 14 65 15 42Z"
-            fill={`url(#${id})`}
-            stroke="#b99e80"
-            strokeWidth="1.2"
-          />
-          <path
-            d="M35 23Q39 16 46 23Q50 32 50 34M65 23Q61 16 54 23Q51 27 51 30M49 16Q46 21 49 25"
-            stroke="#bd966e"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            opacity=".6"
-          />
-          <path
-            d="M36 21Q40 17 45 22M56 22Q60 17 64 21"
-            stroke="#fff5da"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <path
-            d="M29 25Q36 21 43 24M56 24Q63 21 70 26M29 66Q49 76 70 66"
-            stroke="#fff0d9"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            opacity=".7"
-          />
-          <path
-            d="M17 43Q17 27 33 27Q44 26 50 34Q58 25 70 30Q85 34 83 50Q84 63 72 65Q63 68 53 61Q44 70 30 65Q15 63 17 43Z"
-            fill={`url(#${id}-mask)`}
-          />
-          <g className="mascot-eyes">
-            {[33, 67].map((x, i) => (
-              <g
-                key={x}
-                className={i === 0 ? "mascot-eye-left" : "mascot-eye-right"}
-                style={{ transformOrigin: `${x}px 41px` }}
-              >
-                <ellipse cx={x} cy="41" rx="13" ry="13.5" fill="#f7efdf" />
-                <ellipse
-                  cx={x}
-                  cy="41"
-                  rx="11.1"
-                  ry="11.6"
-                  fill={`url(#${id}-iris)`}
-                  stroke="#9a8c7b"
-                  strokeWidth=".9"
-                />
-                <ellipse cx={x} cy="39.5" rx="7.4" ry="9" fill="#17171d" />
-                <ellipse
-                  cx={x - 3}
-                  cy="36.5"
-                  rx="4.8"
-                  ry="3.8"
-                  transform={`rotate(-20 ${x - 3} 36.5)`}
-                  fill="#fffdf7"
-                />
-                <circle
-                  cx={x + 4.3}
-                  cy="45.8"
-                  r="2"
-                  fill="#fffdf7"
-                  opacity=".88"
+            <path
+              d="M36 21Q40 17 45 22M56 22Q60 17 64 21"
+              stroke="#fff5da"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M29 25Q36 21 43 24M56 24Q63 21 70 26M29 66Q49 76 70 66"
+              stroke="#fff0d9"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              opacity=".7"
+            />
+            <path
+              d="M17 43Q17 27 33 27Q44 26 50 34Q58 25 70 30Q85 34 83 50Q84 63 72 65Q63 68 53 61Q44 70 30 65Q15 63 17 43Z"
+              fill={`url(#${id}-mask)`}
+            />
+            <g className="mascot-eyes">
+              {[33, 67].map((x, i) => (
+                <g
+                  key={x}
+                  className={i === 0 ? "mascot-eye-left" : "mascot-eye-right"}
+                  style={{ transformOrigin: `${x}px 41px` }}
+                >
+                  <ellipse cx={x} cy="41" rx="13" ry="13.5" fill="#f7efdf" />
+                  <ellipse
+                    cx={x}
+                    cy="41"
+                    rx="11.1"
+                    ry="11.6"
+                    fill={`url(#${id}-iris)`}
+                    stroke="#9a8c7b"
+                    strokeWidth=".9"
+                  />
+                  <ellipse cx={x} cy="39.5" rx="7.4" ry="9" fill="#17171d" />
+                  <ellipse
+                    cx={x - 3}
+                    cy="36.5"
+                    rx="4.8"
+                    ry="3.8"
+                    transform={`rotate(-20 ${x - 3} 36.5)`}
+                    fill="#fffdf7"
+                  />
+                  <circle
+                    cx={x + 4.3}
+                    cy="45.8"
+                    r="2"
+                    fill="#fffdf7"
+                    opacity=".88"
+                  />
+                  <path
+                    d={`M${x - 6} 47Q${x - 2} 51 ${x + 3} 49`}
+                    stroke="#bac8c3"
+                    strokeWidth=".8"
+                    strokeLinecap="round"
+                    opacity=".65"
+                  />
+                </g>
+              ))}
+            </g>
+            <path
+              d="M45 46Q50 43 55 46Q56 50 50 52Q44 50 45 46Z"
+              fill="#282928"
+            />
+            <path
+              d="M47 46.5L50 46"
+              stroke="#827b70"
+              strokeWidth="1.1"
+              strokeLinecap="round"
+            />
+            <ellipse
+              cx="43"
+              cy="59"
+              rx="13"
+              ry="10"
+              fill={`url(#${id}-mask)`}
+            />
+            <ellipse
+              cx="59"
+              cy="59"
+              rx="13"
+              ry="10"
+              fill={`url(#${id}-mask)`}
+            />
+            <path
+              d="M34 58Q40 53 45 55M33 62Q40 57 45 59M57 55Q64 53 69 58M57 59Q64 57 70 62"
+              stroke="#99837c"
+              strokeWidth=".8"
+              strokeLinecap="round"
+              opacity=".45"
+            />
+            <g
+              className="mascot-mouth"
+              style={{ transformOrigin: "50px 69px" }}
+            >
+              <path
+                className="mascot-mouth-rest"
+                d="M44 69Q50 72 56 69"
+                stroke="#302d30"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+              <g className="mascot-smile">
+                <path
+                  d="M41 67Q50 75 59 67Q57 78 50 78Q43 78 41 67"
+                  fill="#302d30"
                 />
                 <path
-                  d={`M${x - 6} 47Q${x - 2} 51 ${x + 3} 49`}
-                  stroke="#bac8c3"
-                  strokeWidth=".8"
+                  d="M46 75Q50 72 54 75"
+                  stroke="#e8a5b3"
+                  strokeWidth="2"
                   strokeLinecap="round"
-                  opacity=".65"
                 />
               </g>
-            ))}
+            </g>
+            <path
+              className="mascot-tongue"
+              d="M57 60Q60 62 65 61L66 70Q66 78 60 77Q55 76 57 69Z"
+              fill="#e97598"
+              stroke="#c65577"
+              strokeWidth=".6"
+            />
+            <path
+              d="M61 65V71"
+              stroke="#c65577"
+              strokeWidth=".8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M25 55L26 55M29 58L30 58M72 56L73 56M69 59L70 59"
+              stroke="#252928"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+            />
           </g>
-          <path
-            d="M45 46Q50 43 55 46Q56 50 50 52Q44 50 45 46Z"
-            fill="#282928"
-          />
-          <path
-            d="M47 46.5L50 46"
-            stroke="#827b70"
-            strokeWidth="1.1"
-            strokeLinecap="round"
-          />
-          <ellipse cx="43" cy="59" rx="13" ry="10" fill={`url(#${id}-mask)`} />
-          <ellipse cx="59" cy="59" rx="13" ry="10" fill={`url(#${id}-mask)`} />
-          <path
-            d="M34 58Q40 53 45 55M33 62Q40 57 45 59M57 55Q64 53 69 58M57 59Q64 57 70 62"
-            stroke="#99837c"
-            strokeWidth=".8"
-            strokeLinecap="round"
-            opacity=".45"
-          />
-          <path
-            className="mascot-tongue"
-            d="M57 60Q60 62 65 61L66 70Q66 78 60 77Q55 76 57 69Z"
-            fill="#e97598"
-            stroke="#c65577"
-            strokeWidth=".6"
-          />
-          <path
-            d="M61 65V71"
-            stroke="#c65577"
-            strokeWidth=".8"
-            strokeLinecap="round"
-          />
-          <path
-            d="M25 55L26 55M29 58L30 58M72 56L73 56M69 59L70 59"
-            stroke="#252928"
-            strokeWidth="1.7"
-            strokeLinecap="round"
-          />
         </g>
         <g className="mascot-paw">
           <ellipse

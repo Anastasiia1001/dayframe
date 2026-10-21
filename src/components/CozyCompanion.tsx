@@ -22,7 +22,7 @@ export function CozyCompanion({
   useEffect(() => {
     if (!burst && !note) return;
     setPlay(true);
-    const timer = setTimeout(() => setPlay(false), 1200);
+    const timer = setTimeout(() => setPlay(false), 2200);
     return () => clearTimeout(timer);
   }, [burst, note]);
   return (

@@ -1,3 +1,4 @@
+import { useTaskReminders } from "./useTaskReminders";
 import { CalendarStudio } from "./components/CalendarStudio";
 import { TouchFeedback } from "./components/TouchFeedback";
 import { planInHorizon } from "./domain/horizons";
@@ -59,6 +60,17 @@ const nav = [
 ] as const;
 export default function App() {
   const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const visibility = () => {
+      document.documentElement.dataset.petPaused = String(document.hidden);
+    };
+    visibility();
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      document.removeEventListener("visibilitychange", visibility);
+      delete document.documentElement.dataset.petPaused;
+    };
+  }, []);
   const today = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Europe/Kyiv",
   }).format(now);
@@ -92,6 +104,7 @@ export default function App() {
   useEffect(() => {
     setTasks((current) => reopenDueTasks(current, today));
   }, [today, tasks, setTasks]);
+  const taskReminders = useTaskReminders(tasks);
   const [modal, setModal] = useState<PersonalTask | null>(null);
   const [eventDetail, setEventDetail] = useState<CalendarEvent | null>(null);
   const [detail, setDetail] = useState<{
@@ -1410,7 +1423,16 @@ export default function App() {
                     : modal.recurrence === "monthly"
                       ? "Month"
                       : "Day";
-              const saved = { ...modal, category, title: modal.title.trim() };
+              const saved = {
+                ...modal,
+                category:
+                  modal.inBacklog &&
+                  modal.planningHorizon === "year" &&
+                  modal.category === "Quarter"
+                    ? ("Quarter" as const)
+                    : category,
+                title: modal.title.trim(),
+              };
               setTasks((ts) =>
                 ts.some((t) => t.id === modal.id)
                   ? ts.map((t) => (t.id === modal.id ? saved : t))
@@ -1644,6 +1666,23 @@ export default function App() {
           onClose={() => setEventDetail(null)}
         />
       )}
+      <div className="reminder-alerts">
+        {taskReminders.alerts.map((reminder) => (
+          <div className="task-reminder-alert" role="alert" key={reminder.id}>
+            <Bell size={18} />
+            <div>
+              <small>Нагадування · {reminder.time} за Києвом</small>
+              <strong>{reminder.title}</strong>
+            </div>
+            <button
+              aria-label={`Закрити нагадування ${reminder.title}`}
+              onClick={() => taskReminders.dismiss(reminder.id)}
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ))}
+      </div>
       <HappyPetals burst={burst} />
       <TouchFeedback />
     </div>

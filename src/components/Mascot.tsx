@@ -173,70 +173,96 @@ export function Mascot({ kind }: { kind: MascotId }) {
         {kind === "bear" && (
           <ellipse cx="50" cy="75" rx="16" ry="12" fill="#f7e5cf" />
         )}
-        <g className="bunny-eyes mascot-eyes">
-          <g
-            className="mascot-eye-left"
-            style={{
-              transformOrigin: kind === "frog" ? "30px 41px" : "38px 60px",
-            }}
-          >
-            <ellipse
-              cx={kind === "frog" ? 30 : 38}
-              cy={kind === "frog" ? 41 : 60}
-              rx="2.7"
-              ry="3.6"
-              fill={ink}
-            />
-            <circle
-              cx={kind === "frog" ? 31 : 39}
-              cy={kind === "frog" ? 40 : 59}
-              r=".85"
-              fill="white"
-            />
+        <g className="mascot-face" style={{ transformOrigin: "50px 64px" }}>
+          <g className="bunny-eyes mascot-eyes">
+            <g
+              className="mascot-eye-left"
+              style={{
+                transformOrigin: kind === "frog" ? "30px 41px" : "38px 60px",
+              }}
+            >
+              <ellipse
+                cx={kind === "frog" ? 30 : 38}
+                cy={kind === "frog" ? 41 : 60}
+                rx="2.7"
+                ry="3.6"
+                fill={ink}
+              />
+              <circle
+                cx={kind === "frog" ? 31 : 39}
+                cy={kind === "frog" ? 40 : 59}
+                r=".85"
+                fill="white"
+              />
+            </g>
+            <g
+              className="mascot-eye-right"
+              style={{
+                transformOrigin: kind === "frog" ? "70px 41px" : "62px 60px",
+              }}
+            >
+              <ellipse
+                cx={kind === "frog" ? 70 : 62}
+                cy={kind === "frog" ? 41 : 60}
+                rx="2.7"
+                ry="3.6"
+                fill={ink}
+              />
+              <circle
+                cx={kind === "frog" ? 71 : 63}
+                cy={kind === "frog" ? 40 : 59}
+                r=".85"
+                fill="white"
+              />
+            </g>
           </g>
-          <g
-            className="mascot-eye-right"
-            style={{
-              transformOrigin: kind === "frog" ? "70px 41px" : "62px 60px",
-            }}
-          >
-            <ellipse
-              cx={kind === "frog" ? 70 : 62}
-              cy={kind === "frog" ? 41 : 60}
-              rx="2.7"
-              ry="3.6"
-              fill={ink}
-            />
-            <circle
-              cx={kind === "frog" ? 71 : 63}
-              cy={kind === "frog" ? 40 : 59}
-              r=".85"
-              fill="white"
-            />
-          </g>
-        </g>
-        <ellipse cx="28" cy="71" rx="7" ry="4" fill="#f3a8c3" />
-        <ellipse cx="72" cy="71" rx="7" ry="4" fill="#f3a8c3" />
-        <path
-          d={
-            kind === "frog"
-              ? "M39 68Q50 79 61 68"
-              : kind === "star"
-                ? "M44 70Q50 77 56 70"
-                : "M47 69Q50 73 53 69M50 72Q47 77 44 74M50 72Q53 77 56 74"
-          }
-          stroke={ink}
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        {kind === "cat" && (
-          <path
-            d="M13 67L29 69M12 75L28 73M71 69L87 67M72 73L88 75"
-            stroke="#cc8fa7"
-            strokeWidth="1.5"
-            strokeLinecap="round"
+          <ellipse
+            className="mascot-cheek"
+            cx="28"
+            cy="71"
+            rx="7"
+            ry="4"
+            fill="#f3a8c3"
           />
-        )}
+          <ellipse
+            className="mascot-cheek"
+            cx="72"
+            cy="71"
+            rx="7"
+            ry="4"
+            fill="#f3a8c3"
+          />
+          <g className="mascot-mouth" style={{ transformOrigin: "50px 73px" }}>
+            <path
+              className="mascot-mouth-rest"
+              d={
+                kind === "frog"
+                  ? "M39 68Q50 79 61 68"
+                  : kind === "star"
+                    ? "M44 70Q50 77 56 70"
+                    : "M47 69Q50 73 53 69M50 72Q47 77 44 74M50 72Q53 77 56 74"
+              }
+              stroke={ink}
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+            <g className="mascot-smile">
+              <path
+                d="M43 70Q50 74 57 70Q57 80 50 80Q43 80 43 70Z"
+                fill={ink}
+              />
+              <path d="M46 77Q50 73 54 77Q50 81 46 77" fill="#eea5ba" />
+            </g>
+          </g>
+          {kind === "cat" && (
+            <path
+              d="M13 67L29 69M12 75L28 73M71 69L87 67M72 73L88 75"
+              stroke="#cc8fa7"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          )}
+        </g>
         <g className="mascot-paw">
           <ellipse
             cx="78"

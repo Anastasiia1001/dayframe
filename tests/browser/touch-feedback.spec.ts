@@ -66,8 +66,8 @@ test("press state releases on cancellation and calendar companion greets on touc
   await expect(helper).toHaveAttribute("data-touch-pressed", "true");
   await page.mouse.up();
   await expect(helper).not.toHaveAttribute("data-touch-pressed");
-  await expect(page.locator(".companion-greeting")).toBeVisible();
-  await expect(page.locator(".companion-greeting")).toHaveCount(0);
+  await expect(page.locator(".companion-reply")).toBeVisible();
+  await expect(page.locator(".companion-reply")).toHaveCount(0);
   await helper.dispatchEvent("pointerdown", {
     button: 0,
     isPrimary: true,

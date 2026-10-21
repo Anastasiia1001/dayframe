@@ -1,0 +1,659 @@
+/* Articulated idles: separate breathing, attention, expression and occasional gestures. */
+:root[data-theme] .mascot-art {
+  --pet-breath: 4.2s;
+  --pet-blink: 5.8s;
+  --pet-expression: 11s;
+  --pet-phase: -2s;
+}
+:root[data-theme] .mascot-cat {
+  --pet-breath: 4.8s;
+  --pet-expression: 13s;
+  --pet-phase: -7s;
+}
+:root[data-theme] .mascot-fox {
+  --pet-breath: 3.8s;
+  --pet-expression: 10s;
+  --pet-phase: -3s;
+}
+:root[data-theme] .mascot-bear {
+  --pet-breath: 5.4s;
+  --pet-expression: 14s;
+  --pet-phase: -9s;
+}
+:root[data-theme] .mascot-frog {
+  --pet-breath: 4.6s;
+  --pet-expression: 9s;
+  --pet-phase: -1s;
+}
+:root[data-theme] .mascot-star {
+  --pet-breath: 5s;
+  --pet-expression: 12s;
+  --pet-phase: -6s;
+}
+:root[data-theme] .mascot-pug {
+  --pet-breath: 3.7s;
+  --pet-expression: 10.5s;
+  --pet-phase: -4s;
+}
+:root[data-theme] .mascot-axolotl {
+  --pet-breath: 4.5s;
+  --pet-expression: 12.5s;
+  --pet-phase: -8s;
+}
+:root[data-theme] .mascot-penguin {
+  --pet-breath: 4s;
+  --pet-expression: 10s;
+  --pet-phase: -5s;
+}
+:root[data-theme] .mascot-dragon {
+  --pet-breath: 4.3s;
+  --pet-expression: 9.5s;
+  --pet-phase: -1s;
+}
+:root[data-theme] .mascot-otter {
+  --pet-breath: 4.9s;
+  --pet-expression: 13.5s;
+  --pet-phase: -8s;
+}
+:root[data-theme] .mascot-art .mascot-body {
+  animation: soft-breathe var(--pet-breath) ease-in-out infinite;
+  transform-origin: 50px 97px;
+}
+@keyframes soft-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  45% {
+    transform: translateY(-1px) scale(1.018, 1.035);
+  }
+  65% {
+    transform: translateY(-0.7px) scale(1.012, 1.02);
+  }
+}
+:root[data-theme] .mascot-art :is(.mascot-face, .mascot-head-idle) {
+  transform-origin: 50px 62px;
+  animation: pet-attention 12s var(--pet-phase) ease-in-out infinite;
+}
+@keyframes pet-attention {
+  0%,
+  20%,
+  56%,
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  27%,
+  38% {
+    transform: translate(1px, -0.7px) rotate(2deg);
+  }
+  66%,
+  79% {
+    transform: translate(-0.8px, -0.3px) rotate(-1.8deg);
+  }
+}
+:root[data-theme] .mascot-art .mascot-smile {
+  opacity: 0;
+  transform-origin: 50px 68px;
+  animation: pet-smile var(--pet-expression) var(--pet-phase) ease-in-out
+    infinite;
+}
+:root[data-theme] .mascot-art .mascot-mouth-rest {
+  animation: pet-rest var(--pet-expression) var(--pet-phase) ease-in-out
+    infinite;
+}
+@keyframes pet-smile {
+  0%,
+  35%,
+  65%,
+  100% {
+    opacity: 0;
+    transform: scale(0.95, 0.8);
+  }
+  42%,
+  58% {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+}
+@keyframes pet-rest {
+  0%,
+  35%,
+  65%,
+  100% {
+    opacity: 1;
+  }
+  42%,
+  58% {
+    opacity: 0;
+  }
+}
+:root[data-theme] .mascot-art .mascot-cheek {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pet-cheek var(--pet-expression) var(--pet-phase) ease-in-out
+    infinite;
+}
+@keyframes pet-cheek {
+  0%,
+  35%,
+  65%,
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  42%,
+  58% {
+    transform: translateY(-0.7px) scale(1.1);
+    opacity: 1;
+  }
+}
+:root[data-theme] .mascot-art .mascot-paw {
+  transform-origin: 76px 84px;
+  animation: pet-paw-idle 15s var(--pet-phase) ease-in-out infinite;
+}
+@keyframes pet-paw-idle {
+  0%,
+  65%,
+  82%,
+  100% {
+    transform: rotate(0);
+  }
+  69%,
+  76% {
+    transform: rotate(-9deg) translateY(-1px);
+  }
+  72%,
+  79% {
+    transform: rotate(3deg);
+  }
+}
+:root[data-theme]
+  :is(.mascot-otter, .mascot-axolotl, .mascot-dragon, .mascot-penguin)
+  .mascot-paw {
+  transform-origin: 50px 81px;
+  animation: pet-hug 7s var(--pet-phase) ease-in-out infinite;
+}
+@keyframes pet-hug {
+  0%,
+  65%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  76%,
+  85% {
+    transform: translateY(-1.5px) scale(0.96, 1.02);
+  }
+}
+:root[data-theme] .mascot-art .mascot-tail {
+  transform-origin: 70px 88px;
+  animation: pet-tail 8s var(--pet-phase) ease-in-out infinite;
+}
+@keyframes pet-tail {
+  0%,
+  46%,
+  72%,
+  100% {
+    transform: rotate(0);
+  }
+  50%,
+  60% {
+    transform: rotate(-7deg);
+  }
+  55%,
+  66% {
+    transform: rotate(6deg);
+  }
+}
+:root[data-theme] .mascot-axolotl .mascot-ears {
+  transform-origin: 50px 49px;
+  animation: pet-gills 5.5s ease-in-out infinite;
+}
+@keyframes pet-gills {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.035, 0.96);
+  }
+}
+:root[data-theme] .mascot-dragon .little-wing {
+  transform-origin: 50px 74px;
+  animation: pet-wings 8s ease-in-out infinite;
+}
+@keyframes pet-wings {
+  0%,
+  45%,
+  75%,
+  100% {
+    transform: scaleX(1);
+  }
+  50%,
+  62% {
+    transform: scaleX(1.08) translateY(-1px);
+  }
+  56%,
+  68% {
+    transform: scaleX(0.97);
+  }
+}
+:root[data-theme] .mascot-penguin .mascot-ears {
+  transform-origin: 50px 70px;
+  animation: pet-wings 10s -3s ease-in-out infinite;
+}
+:root[data-theme]
+  :is(.calendar-companion.is-greeting, .is-playing)
+  .mascot-body {
+  animation-name: soft-breathe;
+}
+:root[data-theme]
+  :is(.calendar-companion.is-greeting, .is-playing)
+  .mascot-smile {
+  animation: none;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.18s ease-out;
+}
+:root[data-theme]
+  :is(.calendar-companion.is-greeting, .is-playing)
+  .mascot-mouth-rest {
+  animation: none;
+  opacity: 0;
+}
+:root[data-theme]
+  :is(.calendar-companion.is-greeting, .is-playing)
+  .mascot-cheek {
+  animation: none;
+  opacity: 1;
+  transform: translateY(-1px) scale(1.1);
+}
+:root[data-theme]
+  :is(.calendar-companion.is-greeting, .is-playing)
+  .mascot-paw {
+  animation: pet-wave 0.7s ease-in-out 3;
+  transform-origin: 76px 84px;
+}
+@keyframes pet-wave {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-16deg) translateY(-2px);
+  }
+  65% {
+    transform: rotate(5deg);
+  }
+}
+:root[data-theme]
+  :is(.calendar-companion.is-greeting, .is-playing)
+  :is(.mascot-face, .mascot-head-idle) {
+  animation: pet-nod 0.9s ease-in-out;
+}
+@keyframes pet-nod {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  35% {
+    transform: translateY(1px) rotate(-3deg);
+  }
+  65% {
+    transform: translateY(-1px) rotate(2deg);
+  }
+}
+:root[data-theme] .theme-mascot-vignette {
+  pointer-events: none;
+}
+:root[data-theme] :is(.studio-header, .planner-cover) {
+  flex-wrap: wrap;
+}
+.companion-reply {
+  flex: 0 0 100%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  order: 10;
+  margin: 0 0 10px;
+  pointer-events: none;
+}
+.companion-reply-bubble {
+  max-width: min(390px, 100%);
+  padding: 10px 15px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 15px 15px 5px 15px;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.6;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 8%, transparent);
+  animation: pet-reply 0.18s ease-out;
+}
+@keyframes pet-reply {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+:root[data-pet-paused="true"] .mascot-art * {
+  animation-play-state: paused !important;
+}
+/* Dense events keep a full title line, with a separate resize area. */
+.studio-hours span {
+  transform: translateY(2px);
+}
+.studio-timed-event[data-density="compact"] .studio-event-main {
+  flex-direction: row;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 2px 22px 2px 5px !important;
+}
+.studio-timed-event[data-density="compact"] .studio-event-main strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  line-height: 18px;
+  font-size: 11px;
+}
+.studio-timed-event[data-density="compact"] .studio-event-main span {
+  flex-shrink: 0;
+  font-size: 9px;
+}
+.studio-timed-event[data-density="compact"] .studio-event-main small {
+  display: none;
+}
+.calendar-studio[data-view="week"]
+  .studio-timed-event[data-density="compact"]
+  .studio-event-main
+  span {
+  display: none;
+}
+.studio-timed-event[data-density="compact"] .studio-resize {
+  top: 0;
+  bottom: 0;
+  left: auto;
+  right: 0;
+  width: 18px;
+  height: auto;
+  min-height: 0 !important;
+  border-left: 1px solid var(--studio-line) !important;
+  border-radius: 0 !important;
+}
+.studio-timed-event[data-density="compact"] .studio-resize svg {
+  rotate: 0;
+}
+.studio-timed-event[data-density="regular"] .studio-event-main {
+  padding-bottom: 13px !important;
+}
+.studio-timed-event[data-density="regular"] .studio-event-main strong {
+  -webkit-line-clamp: 1;
+  line-height: 16px;
+}
+.studio-timed-event[data-density="regular"] .studio-event-main small {
+  display: none;
+}
+.studio-plan-pool {
+  margin: 4px 0 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--studio-line);
+}
+.studio-plan-pool > h2 {
+  font-size: 15px;
+  margin: 5px 0;
+}
+.studio-plan-pool > p {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 5px 0 12px;
+}
+.studio-scope-group {
+  margin: 8px 0;
+  border: 1px solid var(--studio-line);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--soft) 45%, transparent);
+  overflow: hidden;
+}
+.studio-scope-group > summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  padding: 11px;
+  font-size: 12px;
+  font-weight: 600;
+  list-style: none;
+}
+.studio-scope-group > summary:before {
+  content: "›";
+  font-size: 17px;
+  line-height: 1;
+  transition: rotate 0.18s;
+}
+.studio-scope-group[open] > summary:before {
+  rotate: 90deg;
+}
+.studio-scope-group > summary small {
+  margin-left: auto;
+  color: var(--muted);
+  font-weight: 400;
+}
+.studio-scope-group > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+.studio-scope-list {
+  padding: 0 5px 6px;
+}
+.studio-scope-list > p {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 0 6px;
+}
+.studio-scope-group:nth-of-type(1) {
+  border-left: 3px solid #9275b9;
+}
+.studio-scope-group:nth-of-type(2) {
+  border-left: 3px solid #bc8661;
+}
+.studio-scope-group:nth-of-type(3) {
+  border-left: 3px solid #608f88;
+}
+.studio-scope-group:nth-of-type(4) {
+  border-left: 3px solid #6b8eb8;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .mascot-art *,
+  .companion-reply-bubble {
+    animation: none !important;
+    transition: none !important;
+  }
+  :root[data-theme] .mascot-art .mascot-smile {
+    opacity: 0;
+  }
+  :root[data-theme] .mascot-art .mascot-mouth-rest {
+    opacity: 1;
+  }
+  :root[data-theme] :is(.is-greeting, .is-playing) .mascot-smile {
+    opacity: 1;
+  }
+  :root[data-theme] :is(.is-greeting, .is-playing) .mascot-mouth-rest {
+    opacity: 0;
+  }
+}
+.studio-helper-trigger {
+  border: 1px solid var(--studio-line) !important;
+  background: var(--surface) !important;
+  color: var(--accent) !important;
+  padding-inline: 10px !important;
+  white-space: nowrap;
+}
+.manual-assistant-modes {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: var(--soft);
+  border-radius: 12px;
+}
+.manual-assistant-modes button {
+  flex: 1;
+  font-size: 12px;
+}
+.manual-assistant-modes button[aria-pressed="true"] {
+  background: var(--surface);
+  box-shadow: 0 2px 6px #0001;
+  color: var(--accent);
+}
+.manual-assistant .assistant-external {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  min-height: 44px;
+  font-size: 12px;
+  border-radius: 11px;
+  padding: 10px 14px;
+}
+.manual-assistant .assistant-external.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.assistant-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.assistant-feedback {
+  display: flex;
+  align-items: start;
+  gap: 7px;
+  padding: 10px 12px;
+  background: var(--soft);
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+}
+.assistant-feedback svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+@media (max-width: 759px) {
+  .studio-helper-trigger span {
+    display: none;
+  }
+  .manual-assistant-modes button {
+    font-size: 11px;
+    padding-inline: 5px;
+  }
+  .companion-reply-bubble {
+    font-size: 11px;
+  }
+}
+.studio-event-main :is(span, strong) {
+  flex-shrink: 0;
+}
+.studio-timed-event[data-density="compact"] .studio-event-main strong {
+  flex: 1 1 auto;
+}
+.studio-timed-event[data-density="compact"] .studio-event-main img {
+  width: 18px;
+  height: 18px;
+  max-height: 18px;
+  flex-shrink: 0;
+}
+.studio-timed-event[data-density="regular"] .studio-event-main:has(img) {
+  padding-right: 27px !important;
+}
+.studio-timed-event[data-density="regular"] .studio-event-main img {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 18px;
+  height: 18px;
+  max-height: 18px;
+}
+.studio-timed-event[data-density="roomy"] .studio-event-main {
+  padding-bottom: 13px !important;
+}
+.studio-timed-event[data-density="roomy"] .studio-event-main img {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 60px;
+  object-fit: cover;
+}
+.studio-scope-list {
+  max-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.reminder-alerts {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 80;
+  width: min(350px, calc(100vw - 24px));
+  max-height: 50dvh;
+  overflow: auto;
+  display: grid;
+  gap: 10px;
+}
+.task-reminder-alert {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  box-shadow: 0 8px 32px #0003;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  align-items: start;
+  gap: 10px;
+}
+.task-reminder-alert > svg {
+  flex-shrink: 0;
+  color: var(--accent);
+  margin-top: 3px;
+}
+.task-reminder-alert > div {
+  flex: 1;
+  min-width: 0;
+}
+.task-reminder-alert small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.task-reminder-alert strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  margin-top: 4px;
+}
+.task-reminder-alert button {
+  min-height: 36px;
+  min-width: 30px;
+}
+.task-reminder-alert button:focus-visible {
+  outline: 2px solid var(--accent);
+}
+@media (max-width: 759px) {
+  .reminder-alerts {
+    bottom: 86px;
+    right: 12px;
+  }
+  .studio-scope-list {
+    max-height: 220px;
+  }
+}
+@media (max-width: 759px) {
+  .calendar-studio .studio-tools > .studio-panel-toggle {
+    order: 2;
+  }
+}

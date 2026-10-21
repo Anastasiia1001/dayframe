@@ -73,7 +73,7 @@ test("daily priorities notes reminders and tasks persist per date and can be edi
   await expect(page.locator(".daily-reminders li")).toHaveCount(0);
 });
 for (const width of [320, 390, 1440])
-  test(`planner composition and generated assets at ${width}px`, async ({
+  test(`planner composition and articulated character at ${width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 1000 });
@@ -83,11 +83,7 @@ for (const width of [320, 390, 1440])
       .getByRole("button", { name: "Календар", exact: true })
       .click();
     await page.getByRole("button", { name: "День", exact: true }).click();
-    expect(
-      await page
-        .locator(".planner-hero-art")
-        .evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth > 0),
-    ).toBe(true);
+    await expect(page.locator(".calendar-companion .mascot-bunny .mascot-smile")).toHaveCount(1);
     const boxes = await page.locator(".day-planner-layout").evaluate((el) =>
       Object.fromEntries(
         ["priorities", "schedule", "tasks", "notes", "reminders"].map(

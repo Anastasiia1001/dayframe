@@ -10,4 +10,5 @@ import './glass-rubber.css';
 import './modern-soft.css';
 import './calendar-studio.css';
 import './neon.css';
+import './living-mascots.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);

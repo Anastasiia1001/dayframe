@@ -1,3 +1,5 @@
+import { ManualAssistant } from "./ManualAssistant";
+import { taskHorizon } from "../domain/horizons";
 import { parseBackup, writeBackup } from "../domain/backup";
 import {
   useEffect,
@@ -201,8 +203,55 @@ export function CalendarStudio(p: Props) {
           .toLocaleLowerCase("uk")
           .includes(query.toLocaleLowerCase("uk"))),
   );
+  const scopeGroups = [
+    { id: "year", name: "Рік" },
+    { id: "quarter", name: "Квартал" },
+    { id: "month", name: "Місяць" },
+    { id: "week", name: "Тиждень" },
+  ];
+  const scopeOf = (task: PersonalTask) => {
+    const horizon = taskHorizon(task);
+    return horizon === "year" && task.category === "Quarter"
+      ? "quarter"
+      : horizon;
+  };
+  const scopedTasks = p.tasks.filter(
+    (t) =>
+      !t.completed &&
+      !t.disabled &&
+      sectionOf(t)?.visible !== false &&
+      scopeGroups.some((group) => group.id === scopeOf(t)),
+  );
+  const createScope = (scope: string) => {
+    create("");
+    setDraft((task) =>
+      task
+        ? {
+            ...task,
+            inBacklog: true,
+            planningHorizon:
+              scope === "quarter"
+                ? "year"
+                : (scope as PersonalTask["planningHorizon"]),
+            planningAnchor: key,
+            category:
+              scope === "quarter"
+                ? "Quarter"
+                : scope === "year"
+                  ? "Year"
+                  : scope === "month"
+                    ? "Month"
+                    : "Day",
+          }
+        : task,
+    );
+  };
   const unscheduled = visibleTasks.filter(
-    (t) => !t.completed && (!t.date || t.inBacklog) && !t.scheduledStart,
+    (t) =>
+      !t.completed &&
+      (!t.date || t.inBacklog) &&
+      !t.scheduledStart &&
+      taskHorizon(t) === "backlog",
   );
   const dayTasks = visibleTasks.filter(
     (t) =>
@@ -265,40 +314,6 @@ export function CalendarStudio(p: Props) {
     const timer = setTimeout(() => setMessage(""), 6000);
     return () => clearTimeout(timer);
   }, [message]);
-  useEffect(() => {
-    const enabled = p.tasks.filter(
-      (t) =>
-        !t.completed &&
-        !t.inBacklog &&
-        !t.disabled &&
-        t.reminderMinutes !== undefined &&
-        t.scheduledStart,
-    );
-    for (const event of scheduledEvents(enabled, today, today)) {
-      const task = enabled.find((t) => t.id === event.taskId)!;
-      const current = Number(
-        new Intl.DateTimeFormat("en-GB", {
-          timeZone: "Europe/Kyiv",
-          hour: "2-digit",
-          minute: "2-digit",
-          hourCycle: "h23",
-        })
-          .format(now)
-          .split(":")
-          .reduce((n, s, i) => n + Number(s) * (i === 0 ? 60 : 1), 0),
-      );
-      const delta = minutes(event.start) - current;
-      const sent = `dayframe-reminded:${event.id}`;
-      if (
-        delta >= 0 &&
-        delta <= (task.reminderMinutes || 0) &&
-        !sessionStorage.getItem(sent)
-      ) {
-        setMessage(`Нагадування: ${task.title} о ${event.start}`);
-        sessionStorage.setItem(sent, "1");
-      }
-    }
-  }, [now, p.tasks, today]);
   useEffect(() => {
     if (!mobile || (!left && !right)) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -534,6 +549,23 @@ export function CalendarStudio(p: Props) {
             timeString(next.start),
             next.duration,
           );
+        else if (task.isTemplate)
+          save([
+            ...p.tasks,
+            {
+              ...task,
+              id: crypto.randomUUID(),
+              isTemplate: false,
+              inBacklog: false,
+              planningHorizon: "day",
+              planningAnchor: next.date,
+              date: next.date,
+              scheduledStart: next.timed
+                ? timeString(next.start)
+                : task.scheduledStart,
+              scheduledDuration: next.duration,
+            },
+          ]);
         else
           patchTask(task.id, {
             date: next.date,
@@ -721,18 +753,20 @@ export function CalendarStudio(p: Props) {
       >
         <GripVertical size={16} />
       </button>
-      <input
-        type="checkbox"
-        aria-label={`Вибрати ${task.title}`}
-        checked={selected.includes(task.id)}
-        onChange={() =>
-          setSelected((s) =>
-            s.includes(task.id)
-              ? s.filter((id) => id !== task.id)
-              : [...s, task.id],
-          )
-        }
-      />
+      {!task.isTemplate && (
+        <input
+          type="checkbox"
+          aria-label={`Вибрати ${task.title}`}
+          checked={selected.includes(task.id)}
+          onChange={() =>
+            setSelected((s) =>
+              s.includes(task.id)
+                ? s.filter((id) => id !== task.id)
+                : [...s, task.id],
+            )
+          }
+        />
+      )}
       <button
         onPointerDown={(e) => beginTaskDrag(e, task)}
         className="studio-task-title"
@@ -751,14 +785,16 @@ export function CalendarStudio(p: Props) {
           <span className="studio-overdue">Термін минув</span>
         )}
       </button>
-      <button
-        aria-label={`Виконати ${task.title}`}
-        onClick={() =>
-          patchTask(task.id, { completed: true, completedOn: today })
-        }
-      >
-        <Check size={15} />
-      </button>
+      {!task.isTemplate && (
+        <button
+          aria-label={`Виконати ${task.title}`}
+          onClick={() =>
+            patchTask(task.id, { completed: true, completedOn: today })
+          }
+        >
+          <Check size={15} />
+        </button>
+      )}
     </div>
   );
   const miniFirst = fromDate(key);
@@ -791,6 +827,7 @@ export function CalendarStudio(p: Props) {
     <section
       className={`calendar-studio ${left ? "has-left" : ""} ${right ? "has-right" : ""}`}
       aria-label="Творчий календар"
+      data-view={view.toLowerCase()}
       onPointerMove={pointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={cancelDrag}
@@ -886,7 +923,14 @@ export function CalendarStudio(p: Props) {
           <Plus size={17} />
           Додати
         </button>
+        <ManualAssistant
+          tasks={p.tasks}
+          date={key}
+          today={today}
+          onCreate={(task) => save([...p.tasks, task])}
+        />
         <button
+          className="studio-panel-toggle"
           aria-label="Показати або сховати панель дня"
           aria-expanded={right}
           onClick={() => {
@@ -1518,23 +1562,30 @@ export function CalendarStudio(p: Props) {
                           color = task ? sectionOf(task)?.color : "#627790";
                         const preview =
                           dragPreview?.id === task?.id ? dragPreview : null;
+                        const duration =
+                          preview?.duration ?? pos.end - pos.start;
                         return (
                           <div
+                            data-density={
+                              duration < 60
+                                ? "compact"
+                                : duration < 90
+                                  ? "regular"
+                                  : "roomy"
+                            }
                             key={e.id}
                             className={`studio-timed-event ${preview ? "dragging" : ""}`}
                             style={{
                               ...styleColor(color || "#795875"),
                               top: preview?.start ?? pos.start,
-                              height: Math.max(
-                                24,
-                                (preview?.duration ?? pos.end - pos.start) - 2,
-                              ),
+                              height: Math.max(26, duration - 2),
                               left: `calc(${(pos.column / pos.columns) * 100}% + 2px)`,
                               width: `calc(${100 / pos.columns}% - 4px)`,
                             }}
                           >
                             <button
                               className="studio-event-main"
+                              aria-label={`${e.title} · ${e.start}–${e.end}`}
                               title={`${e.start}–${e.end} ${e.title}`}
                               onPointerDown={(ev) => beginDrag(ev, e, "move")}
                               onClick={() => {
@@ -1625,7 +1676,7 @@ export function CalendarStudio(p: Props) {
             aria-modal={mobile ? true : undefined}
           >
             <div className="studio-panel-top">
-              <span className="studio-eyebrow">ТВОЄ ФОКУСУВАННЯ</span>
+              <span className="studio-eyebrow">ПЛАНИ ТА ДЕНЬ</span>
               <button
                 aria-label="Згорнути панель дня"
                 onClick={() => setRight(false)}
@@ -1633,6 +1684,40 @@ export function CalendarStudio(p: Props) {
                 <X size={16} />
               </button>
             </div>
+            <section
+              className="studio-plan-pool"
+              aria-label="Плани для календаря"
+            >
+              <h2>Плани під рукою</h2>
+              <p>Перетягни справу за крапки на день або час.</p>
+              {scopeGroups.map((group) => {
+                const list = scopedTasks.filter((t) => scopeOf(t) === group.id);
+                return (
+                  <details
+                    className="studio-scope-group"
+                    key={group.id}
+                    open={list.length > 0}
+                  >
+                    <summary>
+                      <span>{group.name}</span>
+                      <small>{list.length}</small>
+                    </summary>
+                    <div className="studio-scope-list">
+                      {list.map(taskRow)}
+                      {!list.length && <p>Ще немає планів.</p>}
+                      <button
+                        className="studio-text-action"
+                        aria-label={`Додати план: ${group.name}`}
+                        onClick={() => createScope(group.id)}
+                      >
+                        <Plus size={14} />
+                        Додати план
+                      </button>
+                    </div>
+                  </details>
+                );
+              })}
+            </section>
             <h2 className="studio-panel-date">
               {p.date.toLocaleDateString("uk-UA", {
                 weekday: "long",
@@ -1916,6 +2001,40 @@ export function CalendarStudio(p: Props) {
                 </select>
               </label>
             </div>
+            {draft.inBacklog && (
+              <label>
+                Рівень плану
+                <select
+                  aria-label="Рівень плану"
+                  value={scopeOf(draft)}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      planningHorizon:
+                        e.target.value === "quarter"
+                          ? "year"
+                          : (e.target.value as PersonalTask["planningHorizon"]),
+                      category:
+                        e.target.value === "quarter"
+                          ? "Quarter"
+                          : e.target.value === "year"
+                            ? "Year"
+                            : e.target.value === "month"
+                              ? "Month"
+                              : "Day",
+                      planningAnchor: key,
+                    })
+                  }
+                >
+                  <option value="backlog">Без дати / ідея</option>
+                  {scopeGroups.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             {!draft.inBacklog && (
               <div className="studio-editor-grid">
                 <label>
