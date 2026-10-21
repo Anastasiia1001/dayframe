@@ -11,7 +11,7 @@ import {
   normalizeStoredTasks,
   eventOnDay,
 } from "./domain/planning";
-import { themes, mascots, safeMascot } from "./appearance";
+import { themes, mascots, safeMascot, isPlannerTheme } from "./appearance";
 import { Mascot } from "./components/Mascot";
 import { uk, locale, shortDate } from "./locale";
 import { nextOccurrence, reopenDueTasks } from "./recurrence";
@@ -78,7 +78,7 @@ export default function App() {
   const [ambient, setAmbient] = useLocal("dayframe-ambient", true);
   const [page, setPage] = useState("Today");
   const [mascot, setMascot] = useLocal("dayframe-mascot", "bunny");
-  const [theme, setTheme] = useLocal("dayframe-theme", "Default");
+  const [theme, setTheme] = useLocal("dayframe-theme", "Pastel");
   const [tasks, setTasks] = useLocal<PersonalTask[]>(
     "dayframe-tasks",
     mockTasks,
@@ -122,6 +122,8 @@ export default function App() {
   const visibleEvents = events.filter((e) => eventOnDay(e, today));
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    if (isPlannerTheme(theme)) document.documentElement.dataset.planner = theme;
+    else delete document.documentElement.dataset.planner;
   }, [theme]);
   useEffect(() => {
     if (toast) {
@@ -507,6 +509,8 @@ export default function App() {
   function calendar() {
     return (
       <CalendarBoard
+        theme={theme}
+        onTheme={setTheme}
         events={events}
         tasks={tasks}
         today={today}
@@ -528,7 +532,7 @@ export default function App() {
   }
   return (
     <div className="app">
-      {ambient && <ThemeAtmosphere theme={theme} />}
+      {ambient && !isPlannerTheme(theme) && <ThemeAtmosphere theme={theme} />}
       <aside className="sidebar">
         <a
           className="brand"
@@ -1054,8 +1058,8 @@ export default function App() {
               </Section>
               <Section title="Особисті завдання">
                 <label className="setting-row">
-                  <div><strong>Анімований фон</strong><small>Листя, пелюстки, зорі й хмаринки під настрій теми. Враховує системне зменшення руху.</small></div>
-                  <input type="checkbox" aria-label="Анімований фон" checked={ambient} onChange={e => setAmbient(e.target.checked)} />
+                  <div><strong>Анімований фон</strong><small>{isPlannerTheme(theme) ? "У темах планера декор статичний. Рух доступний в інших темах." : "Листя, пелюстки, зорі й хмаринки під настрій теми. Враховує системне зменшення руху."}</small></div>
+                  <input type="checkbox" aria-label="Анімований фон" disabled={isPlannerTheme(theme)} checked={ambient && !isPlannerTheme(theme)} onChange={e => setAmbient(e.target.checked)} />
                 </label>
                 <label className="setting-row">
                   <div>

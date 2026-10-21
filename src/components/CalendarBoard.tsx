@@ -1,3 +1,5 @@
+import { themes } from "../appearance";
+import { PlannerDecoration } from "./PlannerDecoration";
 import { taskCadence } from "../taskCadence";
 import { useState, useEffect, useRef } from "react";
 import {
@@ -18,6 +20,8 @@ import {
   layoutEvents,
 } from "../domain/planning";
 type Props = {
+  theme: string;
+  onTheme: (theme: string) => void;
   events: CalendarEvent[];
   tasks: PersonalTask[];
   today: string;
@@ -36,12 +40,16 @@ type Props = {
   onConnect: () => void;
 };
 export function CalendarBoard(p: Props) {
+  const [mobile, setMobile] = useState(() => innerWidth <= 600);
   const [compact, setCompact] = useState(() => innerWidth <= 1000);
   useEffect(() => {
     const media = matchMedia("(max-width:1000px)"),
       change = () => setCompact(media.matches);
+    const small = matchMedia("(max-width:600px)");
+    const changeSmall = () => setMobile(small.matches);
     media.addEventListener("change", change);
-    return () => media.removeEventListener("change", change);
+    small.addEventListener("change", changeSmall);
+    return () => { media.removeEventListener("change", change); small.removeEventListener("change", changeSmall); };
   }, []);
   const pane = useRef<HTMLDivElement>(null);
   const key = dateKey(p.date);
@@ -82,6 +90,10 @@ export function CalendarBoard(p: Props) {
     p.onDate(fromDate(d));
     p.onView("Day");
   };
+  const selectMonthDay = (d: string) => {
+    if (mobile) p.onDate(fromDate(d));
+    else selectDay(d);
+  };
   const taskButton = (t: PersonalTask) => (
     <div key={t.id} className="calendar-task" data-cadence={taskCadence(t)}>
       <button
@@ -95,6 +107,7 @@ export function CalendarBoard(p: Props) {
   );
   const eventChip = (e: CalendarEvent) => (
     <button
+      aria-label={`${e.allDay ? "Увесь день" : e.start} · ${e.title} · ${e.source}`}
       className={`calendar-event source-${e.source.toLowerCase()}`}
       key={e.id}
       onClick={() => p.onEvent(e)}
@@ -161,9 +174,14 @@ export function CalendarBoard(p: Props) {
   };
   return (
     <section
-      className={`calendar-board ${p.hasCalendar && (p.view === "Day" || (p.view === "Week" && !compact)) ? "is-timed" : ""}`}
+      className={`calendar-board ${(p.view === "Day" || (p.view === "Week" && !compact)) ? "is-timed" : ""}`}
       aria-label="Календар"
     >
+      <div className="planner-cover">
+        <div className="planner-cover-title"><span className="planner-kicker">ПЕРСОНАЛЬНИЙ ПЛАНЕР</span><h2>{p.date.toLocaleDateString(locale, p.view === "Day" ? { weekday:"long", day:"numeric", month:"long" } : { month:"long", year:"numeric" })}</h2><p>{p.view === "Day" ? "Один день. Достатньо місця для важливого." : "Твої зустрічі й справи, дбайливо впорядковані."}</p></div>
+        <PlannerDecoration theme={p.theme} />
+        <label className="planner-theme-picker">Оформлення<select aria-label="Оформлення планера" value={p.theme} onChange={e => p.onTheme(e.target.value)}>{themes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+      </div>
       <div className="calendar-top">
         <div className="calendar-controls">
           <button
@@ -180,12 +198,6 @@ export function CalendarBoard(p: Props) {
             <ChevronRight size={19} />
           </button>
         </div>
-        <h2>
-          {p.date.toLocaleDateString(locale, {
-            month: "long",
-            year: "numeric",
-          })}
-        </h2>
         <label className="date-jump">
           <CalendarDays size={14} />
           <span>{shortDate(key)}</span>
@@ -286,20 +298,23 @@ export function CalendarBoard(p: Props) {
               const total = entries.length + dailyTasks.length;
               return (
                 <div
-                  className={`calendar-cell ${day === p.today ? "is-today" : ""} ${fromDate(day).getMonth() !== p.date.getMonth() ? "outside-month" : ""}`}
+                  className={`calendar-cell ${day === key ? "is-selected" : ""} ${day === p.today ? "is-today" : ""} ${fromDate(day).getMonth() !== p.date.getMonth() ? "outside-month" : ""}`}
                   key={day}
                 >
                   <button
                     className="month-day"
                     aria-label={`Відкрити ${shortDate(day)}`}
-                    onClick={() => selectDay(day)}
+                    aria-current={day === p.today ? "date" : undefined}
+                    aria-pressed={day === key}
+                    onClick={() => selectMonthDay(day)}
                   >
                     {fromDate(day).getDate()}
                   </button>
-                  {entries.slice(0, 2).map(eventChip)}
-                  {entries.length < 2 &&
+                  {mobile && total > 0 && <button className="month-indicators" aria-label={`${entries.length} подій, ${dailyTasks.length} завдань`} onClick={() => selectMonthDay(day)}><span>{entries.length > 0 && <i className="event-indicator" />}{dailyTasks.length > 0 && <i className="task-indicator" />}</span><small>{total}</small></button>}
+                  {!mobile && entries.slice(0, 2).map(eventChip)}
+                  {!mobile && entries.length < 2 &&
                     dailyTasks.slice(0, 2 - entries.length).map(taskButton)}
-                  {total > 2 && (
+                  {!mobile && total > 2 && (
                     <button
                       className="month-more"
                       onClick={() => selectDay(day)}
@@ -311,10 +326,10 @@ export function CalendarBoard(p: Props) {
               );
             })}
           </div>
+          {mobile && <div className="month-mobile-preview">{agenda(key)}</div>}
         </>
       ) : p.view === "Agenda" ||
-        ((compact || !p.hasCalendar) && p.view === "Week") ||
-        (!p.hasCalendar && p.view === "Day") ? (
+        (compact && p.view === "Week") ? (
         <div className="calendar-agenda">
           {(p.view === "Agenda"
             ? Array.from({ length: 7 }, (_, i) => addDays(key, i))
@@ -340,6 +355,8 @@ export function CalendarBoard(p: Props) {
                 key={day}
                 onClick={() => selectDay(day)}
                 className={day === p.today ? "today" : ""}
+                aria-pressed={day === key}
+                aria-current={day === p.today ? "date" : undefined}
               >
                 <small>
                   {fromDate(day).toLocaleDateString(locale, {

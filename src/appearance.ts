@@ -1,4 +1,12 @@
+export const plannerThemes = [
+  { id: "Pastel", name: "Пастель", background: "#f7ead7", accent: "#a44e33" },
+  { id: "CutePlanner", name: "Милий планер", background: "#fff0db", accent: "#a34b65" },
+  { id: "Vintage", name: "Вінтаж", background: "#eaddbf", accent: "#74583b" },
+  { id: "Parchment", name: "Магічний пергамент", background: "#e6cd93", accent: "#6d3429" },
+];
+export const isPlannerTheme = (theme: string) => plannerThemes.some(t => t.id === theme);
 export const themes = [
+  ...plannerThemes,
   {
     id: "Default",
     name: "Рожева ніжність",
