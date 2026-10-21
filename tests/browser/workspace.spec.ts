@@ -82,7 +82,9 @@ test("live defaults never imply fake connections; unsupported work sources stay 
   await expect(
     page.locator(".connection-state").filter({ hasText: "Не підключено" }),
   ).toHaveCount(4);
-  await expect(page.locator('.connection-card a[href^="/api/auth/"]')).toHaveCount(0);
+  await expect(
+    page.locator('.connection-card a[href^="/api/auth/"]'),
+  ).toHaveCount(0);
   await expect(
     page.getByText("Вимкнено · немає доступу", { exact: true }),
   ).toHaveCount(2);
@@ -110,7 +112,10 @@ test("task CRUD, completion and preferences persist across reloads", async ({
   ).toBeVisible();
   await page.reload();
   await go(page, "Personal");
-  await page.locator(".completed-group summary").filter({hasText:"Показати виконані"}).click();
+  await page
+    .locator(".completed-group summary")
+    .filter({ hasText: "Показати виконані" })
+    .click();
   await expect(
     page.getByLabel("Позначити невиконаним Записатися до стоматолога", {
       exact: true,
@@ -128,7 +133,11 @@ test("task CRUD, completion and preferences persist across reloads", async ({
       exact: true,
     })
     .click();
-  await page.locator(".planning-card").filter({hasText:"Записатися до стоматолога на огляд"}).getByRole("button", {name:"На завтра",exact:true}).click();
+  await page
+    .locator(".planning-card")
+    .filter({ hasText: "Записатися до стоматолога на огляд" })
+    .getByRole("button", { name: "На завтра", exact: true })
+    .click();
 
   const postponed = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("dayframe-tasks")!).find(
@@ -510,18 +519,42 @@ test("household templates stay outside active tasks and are scheduled explicitly
   await demo(page);
   await go(page, "Personal");
   await expect(page.getByRole("tab")).toHaveCount(0);
-  const backlog = page.getByRole("region", {name:"Місяць",exact:true});
-  const tomorrowColumn = page.getByRole("region", {name:"День",exact:true});
-  const card = backlog.locator(".planning-card").filter({hasText:"Помити холодильник"});
-  await card.getByRole("button", {name:"На завтра",exact:true}).click();
+  const backlog = page.getByRole("region", { name: "Місяць", exact: true });
+  const tomorrowColumn = page.getByRole("region", {
+    name: "День",
+    exact: true,
+  });
+  const card = backlog
+    .locator(".planning-card")
+    .filter({ hasText: "Помити холодильник" });
+  await card.getByRole("button", { name: "На завтра", exact: true }).click();
   await expect(card).toBeVisible();
-  await expect(tomorrowColumn.getByRole("button", {name:"Помити холодильник",exact:true})).toBeVisible();
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("dayframe-tasks")!).filter((t: {title:string}) => t.title === "Помити холодильник"));
+  await expect(
+    tomorrowColumn.getByRole("button", {
+      name: "Помити холодильник",
+      exact: true,
+    }),
+  ).toBeVisible();
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("dayframe-tasks")!).filter(
+      (t: { title: string }) => t.title === "Помити холодильник",
+    ),
+  );
   expect(saved).toHaveLength(2);
-  expect(saved.find((t: {isTemplate?:boolean}) => !t.isTemplate)).toMatchObject({recurrence:"monthly",isTemplate:false,inBacklog:false});
+  expect(
+    saved.find((t: { isTemplate?: boolean }) => !t.isTemplate),
+  ).toMatchObject({
+    recurrence: "monthly",
+    isTemplate: false,
+    inBacklog: false,
+  });
   await page.reload();
-  await go(page,"Personal");
-  await expect(page.getByRole("region", {name:"День",exact:true}).getByRole("button", {name:"Помити холодильник",exact:true})).toBeVisible();
+  await go(page, "Personal");
+  await expect(
+    page
+      .getByRole("region", { name: "День", exact: true })
+      .getByRole("button", { name: "Помити холодильник", exact: true }),
+  ).toBeVisible();
 });
 
 test("calendar supports timed overlaps, date navigation, month overflow and event details", async ({
@@ -624,7 +657,56 @@ test("Slack suggestions become concrete tasks only after the user supplies a tit
 });
 
 // These regression scenarios exercise the retained classic planner and dashboard.
-test.beforeEach(async ({page}) => { await page.addInitScript(() => {
-  localStorage.setItem("dayframe-classic-planner", "true");
-  if (!localStorage.getItem("dayframe-calendar-view")) localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
-}); });
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("dayframe-classic-planner", "true");
+    if (!localStorage.getItem("dayframe-calendar-view"))
+      localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
+  });
+});
+
+test("official sign-in returns to connections in live mode", async ({
+  page,
+}) => {
+  let connected = false;
+  await page.addInitScript(() =>
+    localStorage.setItem("dayframe-data-mode", JSON.stringify("live")),
+  );
+  await page.route("**/api/status", (r) =>
+    r.fulfill({
+      json: {
+        ...status,
+        providers: status.providers.map((p) => ({
+          ...p,
+          connected: connected && p.id === "outlook-work",
+        })),
+      },
+    }),
+  );
+  await page.route("**/api/calendar/outlook-work?*", (r) =>
+    r.fulfill({ json: { events: [] } }),
+  );
+  await page.route("**/api/auth/outlook-work/connect", (r) => {
+    connected = true;
+    return r.fulfill({
+      status: 302,
+      headers: { Location: "/?connection=success" },
+    });
+  });
+  await page.goto("/");
+  await go(page, "Settings");
+  await page
+    .getByRole("link", { name: "Увійти через Outlook · Робочий", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Твої підключення" }),
+  ).toBeVisible();
+  await expect(page.locator(".connection-state.is-connected")).toHaveCount(1);
+  expect(
+    await page.evaluate(() => localStorage.getItem("dayframe-data-mode")),
+  ).toBe('"live"');
+  await expect(page.locator(".connection-admin")).not.toHaveAttribute(
+    "open",
+    "",
+  );
+});

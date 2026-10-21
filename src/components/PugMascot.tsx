@@ -250,7 +250,7 @@ export function PugMascot() {
             />
           </g>
         </g>
-        <g className="mascot-paw">
+        <g className="pug-paws-planted">
           <ellipse
             cx="37"
             cy="100"

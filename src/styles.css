@@ -5725,3 +5725,9 @@ button:disabled {
 .connection-setup label { display: grid; gap: 6px; }
 .connection-setup input { width: 100%; min-width: 0; font-size: 12px; }
 .connection-setup code { font-size: 12px; }
+.connection-unavailable { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.connection-admin { margin: 18px 23px; }
+.connection-admin > summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.connection-server-link { display: grid; gap: 8px; margin: 18px 23px; }
+.connection-server-link > a { justify-self: start; }
+.connection-server-link > small { color: var(--muted); }

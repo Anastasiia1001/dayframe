@@ -260,7 +260,9 @@ test("reminders remain available outside the calendar and do not repeat after di
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
-test("companion phrase stays visible and changes only every five minutes", async ({ page }) => {
+test("companion phrase stays visible and changes only every five minutes", async ({
+  page,
+}) => {
   await page.clock.install();
   await page.goto("/");
   const phrase = page.locator(".companion-phrase");
@@ -272,4 +274,31 @@ test("companion phrase stays visible and changes only every five minutes", async
   await expect(phrase).toHaveText("Маленький крок — теж перемога.");
   await expect(phrase).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   await expect(phrase).toHaveCSS("box-shadow", "none");
+});
+
+test("pug greets with its tail while the seated paw stays planted", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("dayframe-mascot", JSON.stringify("pug")),
+  );
+  await page.goto("/");
+  const pug = page.locator(".calendar-companion .mascot-pug");
+  await expect(pug.locator(".mascot-paw")).toHaveCount(0);
+  await expect(pug.locator(".pug-paws-planted")).toHaveCSS(
+    "animation-name",
+    "none",
+  );
+  await expect(pug.locator(".pug-tail")).toHaveCSS(
+    "animation-name",
+    "pug-tail-idle",
+  );
+  await page.getByLabel("Привітатися з помічником").click();
+  await expect(pug.locator(".pug-tail")).toHaveCSS(
+    "animation-name",
+    "pug-tail-delight",
+  );
+  await expect(pug.locator(".pug-paws-planted")).toHaveCSS("transform", "none");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(pug.locator(".pug-tail")).toHaveCSS("animation-name", "none");
 });

@@ -643,3 +643,148 @@
     order: 2;
   }
 }
+
+/* A seated puppy greets with its curled tail; paws stay planted. */
+:root[data-theme] .mascot-pug .pug-paws-planted {
+  animation: none;
+  transform: none;
+}
+:root[data-theme] .mascot-pug :is(.mascot-ears, .mascot-eyes) {
+  animation: none;
+}
+:root[data-theme] .mascot-pug .pug-tail {
+  transform-origin: 73px 85px;
+  animation: pug-tail-idle 9s -2s ease-in-out infinite;
+}
+:root[data-theme] .mascot-pug .mascot-head-idle {
+  transform-origin: 50px 73px;
+  animation: pug-curiosity 13s -3s cubic-bezier(0.37, 0, 0.3, 1) infinite;
+}
+:root[data-theme] .mascot-pug .pug-ear-left {
+  transform-origin: 26px 20px;
+  animation: pug-ear-settle 13s -2.85s ease-in-out infinite;
+}
+:root[data-theme] .mascot-pug .pug-ear-right {
+  transform-origin: 76px 24px;
+  animation: pug-ear-settle 13s -2.65s ease-in-out infinite reverse;
+}
+:root[data-theme]
+  :is(.calendar-companion.is-greeting, .is-playing, .mascot-choice:hover)
+  .mascot-pug
+  .pug-tail {
+  animation: pug-tail-delight 2.1s ease-in-out both;
+}
+:root[data-theme]
+  :is(.calendar-companion.is-greeting, .is-playing)
+  .mascot-pug
+  .mascot-head-idle {
+  animation: pug-hello 2.1s cubic-bezier(0.37, 0, 0.3, 1) both;
+}
+@keyframes pug-tail-idle {
+  0%,
+  49%,
+  76%,
+  100% {
+    transform: rotate(0) scaleX(1);
+  }
+  53%,
+  61%,
+  69% {
+    transform: rotate(-12deg) scaleX(0.94);
+  }
+  57%,
+  65%,
+  73% {
+    transform: rotate(10deg) scaleX(1.02);
+  }
+}
+@keyframes pug-tail-delight {
+  0%,
+  100% {
+    transform: rotate(0) scaleX(1);
+  }
+  8% {
+    transform: rotate(8deg) scaleX(0.96);
+  }
+  17%,
+  33%,
+  49%,
+  65% {
+    transform: rotate(-25deg) scaleX(0.88);
+  }
+  25%,
+  41%,
+  57%,
+  73% {
+    transform: rotate(19deg) scaleX(1.03);
+  }
+  84% {
+    transform: rotate(-12deg);
+  }
+  93% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes pug-curiosity {
+  0%,
+  28%,
+  67%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  34% {
+    transform: rotate(-1deg) translateY(0.4px);
+  }
+  41%,
+  52% {
+    transform: rotate(5deg) translateY(-0.7px);
+  }
+  60% {
+    transform: rotate(-1.3deg) translateY(0.2px);
+  }
+  82%,
+  89% {
+    transform: rotate(-2deg) translateY(-0.4px);
+  }
+}
+@keyframes pug-ear-settle {
+  0%,
+  31%,
+  68%,
+  100% {
+    transform: rotate(0);
+  }
+  39% {
+    transform: rotate(-6deg);
+  }
+  46% {
+    transform: rotate(3deg);
+  }
+  55% {
+    transform: rotate(-1deg);
+  }
+}
+@keyframes pug-hello {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  12% {
+    transform: rotate(-2deg) translateY(1px);
+  }
+  32%,
+  52% {
+    transform: rotate(6deg) translateY(-1.4px);
+  }
+  70% {
+    transform: rotate(-2deg) translateY(0.4px);
+  }
+  86% {
+    transform: rotate(1deg) translateY(-0.2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .mascot-pug * {
+    animation: none !important;
+  }
+}

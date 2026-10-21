@@ -33,8 +33,8 @@ export function IntegrationSettings({
       eyebrow="ЛИШЕ ЧИТАННЯ · ТВОЇ ОБЛІКОВІ ЗАПИСИ, ТВІЙ ВИБІР"
     >
       <p className="section-description">
-        Підключи робочий і особистий Outlook, а потім Календар Google та Slack.
-        Jira й Confluence вимкнені.
+        Обери сервіс, увійди у свій акаунт і підтвердь читання даних. Пароль
+        вводиться лише на офіційній сторінці сервісу.
       </p>
       <div className="connection-mode">
         <div>
@@ -93,7 +93,7 @@ export function IntegrationSettings({
                 {c?.connected
                   ? "Підключено"
                   : c?.configured
-                    ? "Можна підключити"
+                    ? "Готовий до входу"
                     : "Не підключено"}
               </span>
             </div>
@@ -112,46 +112,28 @@ export function IntegrationSettings({
                 {busy === id ? "Відключаємо…" : "Відключити"}
               </button>
             ) : c?.configured ? (
-              <a className="primary" href={`/api/auth/${id}/connect`}>
+              <a
+                className="primary"
+                href={`/api/auth/${id}/connect`}
+                onClick={() => {
+                  workspace.setMode("live");
+                  sessionStorage.setItem("dayframe-login-return", "settings");
+                }}
+              >
                 <Link2 size={15} />
-                Підключити {name}
+                Увійти через {name}
               </a>
             ) : (
-              <span className="setup-required">
-                {workspace.status
-                  ? "Потрібна реєстрація OAuth-застосунку — інструкція нижче."
-                  : "Потрібна серверна версія. GitHub Pages не підтримує підключення облікових записів."}
-              </span>
-            )}
-            {c && !c.configured && (
-              <details className="connection-setup">
-                <summary>Налаштувати {name}</summary>
-                <ol>
-                  <li>
-                    <a href={id.startsWith("outlook-")
-                      ? "https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade"
-                      : id === "google"
-                        ? "https://console.cloud.google.com/apis/credentials"
-                        : "https://api.slack.com/apps"}
-                      target="_blank" rel="noreferrer">
-                      Відкрити реєстрацію застосунку {name}
-                    </a>
-                    {id.startsWith("outlook-") && <p>Обери підтримку робочих і особистих облікових записів Microsoft. Для обох Outlook використовується один застосунок із двома адресами повернення.</p>}
-                  </li>
-                  <li>
-                    <label>
-                      Адреса повернення для {name}
-                      <input readOnly value={c.redirectUri}
-                        onFocus={(e) => e.currentTarget.select()} />
-                    </label>
-                  </li>
-                  <li>Дозволи лише для читання: <code>{id.startsWith("outlook-")
-                    ? "Calendars.Read, offline_access"
-                    : id === "google" ? "calendar.events.readonly" : "search:read, users:read (User Token Scopes)"}</code>.</li>
-                  <li>Додай у захищені змінні середовища хостингу: <code>{c.missing.join(", ")}</code>. Потім перезапусти сервер і натисни «Оновити підключення».</li>
-                </ol>
-                <p>Не вставляй секрети в Dayframe або в чат.{id === "google" && " Спершу ввімкни Google Calendar API та додай себе до тестових користувачів OAuth."}</p>
-              </details>
+              <div className="connection-unavailable">
+                <button className="secondary" disabled>
+                  Увійти через {name}
+                </button>
+                <span className="setup-required">
+                  {workspace.status
+                    ? "Вхід ще не активовано: на сервері бракує налаштувань цього сервісу."
+                    : "Вхід доступний у серверній версії Dayframe."}
+                </span>
+              </div>
             )}
             {c?.configured && workspace.mode === "demo" && (
               <small>
@@ -216,14 +198,18 @@ export function IntegrationSettings({
           {error}
         </p>
       )}
+      {!workspace.status && (
+        <p className="connection-server-link">
+          <a className="primary" href="https://dayframe-q62m.onrender.com/">
+            Відкрити Dayframe з входом <ArrowUpRight size={14} />
+          </a>
+          <small>
+            Завдання в цьому браузері зберігаються окремо для кожної адреси
+            сайту.
+          </small>
+        </p>
+      )}
       <div className="connection-help">
-        <a
-          href="https://render.com/deploy?repo=https://github.com/Anastasiia1001/dayframe"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Розмістити серверну версію <ArrowUpRight size={14} />
-        </a>
         <button
           className="text-button"
           disabled={workspace.loading}
@@ -235,14 +221,89 @@ export function IntegrationSettings({
           />
           Оновити підключення
         </button>
-        <a
-          href="https://github.com/Anastasiia1001/dayframe/blob/main/docs/CONNECTIONS.md"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Інструкція з підключення <ArrowUpRight size={14} />
-        </a>
       </div>
+      <details className="connection-admin">
+        <summary>Технічні налаштування підключень</summary>
+        {workspace.status?.providers
+          .filter((c) => !c.configured)
+          .map((c) => {
+            const id = c.id,
+              name = c.name;
+            return (
+              <div key={id}>
+                {c && !c.configured && (
+                  <details className="connection-setup">
+                    <summary>Налаштувати {name}</summary>
+                    <ol>
+                      <li>
+                        <a
+                          href={
+                            id.startsWith("outlook-")
+                              ? "https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade"
+                              : id === "google"
+                                ? "https://console.cloud.google.com/apis/credentials"
+                                : "https://api.slack.com/apps"
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Відкрити реєстрацію застосунку {name}
+                        </a>
+                        {id.startsWith("outlook-") && (
+                          <p>
+                            Обери підтримку робочих і особистих облікових
+                            записів Microsoft. Для обох Outlook використовується
+                            один застосунок із двома адресами повернення.
+                          </p>
+                        )}
+                      </li>
+                      <li>
+                        <label>
+                          Адреса повернення для {name}
+                          <input
+                            readOnly
+                            value={c.redirectUri}
+                            onFocus={(e) => e.currentTarget.select()}
+                          />
+                        </label>
+                      </li>
+                      <li>
+                        Дозволи лише для читання:{" "}
+                        <code>
+                          {id.startsWith("outlook-")
+                            ? "Calendars.Read, offline_access"
+                            : id === "google"
+                              ? "calendar.events.readonly"
+                              : "search:read, users:read (User Token Scopes)"}
+                        </code>
+                        .
+                      </li>
+                      <li>
+                        Додай у захищені змінні середовища хостингу:{" "}
+                        <code>{c.missing.join(", ")}</code>. Потім перезапусти
+                        сервер і натисни «Оновити підключення».
+                      </li>
+                    </ol>
+                    <p>
+                      Не вставляй секрети в Dayframe або в чат.
+                      {id === "google" &&
+                        " Спершу ввімкни Google Calendar API та додай себе до тестових користувачів OAuth."}
+                    </p>
+                  </details>
+                )}
+              </div>
+            );
+          })}
+        <div className="connection-help">
+          <a
+            href="https://github.com/Anastasiia1001/dayframe/blob/main/docs/CONNECTIONS.md"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Інструкція з підключення <ArrowUpRight size={14} />
+          </a>
+        </div>
+      </details>
       <p className="connection-footnote">
         Токени облікових записів зберігаються на сервері, а не в браузері. Сеанс
         триває до 8 годин; після перезапуску сервера потрібно підключитися

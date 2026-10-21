@@ -173,6 +173,10 @@ export default function App() {
     const url = new URL(window.location.href),
       result = url.searchParams.get("connection");
     if (!result) return;
+    if (sessionStorage.getItem("dayframe-login-return") === "settings") {
+      setPage("Settings");
+      sessionStorage.removeItem("dayframe-login-return");
+    }
     if (result === "success") {
       workspace.setMode("live");
       setToast("Обліковий запис підключено. Оновлюємо дані.");
