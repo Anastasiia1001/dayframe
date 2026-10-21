@@ -132,6 +132,7 @@ test("monthly tasks move to another date without acquiring an arbitrary time", a
 });
 test("touch drags an untimed task into the mobile schedule", async ({
   browser,
+  baseURL,
 }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -144,7 +145,7 @@ test("touch drags an untimed task into the mobile schedule", async ({
     (tasks) => localStorage.setItem("dayframe-tasks", JSON.stringify(tasks)),
     seed(today()),
   );
-  await page.goto("http://localhost:4317");
+  await page.goto(baseURL!);
   const task = page
     .locator(".studio-untimed button")
     .filter({ hasText: "Справжнє перетягування" });
