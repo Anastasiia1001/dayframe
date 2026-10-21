@@ -123,6 +123,36 @@ export function IntegrationSettings({
                   : "Потрібна серверна версія. GitHub Pages не підтримує підключення облікових записів."}
               </span>
             )}
+            {c && !c.configured && (
+              <details className="connection-setup">
+                <summary>Налаштувати {name}</summary>
+                <ol>
+                  <li>
+                    <a href={id.startsWith("outlook-")
+                      ? "https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade"
+                      : id === "google"
+                        ? "https://console.cloud.google.com/apis/credentials"
+                        : "https://api.slack.com/apps"}
+                      target="_blank" rel="noreferrer">
+                      Відкрити реєстрацію застосунку {name}
+                    </a>
+                    {id.startsWith("outlook-") && <p>Обери підтримку робочих і особистих облікових записів Microsoft. Для обох Outlook використовується один застосунок із двома адресами повернення.</p>}
+                  </li>
+                  <li>
+                    <label>
+                      Адреса повернення для {name}
+                      <input readOnly value={c.redirectUri}
+                        onFocus={(e) => e.currentTarget.select()} />
+                    </label>
+                  </li>
+                  <li>Дозволи лише для читання: <code>{id.startsWith("outlook-")
+                    ? "Calendars.Read, offline_access"
+                    : id === "google" ? "calendar.events.readonly" : "search:read, users:read (User Token Scopes)"}</code>.</li>
+                  <li>Додай у захищені змінні середовища хостингу: <code>{c.missing.join(", ")}</code>. Потім перезапусти сервер і натисни «Оновити підключення».</li>
+                </ol>
+                <p>Не вставляй секрети в Dayframe або в чат.{id === "google" && " Спершу ввімкни Google Calendar API та додай себе до тестових користувачів OAuth."}</p>
+              </details>
+            )}
             {c?.configured && workspace.mode === "demo" && (
               <small>
                 Перемкнися на власні дані, щоб побачити підключений обліковий

@@ -5710,3 +5710,18 @@ button:disabled {
 .horizon-columns [data-horizon="month"] { border-top:3px solid #64a782; }
 .horizon-columns [data-horizon="week"] { border-top:3px solid #6d9ed5; }
 .horizon-columns [data-horizon="day"] { border-top:3px solid #d479a4; }
+
+.connection-setup {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.connection-setup summary { cursor: pointer; font-weight: 600; }
+.connection-setup ol { padding-left: 22px; line-height: 1.7; }
+.connection-setup li + li { margin-top: 10px; }
+.connection-setup label { display: grid; gap: 6px; }
+.connection-setup input { width: 100%; min-width: 0; font-size: 12px; }
+.connection-setup code { font-size: 12px; }

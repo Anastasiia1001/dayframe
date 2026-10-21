@@ -82,7 +82,7 @@ test("live defaults never imply fake connections; unsupported work sources stay 
   await expect(
     page.locator(".connection-state").filter({ hasText: "Не підключено" }),
   ).toHaveCount(4);
-  await expect(page.locator(".connection-card a")).toHaveCount(0);
+  await expect(page.locator('.connection-card a[href^="/api/auth/"]')).toHaveCount(0);
   await expect(
     page.getByText("Вимкнено · немає доступу", { exact: true }),
   ).toHaveCount(2);
