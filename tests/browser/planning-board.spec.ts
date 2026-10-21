@@ -45,3 +45,9 @@ test("manual Jira copy creates a local task with safe external link and persists
   expect(task.inBacklog).toBe(true);
   expect(task.jiraUrl).toBe("https://example.atlassian.net/browse/TEAM-42");
 });
+
+// These regression scenarios exercise the retained classic planner and dashboard.
+test.beforeEach(async ({page}) => { await page.addInitScript(() => {
+  localStorage.setItem("dayframe-classic-planner", "true");
+  if (!localStorage.getItem("dayframe-calendar-view")) localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
+}); });

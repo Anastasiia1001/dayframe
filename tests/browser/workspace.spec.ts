@@ -622,3 +622,9 @@ test("Slack suggestions become concrete tasks only after the user supplies a tit
     ),
   ).toBe(before + 1);
 });
+
+// These regression scenarios exercise the retained classic planner and dashboard.
+test.beforeEach(async ({page}) => { await page.addInitScript(() => {
+  localStorage.setItem("dayframe-classic-planner", "true");
+  if (!localStorage.getItem("dayframe-calendar-view")) localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
+}); });

@@ -1,3 +1,4 @@
+import { CalendarStudio } from "./components/CalendarStudio";
 import { TouchFeedback } from "./components/TouchFeedback";
 import { planInHorizon } from "./domain/horizons";
 import { ThemeAtmosphere } from "./components/ThemeAtmosphere";
@@ -56,11 +57,11 @@ const nav = [
   ["Work", BriefcaseBusiness],
   ["Personal", CheckCheck],
 ] as const;
-const dateKey = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 export default function App() {
   const [now, setNow] = useState(() => new Date());
-  const today = dateKey(now);
+  const today = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Kyiv",
+  }).format(now);
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(timer);
@@ -77,7 +78,11 @@ export default function App() {
       .toUpperCase() || "♡";
   const [burst, setBurst] = useState(0);
   const [ambient, setAmbient] = useLocal("dayframe-ambient", true);
-  const [page, setPage] = useState("Today");
+  const [legacyPlanner, setLegacyPlanner] = useLocal(
+    "dayframe-classic-planner",
+    false,
+  );
+  const [page, setPage] = useState(legacyPlanner ? "Today" : "Calendar");
   const [mascot, setMascot] = useLocal("dayframe-mascot", "bunny");
   const [theme, setTheme] = useLocal("dayframe-theme", "Pastel");
   const [tasks, setTasks] = useLocal<PersonalTask[]>(
@@ -107,9 +112,11 @@ export default function App() {
   ]);
   const [calendarView, setCalendarView] = useLocal(
     "dayframe-calendar-view",
-    "Day",
+    "Week",
   );
-  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [calendarDate, setCalendarDate] = useState(
+    () => new Date(today + "T12:00:00"),
+  );
   const [toast, setToast] = useState("");
   const [prefs, setPrefs] = useLocal("dayframe-prefs", {
     showPersonal: true,
@@ -495,7 +502,7 @@ export default function App() {
         .map((x) => ({
           id: x.id,
           title: x.title,
-          body: `${uk(x.category)} · ${uk(x.recurrence)}`,
+          body: `${uk(x.category)} · ${uk(x.recurrence)} · ${x.notes}`,
         })),
     },
   ].map((g) => ({
@@ -508,30 +515,58 @@ export default function App() {
     workspace.mode === "demo" ||
     !!workspace.status?.providers.some((p) => p.id !== "slack" && p.connected);
   function calendar() {
+    if (!legacyPlanner)
+      return (
+        <CalendarStudio
+          tasks={tasks}
+          onTasks={setTasks}
+          events={events}
+          onExternal={setEventDetail}
+          date={calendarDate}
+          onDate={setCalendarDate}
+          view={calendarView === "Agenda" ? "Week" : calendarView}
+          onView={setCalendarView}
+          theme={theme}
+          onTheme={setTheme}
+          mascot={safeMascot(mascot)}
+          onLegacy={() => {
+            setLegacyPlanner(true);
+            setCalendarView("Day");
+          }}
+          loading={workspace.loading}
+        />
+      );
     return (
-      <CalendarBoard
-        theme={theme}
-        mascot={safeMascot(mascot)}
-        onTheme={setTheme}
-        events={events}
-        tasks={tasks}
-        today={today}
-        date={calendarDate}
-        onDate={setCalendarDate}
-        view={calendarView}
-        onView={setCalendarView}
-        filters={filters}
-        onFilters={setFilters}
-        onEvent={setEventDetail}
-        onTask={setModal}
-        onPostpone={postpone}
-        onDelete={task => setTasks(ts => ts.filter(t => t.id !== task.id))}
-        onToggleTask={toggleTask}
-        onAdd={addTask}
-        loading={workspace.loading}
-        hasCalendar={hasCalendar}
-        onConnect={() => setPage("Settings")}
-      />
+      <>
+        <button className="secondary" onClick={() => setLegacyPlanner(false)}>
+          Повернутися до творчого календаря
+        </button>
+        <CalendarBoard
+          theme={theme}
+          mascot={safeMascot(mascot)}
+          onTheme={setTheme}
+          events={events}
+          tasks={tasks}
+          today={today}
+          date={calendarDate}
+          onDate={setCalendarDate}
+          view={calendarView}
+          onView={setCalendarView}
+          filters={filters}
+          onFilters={setFilters}
+          onEvent={setEventDetail}
+          onTask={setModal}
+          onPostpone={postpone}
+          onDelete={(task) =>
+            setTasks((ts) => ts.filter((t) => t.id !== task.id))
+          }
+          onToggleTask={toggleTask}
+          onAdd={addTask}
+          loading={workspace.loading}
+          hasCalendar={hasCalendar}
+          onConnect={() => setPage("Settings")}
+        />
+      </>
     );
   }
   return (
@@ -569,7 +604,12 @@ export default function App() {
               className={page === name ? "selected" : ""}
               onClick={() => setPage(name)}
             >
-              <span className="clay-nav-icon" data-nav={name} aria-hidden="true"/><Icon size={18} />
+              <span
+                className="clay-nav-icon"
+                data-nav={name}
+                aria-hidden="true"
+              />
+              <Icon size={18} />
               {uk(name)}
               {name === "Today" && attention.length > 0 && (
                 <span className="nav-count">{attention.length}</span>
@@ -922,20 +962,77 @@ export default function App() {
                 setTasks((ts) => ts.filter((x) => x.id !== t.id))
               }
               onPlan={(task, horizon) => {
-                const planned = planInHorizon(task, horizon, today, crypto.randomUUID());
-                setTasks(ts => task.isTemplate ? [...ts, planned] : ts.map(t => t.id === task.id ? planned : t));
-                setToast(task.isTemplate ? "Шаблон додано до плану" : "Період планування змінено");
+                const planned = planInHorizon(
+                  task,
+                  horizon,
+                  today,
+                  crypto.randomUUID(),
+                );
+                setTasks((ts) =>
+                  task.isTemplate
+                    ? [...ts, planned]
+                    : ts.map((t) => (t.id === task.id ? planned : t)),
+                );
+                setToast(
+                  task.isTemplate
+                    ? "Шаблон додано до плану"
+                    : "Період планування змінено",
+                );
               }}
               onSchedule={(task, date) => {
                 if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
                 if (!date && task.isTemplate) return;
-                const planned = { ...task, id: task.isTemplate ? crypto.randomUUID() : task.id, isTemplate: false, planningHorizon: date ? "day" as const : "backlog" as const, planningAnchor: today, inBacklog: !date, date: date || task.date, completed: false, completedOn: undefined, nextOccurrence: undefined };
-                setTasks(ts => task.isTemplate ? [...ts, planned] : ts.map(t => t.id === task.id ? planned : t));
-                setToast(task.isTemplate ? "Справу заплановано, шаблон збережено" : date ? "Дату завдання змінено" : "Завдання повернуто в беклог");
+                const planned = {
+                  ...task,
+                  id: task.isTemplate ? crypto.randomUUID() : task.id,
+                  isTemplate: false,
+                  planningHorizon: date
+                    ? ("day" as const)
+                    : ("backlog" as const),
+                  planningAnchor: today,
+                  inBacklog: !date,
+                  date: date || task.date,
+                  completed: false,
+                  completedOn: undefined,
+                  nextOccurrence: undefined,
+                };
+                setTasks((ts) =>
+                  task.isTemplate
+                    ? [...ts, planned]
+                    : ts.map((t) => (t.id === task.id ? planned : t)),
+                );
+                setToast(
+                  task.isTemplate
+                    ? "Справу заплановано, шаблон збережено"
+                    : date
+                      ? "Дату завдання змінено"
+                      : "Завдання повернуто в беклог",
+                );
               }}
               onImportJira={(title, url) => {
-                if (url) { try { if (new URL(url).protocol !== "https:") return; } catch { return; } }
-                setTasks(ts => [...ts, { id: crypto.randomUUID(), title, inBacklog: true, jiraUrl: url || undefined, category: "Day", date: today, recurrence: "once", priority: "Normal", notes: "Додано з Jira вручну. Без синхронізації.", completed: false, disabled: false }]);
+                if (url) {
+                  try {
+                    if (new URL(url).protocol !== "https:") return;
+                  } catch {
+                    return;
+                  }
+                }
+                setTasks((ts) => [
+                  ...ts,
+                  {
+                    id: crypto.randomUUID(),
+                    title,
+                    inBacklog: true,
+                    jiraUrl: url || undefined,
+                    category: "Day",
+                    date: today,
+                    recurrence: "once",
+                    priority: "Normal",
+                    notes: "Додано з Jira вручну. Без синхронізації.",
+                    completed: false,
+                    disabled: false,
+                  },
+                ]);
                 setToast("Назву тікета додано як особисте завдання");
               }}
               onAddBacklog={() => addTask(today, true)}
@@ -1062,8 +1159,21 @@ export default function App() {
               </Section>
               <Section title="Особисті завдання">
                 <label className="setting-row">
-                  <div><strong>Анімований фон</strong><small>{isPlannerTheme(theme) ? "У темах планера декор статичний. Рух доступний в інших темах." : "Листя, пелюстки, зорі й хмаринки під настрій теми. Враховує системне зменшення руху."}</small></div>
-                  <input type="checkbox" aria-label="Анімований фон" disabled={isPlannerTheme(theme)} checked={ambient && !isPlannerTheme(theme)} onChange={e => setAmbient(e.target.checked)} />
+                  <div>
+                    <strong>Анімований фон</strong>
+                    <small>
+                      {isPlannerTheme(theme)
+                        ? "У темах планера декор статичний. Рух доступний в інших темах."
+                        : "Листя, пелюстки, зорі й хмаринки під настрій теми. Враховує системне зменшення руху."}
+                    </small>
+                  </div>
+                  <input
+                    type="checkbox"
+                    aria-label="Анімований фон"
+                    disabled={isPlannerTheme(theme)}
+                    checked={ambient && !isPlannerTheme(theme)}
+                    onChange={(e) => setAmbient(e.target.checked)}
+                  />
                 </label>
                 <label className="setting-row">
                   <div>
@@ -1341,7 +1451,22 @@ export default function App() {
                 onChange={(e) => setModal({ ...modal, title: e.target.value })}
               />
             </label>
-            {!modal.isTemplate && <label className="setting-row"><span>Без конкретної дати</span><input type="checkbox" checked={!!modal.inBacklog} onChange={e => setModal({ ...modal, inBacklog: e.target.checked, planningHorizon: e.target.checked ? "backlog" : "day" })} /></label>}
+            {!modal.isTemplate && (
+              <label className="setting-row">
+                <span>Без конкретної дати</span>
+                <input
+                  type="checkbox"
+                  checked={!!modal.inBacklog}
+                  onChange={(e) =>
+                    setModal({
+                      ...modal,
+                      inBacklog: e.target.checked,
+                      planningHorizon: e.target.checked ? "backlog" : "day",
+                    })
+                  }
+                />
+              </label>
+            )}
             <div className="form-grid">
               {!modal.isTemplate && !modal.inBacklog && (
                 <label>

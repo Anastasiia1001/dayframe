@@ -116,3 +116,9 @@ for (const width of [320, 390, 1440])
       ),
     ).toBe(true);
   });
+
+// These regression scenarios exercise the retained classic planner and dashboard.
+test.beforeEach(async ({page}) => { await page.addInitScript(() => {
+  localStorage.setItem("dayframe-classic-planner", "true");
+  if (!localStorage.getItem("dayframe-calendar-view")) localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
+}); });

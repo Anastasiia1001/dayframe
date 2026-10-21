@@ -47,7 +47,7 @@ export const live = {
     end: Date,
   ) => {
     const data = await api<{ events: CalendarEvent[] }>(
-      `/api/calendar/${id}?${new URLSearchParams({ start: start.toISOString(), end: end.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })}`,
+      `/api/calendar/${id}?${new URLSearchParams({ start: start.toISOString(), end: end.toISOString(), timeZone: "Europe/Kyiv" })}`,
     );
     return data.events;
   },

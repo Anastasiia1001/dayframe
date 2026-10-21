@@ -27,3 +27,9 @@ test("weekly and yearly tasks carry separate readable cadence badges", async ({ 
   await expect(yearly.locator(".cadence-badge")).toHaveText("Щороку");
   expect(await weekly.evaluate(el => getComputedStyle(el).backgroundColor)).not.toEqual(await yearly.evaluate(el => getComputedStyle(el).backgroundColor));
 });
+
+// These regression scenarios exercise the retained classic planner and dashboard.
+test.beforeEach(async ({page}) => { await page.addInitScript(() => {
+  localStorage.setItem("dayframe-classic-planner", "true");
+  if (!localStorage.getItem("dayframe-calendar-view")) localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
+}); });

@@ -169,3 +169,9 @@ test("pug winks with one eye on greeting while the other keeps the normal blink"
   expect(await pug.locator(".pug-tail").evaluate(el=>getComputedStyle(el).animationName)).toBe("happy-tail");
   expect(await pug.locator(".mascot-body").evaluate(el=>getComputedStyle(el).animationName)).toBe("soft-breathe");
 });
+
+// These regression scenarios exercise the retained classic planner and dashboard.
+test.beforeEach(async ({page}) => { await page.addInitScript(() => {
+  localStorage.setItem("dayframe-classic-planner", "true");
+  if (!localStorage.getItem("dayframe-calendar-view")) localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
+}); });

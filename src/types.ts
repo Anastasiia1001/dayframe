@@ -52,6 +52,17 @@ export interface ConfluencePage {
 export type Period = "Day" | "Month" | "Quarter" | "Year";
 export type PlanningHorizon = "backlog" | "year" | "month" | "week" | "day";
 export interface PersonalTask {
+  sectionId?: string;
+  scheduledStart?: string;
+  scheduledDuration?: number;
+  deadline?: string;
+  allDay?: boolean;
+  checklist?: { id: string; title: string; done: boolean }[];
+  links?: string[];
+  attachments?: { name: string; data: string; type: string }[];
+  cover?: string;
+  reminderMinutes?: number;
+  seriesExceptions?: Record<string, { date: string; start: string; duration: number; cancelled?: boolean }>;
   planningHorizon?: PlanningHorizon;
   planningAnchor?: string;
   id: string;

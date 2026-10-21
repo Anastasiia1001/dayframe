@@ -78,3 +78,9 @@ test("press state releases on cancellation and calendar companion greets on touc
   await helper.dispatchEvent("pointercancel");
   await expect(helper).not.toHaveAttribute("data-touch-pressed");
 });
+
+// These regression scenarios exercise the retained classic planner and dashboard.
+test.beforeEach(async ({page}) => { await page.addInitScript(() => {
+  localStorage.setItem("dayframe-classic-planner", "true");
+  if (!localStorage.getItem("dayframe-calendar-view")) localStorage.setItem("dayframe-calendar-view", JSON.stringify("Day"));
+}); });
