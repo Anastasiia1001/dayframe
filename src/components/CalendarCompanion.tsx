@@ -15,23 +15,32 @@ export function CalendarCompanion({
   theme: string;
   mascot: MascotId;
 }) {
-  const [greeting, setGreeting] = useState(-1);
-  const count = useRef(0);
+  const [greeting, setGreeting] = useState(0);
+  const [host, setHost] = useState<Element | null>(null);
+  const [playing, setPlaying] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   const [interaction, setInteraction] = useState(0);
   useEffect(() => {
-    if (greeting < 0) return;
-    const timer = setTimeout(() => setGreeting(-1), 2600);
+    setHost(button.current?.closest(".studio-header,.planner-cover") ||
+      button.current?.parentElement || null);
+    const timer = setInterval(() => {
+      setGreeting((value) => (value + 1) % greetings.length);
+    }, 5 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    if (!playing) return;
+    const timer = setTimeout(() => setPlaying(false), 2200);
     return () => clearTimeout(timer);
-  }, [greeting]);
+  }, [playing, interaction]);
   return (
     <>
       <button
         ref={button}
-        className={`calendar-companion ${greeting >= 0 ? "is-greeting" : ""}`}
+        className={`calendar-companion ${playing ? "is-greeting" : ""}`}
         aria-label="Привітатися з помічником"
         onClick={() => {
-          setGreeting(count.current++ % greetings.length);
+          setPlaying(true);
           setInteraction((value) => value + 1);
         }}
       >
@@ -43,16 +52,14 @@ export function CalendarCompanion({
           <Mascot key={`${mascot}:${interaction}`} kind={mascot} />
         </div>
       </button>
-      {greeting >= 0 &&
-        button.current &&
+      {host &&
         createPortal(
-          <div className="companion-reply" role="status">
-            <span className="companion-reply-bubble">
+          <div className="companion-reply">
+            <span className="companion-phrase">
               {greetings[greeting]}
             </span>
           </div>,
-          button.current.closest(".studio-header,.planner-cover") ||
-            button.current.parentElement!,
+          host,
         )}
     </>
   );

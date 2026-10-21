@@ -259,3 +259,17 @@ test("reminders remain available outside the calendar and do not repeat after di
   await page.reload();
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
+
+test("companion phrase stays visible and changes only every five minutes", async ({ page }) => {
+  await page.clock.install();
+  await page.goto("/");
+  const phrase = page.locator(".companion-phrase");
+  await expect(phrase).toHaveText("Я поруч. Одна справа за раз!");
+  await page.getByLabel("Привітатися з помічником").click();
+  await page.clock.fastForward(290000);
+  await expect(phrase).toHaveText("Я поруч. Одна справа за раз!");
+  await page.clock.fastForward(10000);
+  await expect(phrase).toHaveText("Маленький крок — теж перемога.");
+  await expect(phrase).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(phrase).toHaveCSS("box-shadow", "none");
+});

@@ -317,27 +317,13 @@
   margin: 0 0 10px;
   pointer-events: none;
 }
-.companion-reply-bubble {
+.companion-phrase {
   max-width: min(390px, 100%);
-  padding: 10px 15px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 15px 15px 5px 15px;
-  color: var(--text);
+  padding: 2px 0;
+  color: var(--text-secondary, var(--text));
   font-size: 12px;
   line-height: 1.6;
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 8%, transparent);
-  animation: pet-reply 0.18s ease-out;
-}
-@keyframes pet-reply {
-  from {
-    opacity: 0;
-    transform: translateY(-3px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  text-align: right;
 }
 :root[data-pet-paused="true"] .mascot-art * {
   animation-play-state: paused !important;
@@ -470,7 +456,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme] .mascot-art *,
-  .companion-reply-bubble {
+  .companion-phrase {
     animation: none !important;
     transition: none !important;
   }
@@ -553,7 +539,7 @@
     font-size: 11px;
     padding-inline: 5px;
   }
-  .companion-reply-bubble {
+  .companion-phrase {
     font-size: 11px;
   }
 }
