@@ -1,0 +1,872 @@
+/* A desk, not a stack of identical cards: independent sheets around a tall schedule. */
+.page-calendar .page-heading {
+  display: none;
+}
+.page-calendar main {
+  padding: 24px 28px 42px;
+}
+.page-calendar .workspace-toolbar {
+  margin-bottom: 14px;
+  gap: 10px;
+  font-size: 11px;
+}
+.page-calendar .topbar {
+  height: 56px;
+}
+.page-calendar .calendar-board {
+  overflow: visible;
+  background: var(--soft);
+  padding: 20px;
+  position: relative;
+}
+.page-calendar .calendar-board.is-timed {
+  height: auto;
+  min-height: 0;
+  display: block;
+}
+.planner-cover {
+  padding: 8px 8px 24px;
+  min-height: 170px;
+  align-items: center;
+}
+.planner-cover-title h1 {
+  font-family: var(--planner-heading-font, Georgia, serif);
+  font-size: clamp(27px, 2.7vw, 42px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  text-transform: capitalize;
+  margin: 0;
+}
+.planner-cover-title p {
+  margin-top: 10px;
+}
+.planner-hero-art {
+  width: 225px;
+  height: 162px;
+  object-fit: contain;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.page-calendar .calendar-top {
+  border-top: 1px solid var(--border);
+  padding: 14px 0;
+}
+.page-calendar .calendar-toolbar {
+  background: none;
+  padding: 0 0 28px;
+  gap: 12px;
+  border-bottom: 0;
+}
+.day-planner-layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(300px, 1.85fr) minmax(
+      200px,
+      1fr
+    );
+  grid-template-areas: "priorities schedule notes" "tasks schedule notes" "tasks schedule reminders";
+  gap: 26px 20px;
+  align-items: start;
+}
+.planner-sheet {
+  position: relative;
+  min-width: 0;
+  padding: 30px 16px 20px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 5px 12px #74543313,
+    inset 0 1px 2px #ffffffa0;
+}
+.planner-sheet h3 {
+  margin: 0;
+}
+.sheet-tab {
+  position: absolute;
+  top: -14px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  padding: 8px 13px;
+  z-index: 2;
+  background: var(--planner-tab, var(--selected));
+  color: var(--text);
+  border-radius: 10px 10px 5px 5px;
+  box-shadow:
+    0 3px 4px #70532c17,
+    inset 0 1px 1px #fff9;
+}
+.priorities-sheet {
+  grid-area: priorities;
+  border-radius: 26px 26px 18px 18px;
+  background: color-mix(in srgb, #f5d48e 28%, var(--surface));
+}
+.priorities-sheet .sheet-tab {
+  background: #f5d48e;
+  color: #574326;
+}
+.sheet-intro {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 0 0 16px;
+}
+.daily-priorities {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.daily-priorities li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  padding-bottom: 10px;
+}
+.priority-check {
+  border-radius: 50%;
+  background: var(--surface);
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 2px #70532c18;
+  font-size: 10px;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  padding: 0;
+}
+.priority-check:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.daily-priorities input {
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  width: 100%;
+  font-size: 12px;
+}
+.priority-done input {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.tasks-sheet {
+  grid-area: tasks;
+  border-radius: 16px 26px 24px 10px;
+  padding-inline: 12px;
+}
+.tasks-sheet .sheet-tab {
+  background: #d0dfce;
+  color: #37513c;
+}
+.sheet-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 2px 12px;
+}
+.sheet-topline small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.sheet-add {
+  font-size: 11px;
+  color: var(--accent);
+  padding: 5px;
+  min-height: 32px;
+}
+.tasks-sheet .task-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 8px;
+  padding: 10px !important;
+}
+.tasks-sheet .task-title strong {
+  font-size: 12px;
+}
+.tasks-sheet .task-facts {
+  font-size: 10px;
+  gap: 5px;
+}
+.tasks-sheet .task-actions {
+  grid-column: 2;
+  justify-content: flex-end;
+  opacity: 1;
+}
+.tasks-sheet .task-actions button {
+  width: 28px;
+  height: 28px;
+}
+.tasks-sheet .task-list {
+  padding: 0;
+}
+.sheet-empty {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 10px 0;
+}
+.schedule-sheet {
+  grid-area: schedule;
+  border-radius: 32px 32px 22px 22px;
+  padding: 24px 0 12px;
+  overflow: visible;
+}
+.schedule-sheet .sheet-tab {
+  left: 24px;
+  background: #b9ccd5;
+  color: #364c59;
+}
+.schedule-content {
+  overflow: hidden;
+  border-radius: 20px;
+}
+.schedule-sheet .time-day-head {
+  grid-template-columns: 48px minmax(0, 1fr) !important;
+  border-top: 0;
+  background: transparent;
+}
+.schedule-sheet .time-day-head > button {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 7px;
+}
+.schedule-sheet .time-day-head > button small {
+  font-size: 10px;
+}
+.schedule-sheet .time-day-head strong {
+  font-size: 17px;
+  width: 30px;
+  height: 30px;
+}
+.schedule-sheet .time-scroll {
+  height: 770px !important;
+  max-height: none;
+  min-height: 440px;
+  overflow-y: auto;
+}
+.schedule-sheet .untimed-band {
+  min-height: 0;
+}
+.schedule-sheet .untimed-band:has(> div:empty) {
+  display: none;
+}
+.schedule-sheet .time-day {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 29px,
+    color-mix(in srgb, var(--border) 30%, transparent) 29px 30px,
+    transparent 30px 60px
+  );
+}
+.schedule-sheet .calendar-event {
+  border-radius: 10px 10px 10px 3px;
+}
+.notes-sheet {
+  grid-area: notes;
+  border-radius: 6px 22px 24px 6px;
+  background:
+    linear-gradient(90deg, #cfab9020 0 3px, transparent 3px), var(--surface);
+  border-left: 4px solid color-mix(in srgb, var(--border) 75%, var(--text));
+  transform: rotate(0.5deg);
+}
+.notes-sheet .sheet-tab {
+  background: #e4c9c9;
+  color: #694840;
+}
+.daily-notes-label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.daily-notes-label textarea {
+  resize: vertical;
+  min-height: 225px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--text);
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 27px,
+    var(--border) 27px 28px
+  );
+  line-height: 28px;
+  font-size: 13px;
+}
+.autosave-label {
+  display: block;
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 10px;
+}
+.paper-tape {
+  position: absolute;
+  top: -9px;
+  right: 20px;
+  width: 55px;
+  height: 20px;
+  background:
+    repeating-linear-gradient(0deg, #8da58840 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(90deg, #8da58840 0 1px, #e3e4bcaa 1px 7px);
+  transform: rotate(7deg);
+  pointer-events: none;
+}
+.reminders-sheet {
+  grid-area: reminders;
+  border-radius: 22px 7px 22px 22px;
+  padding-bottom: 72px;
+  margin-top: 4px;
+}
+.reminders-sheet .sheet-tab {
+  background: #cab5d9;
+  color: #584164;
+}
+.daily-reminders {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.daily-reminders li {
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+  align-items: start;
+  font-size: 12px;
+}
+.daily-reminders label {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+  min-width: 0;
+}
+.daily-reminders label span {
+  overflow-wrap: anywhere;
+}
+.daily-reminders input {
+  margin-top: 4px;
+}
+.daily-reminders time {
+  font-weight: 600;
+}
+.reminder-done span {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+.reminder-form > input {
+  width: 100%;
+  padding: 8px;
+  font-size: 11px;
+}
+.reminder-form > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  gap: 5px;
+}
+.reminder-form label {
+  font-size: 10px;
+  color: var(--muted);
+}
+.reminder-form input[type="time"] {
+  padding: 5px;
+  font-size: 11px;
+  width: 92px;
+}
+.planner-plant {
+  position: absolute;
+  width: 76px;
+  height: 94px;
+  object-fit: contain;
+  bottom: -16px;
+  right: -8px;
+  pointer-events: none;
+}
+.stationery-sticker {
+  display: block;
+  pointer-events: none;
+  background-image: url("/assets/planner/stationery-set.png");
+  background-repeat: no-repeat;
+}
+.bow-sticker {
+  position: absolute;
+  width: 40px;
+  height: 42px;
+  background-size: 240px 160px;
+  background-position: -193px -42px;
+  bottom: -14px;
+  right: 3px;
+  transform: rotate(8deg);
+}
+.clay-nav-icon {
+  display: none;
+}
+:root[data-theme="Pastel"] .clay-nav-icon,
+:root[data-theme="CutePlanner"] .clay-nav-icon {
+  display: block;
+  width: 26px;
+  height: 28px;
+  flex-shrink: 0;
+  background-image: url("/assets/planner/stationery-set.png");
+  background-size: 168px 112px;
+  background-repeat: no-repeat;
+  background-position: -122px -70px;
+}
+:root[data-theme="Pastel"] .clay-nav-icon + svg,
+:root[data-theme="CutePlanner"] .clay-nav-icon + svg {
+  display: none;
+}
+.clay-nav-icon[data-nav="Calendar"] {
+  background-position: -148px -70px !important;
+}
+.clay-nav-icon[data-nav="Personal"],
+.clay-nav-icon[data-nav="Work"] {
+  background-position: -122px -96px !important;
+}
+.clay-nav-icon[data-nav="Settings"] {
+  background-position: -148px -96px !important;
+}
+.planner-calendar-surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 4px 9px #70532c12;
+}
+.planner-calendar-surface.mode-week {
+  display: flex;
+  flex-direction: column;
+}
+.planner-calendar-surface .time-scroll {
+  max-height: 660px;
+}
+.page-calendar .calendar-caption {
+  margin-top: 18px;
+  padding: 12px 4px 0;
+  background: none;
+  border: 0;
+  font-size: 10px;
+}
+:root[data-theme="Vintage"] .planner-sheet {
+  border: 3px double var(--border);
+  border-radius: 2px 12px 3px 2px;
+  box-shadow:
+    3px 4px 0 var(--bg),
+    4px 5px 0 var(--border),
+    6px 8px 12px #604a3110;
+  background-color: var(--surface);
+}
+:root[data-theme="Vintage"] .priorities-sheet {
+  transform: rotate(-0.6deg);
+}
+:root[data-theme="Vintage"] .sheet-tab {
+  border: 1px solid var(--border);
+  border-radius: 1px 9px 2px 1px;
+  background: var(--selected);
+  color: var(--text);
+  font-family: Georgia, serif;
+}
+:root[data-theme="Vintage"] .stationery-sticker {
+  display: none;
+}
+:root[data-theme="Vintage"] .planner-plant {
+  display: none;
+}
+:root[data-theme="Parchment"] .planner-sheet {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  outline: 1px solid var(--border);
+  outline-offset: -5px;
+  border-radius: 3px 12px 5px 9px;
+  box-shadow: 2px 4px 8px #604a3120;
+}
+:root[data-theme="Parchment"] .sheet-tab {
+  background: #6d3429;
+  color: #fff1d1;
+  border-radius: 0;
+  box-shadow: none;
+  font-family: Georgia, serif;
+  padding-inline: 20px;
+  clip-path: polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%, 5% 50%);
+}
+:root[data-theme="Parchment"] .tasks-sheet .sheet-tab {
+  background: #414a32;
+}
+:root[data-theme="Parchment"] .schedule-sheet .sheet-tab {
+  background: #39434a;
+}
+:root[data-theme="Parchment"]
+  :is(.planner-plant, .stationery-sticker, .paper-tape) {
+  display: none;
+}
+:root[data-theme="CutePlanner"] .planner-sheet {
+  border: 2px solid #e9d3c3;
+  box-shadow:
+    0 6px 0 #e9d3c34d,
+    0 10px 14px #805c4610;
+}
+:root[data-theme="CutePlanner"] .sheet-tab {
+  border-radius: 13px 13px 2px 2px;
+  transform: rotate(-2deg);
+}
+@media (min-width: 1500px) {
+  .day-planner-layout {
+    grid-template-columns: minmax(230px, 1fr) minmax(430px, 2fr) minmax(
+        240px,
+        1fr
+      );
+    gap: 30px;
+  }
+  .page-calendar main {
+    padding: 24px 36px 48px;
+  }
+}
+@media (max-width: 1150px) and (min-width: 701px) {
+  .day-planner-layout {
+    grid-template-columns: minmax(180px, 1fr) minmax(270px, 1.7fr);
+    grid-template-areas: "priorities schedule" "tasks schedule" "notes reminders";
+    gap: 25px 16px;
+  }
+  .planner-hero-art {
+    width: 150px;
+    height: 125px;
+  }
+  .planner-cover {
+    gap: 10px;
+  }
+  .planner-theme-picker {
+    max-width: 145px;
+  }
+}
+@media (max-width: 700px) {
+  .page-calendar main {
+    padding: 14px 10px 32px !important;
+  }
+  .page-calendar .calendar-board {
+    padding: 14px 10px;
+    border-radius: 24px;
+  }
+  .page-calendar .workspace-toolbar {
+    margin-bottom: 14px;
+  }
+  .day-planner-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "priorities" "schedule" "tasks" "notes" "reminders";
+    gap: 28px;
+  }
+  .planner-cover {
+    min-height: 0;
+    padding: 4px 0 18px;
+    gap: 10px;
+  }
+  .planner-cover-title {
+    flex-basis: calc(100% - 110px);
+  }
+  .planner-cover-title h1 {
+    font-size: 25px;
+  }
+  .planner-hero-art {
+    width: 100px;
+    height: 110px;
+  }
+  .planner-cover-title p {
+    font-size: 10px;
+  }
+  .planner-cover .planner-theme-picker {
+    width: 100%;
+    flex-direction: row;
+    max-width: none;
+  }
+  .page-calendar .calendar-top {
+    padding: 12px 0;
+  }
+  .page-calendar .calendar-toolbar {
+    padding: 0 0 28px;
+  }
+  .planner-sheet {
+    padding: 30px 16px 18px;
+  }
+  .schedule-sheet {
+    padding: 26px 0 10px;
+  }
+  .schedule-sheet .time-scroll {
+    height: 620px !important;
+  }
+  .reminders-sheet {
+    padding-bottom: 55px;
+  }
+  .daily-priorities input {
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .priority-check {
+    width: 36px;
+    height: 36px;
+  }
+  .sheet-add {
+    min-height: 44px;
+  }
+  .notes-sheet {
+    transform: none;
+  }
+  .planner-plant {
+    width: 62px;
+    height: 75px;
+  }
+  .tasks-sheet .task-row {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+  .tasks-sheet .task-actions button {
+    width: 40px;
+    height: 40px;
+  }
+  .page-calendar .calendar-caption {
+    line-height: 1.7;
+  }
+  .sheet-tab {
+    font-size: 12px;
+  }
+  .reminder-form input {
+    min-height: 44px;
+  }
+}
+:root[data-theme="Pastel"] .clay-nav-icon,
+:root[data-theme="CutePlanner"] .clay-nav-icon {
+  background-position: -121px -61px;
+}
+.clay-nav-icon[data-nav="Calendar"] {
+  background-position: -143px -61px !important;
+}
+.clay-nav-icon[data-nav="Personal"],
+.clay-nav-icon[data-nav="Work"] {
+  background-position: -121px -83px !important;
+}
+.clay-nav-icon[data-nav="Settings"] {
+  background-position: -143px -82px !important;
+}
+.day-planner-layout {
+  grid-template-areas: "left schedule right";
+}
+.day-left-column {
+  grid-area: left;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  min-width: 0;
+}
+.day-right-column {
+  grid-area: right;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  min-width: 0;
+}
+.reminder-value {
+  flex: 1;
+  min-width: 0;
+}
+.reminder-value input {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 12px;
+}
+.reminder-value input[type="time"] {
+  font-size: 10px;
+  width: 95px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.reminder-done .reminder-value > input:first-child {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+@media (max-width: 1150px) and (min-width: 701px) {
+  .day-planner-layout {
+    grid-template-areas: "left schedule" "right right";
+  }
+  .day-right-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  .day-right-column .notes-sheet,
+  .day-right-column .reminders-sheet {
+    grid-area: auto;
+  }
+}
+@media (max-width: 700px) {
+  .day-planner-layout {
+    grid-template-areas: "priorities" "schedule" "tasks" "notes" "reminders";
+  }
+  .day-left-column,
+  .day-right-column {
+    display: contents;
+  }
+}
+.bow-sticker {
+  width: 30px;
+  height: 28px;
+  background-position: -203px -48px;
+}
+.star-sticker {
+  position: absolute;
+  top: -16px;
+  right: 18px;
+  width: 30px;
+  height: 30px;
+  background-size: 240px 160px;
+  background-position: -203px -17px;
+  transform: rotate(10deg);
+}
+:root[data-theme="Vintage"] .star-sticker,
+:root[data-theme="Parchment"] .star-sticker {
+  display: none;
+}
+:root[data-planner] .page-calendar .calendar-board {
+  background: linear-gradient(145deg, #ffffff18, transparent 70%), var(--soft);
+}
+.page-calendar .calendar-board .calendar-toolbar {
+  padding: 0 0 28px;
+  background: transparent;
+}
+:root[data-planner] .planner-calendar-surface.mode-month {
+  padding: 12px;
+  border-radius: 22px 22px 12px 12px;
+}
+:root[data-planner] .mode-month .month-weekdays {
+  border: 0;
+  background: none;
+  gap: 7px;
+}
+:root[data-planner] .mode-month .month-weekdays > span {
+  background: var(--soft);
+  border-radius: 9px 9px 3px 3px;
+  margin-bottom: 8px;
+}
+:root[data-planner] .mode-month .calendar-grid {
+  gap: 7px;
+  background: none;
+  border: 0;
+}
+:root[data-planner] .mode-month .calendar-cell {
+  border: 1px solid var(--border);
+  border-radius: 12px 12px 5px 12px;
+  min-height: 125px;
+  box-shadow: inset 0 1px 0 #ffffff80;
+}
+:root[data-planner] .mode-month .calendar-cell.is-selected {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+:root[data-theme="Vintage"] .mode-month .calendar-cell {
+  border-radius: 2px;
+  border: 3px double var(--border);
+}
+:root[data-theme="Parchment"] .mode-month .calendar-cell {
+  border-radius: 3px 7px 3px 3px;
+  outline: 1px solid var(--border);
+  outline-offset: -4px;
+}
+:root[data-planner] .planner-calendar-surface.mode-week .time-day-head {
+  padding: 10px 0 4px;
+  background: var(--soft);
+  border: 0;
+  gap: 3px;
+}
+:root[data-planner] .mode-week .time-day-head > button {
+  border: 1px solid var(--border);
+  border-radius: 13px 13px 3px 3px;
+  background: var(--surface);
+  margin-right: 3px;
+}
+:root[data-planner] .mode-week .time-day-head > button.today {
+  background: var(--selected);
+}
+:root[data-planner] .mode-week .time-day {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 29px,
+    color-mix(in srgb, var(--border) 25%, transparent) 29px 30px,
+    transparent 30px 60px
+  );
+}
+@media (max-width: 700px) {
+  .star-sticker {
+    display: none;
+  }
+  :root[data-planner] .planner-calendar-surface.mode-month {
+    padding: 5px;
+  }
+  :root[data-planner] .mode-month .month-weekdays,
+  :root[data-planner] .mode-month .calendar-grid {
+    gap: 2px;
+  }
+  :root[data-planner] .mode-month .calendar-cell {
+    min-height: 78px;
+    border-radius: 6px;
+    padding: 5px 0;
+  }
+}
+.clay-nav-icon[data-nav="Work"] {
+  background-image: url("/assets/planner/work.svg") !important;
+  background-size: contain !important;
+  background-position: center !important;
+}
+.pushpin-sticker {
+  position: absolute;
+  width: 19px;
+  height: 29px;
+  top: -16px;
+  right: 14px;
+  background-size: 240px 160px;
+  background-position: -56px -101px;
+  transform: rotate(8deg);
+}
+:root[data-theme="Vintage"] .pushpin-sticker,
+:root[data-theme="Parchment"] .pushpin-sticker {
+  display: none;
+}
+.schedule-sheet .calendar-board .short-event,
+.schedule-sheet .short-event {
+  justify-content: flex-start;
+}
+
+.planner-cover-title h1 { text-transform:none; }
+.planner-cover-title h1::first-letter { text-transform:uppercase; }
+.planner-view-month .planner-cover,.planner-view-week .planner-cover { min-height:120px; }
+.planner-view-month .planner-hero-art,.planner-view-week .planner-hero-art { width:165px; height:115px; }
+@media(max-width:700px) { .planner-view-month .planner-hero-art,.planner-view-week .planner-hero-art { width:90px; height:90px; } }
+:root[data-planner] .sidebar { overflow-y:auto; scrollbar-width:thin; }
+:root[data-planner] .sidebar > * { flex-shrink:0; }
+:root[data-planner] .sidebar .workspace { margin:22px 0 20px; }
+:root[data-planner] .sidebar nav { gap:3px; }
+:root[data-planner] .sidebar nav button { padding:8px 10px; margin-block:3px; }
+:root[data-planner] .sidebar-bottom { padding-top:12px; }
+:root[data-planner] .quiet-note { padding-block:10px; margin-bottom:8px; }
+@media(max-width:700px) { .page-calendar main { padding-bottom:100px !important; } }
+@media(max-height:1000px) and (min-width:701px) {
+  :root[data-planner] .sidebar .quiet-note { display:none; }
+  :root[data-planner] .sidebar-divider { margin-block:16px; }
+}

@@ -10,8 +10,8 @@ for (const theme of ["Pastel", "CutePlanner", "Vintage", "Parchment"]) {
     await openCalendar(page);
     await page.getByLabel("Оформлення планера", {exact:true}).selectOption(theme);
     await expect(page.locator("html")).toHaveAttribute("data-planner",theme);
-    await expect(page.locator(".planner-decoration")).toHaveAttribute("data-decoration",theme);
-    expect(await page.locator(".planner-decoration").evaluate(e => getComputedStyle(e).pointerEvents)).toBe("none");
+    await expect(page.locator(".planner-decoration, .planner-hero-art")).toHaveAttribute("data-decoration",theme);
+    expect(await page.locator(".planner-decoration, .planner-hero-art").evaluate(e => getComputedStyle(e).pointerEvents)).toBe("none");
     await expect(page.locator(".theme-atmosphere")).toHaveCount(0);
     const ink: Record<string,string> = { Pastel:"rgb(64, 51, 38)", CutePlanner:"rgb(101, 71, 54)", Vintage:"rgb(255, 246, 229)", Parchment:"rgb(255, 241, 209)" };
     await expect(page.locator(".calendar-top .primary")).toHaveCSS("color",ink[theme]);
@@ -58,6 +58,6 @@ for (const width of [320,390,768]) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
     await page.emulateMedia({reducedMotion:"reduce"});
-    expect(await page.locator(".planner-decoration").evaluate(e => getComputedStyle(e).animationName)).toBe("none");
+    expect(await page.locator(".planner-decoration, .planner-hero-art").evaluate(e => getComputedStyle(e).animationName)).toBe("none");
   });
 }

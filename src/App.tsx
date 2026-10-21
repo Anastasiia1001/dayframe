@@ -106,7 +106,7 @@ export default function App() {
   ]);
   const [calendarView, setCalendarView] = useLocal(
     "dayframe-calendar-view",
-    "Week",
+    "Day",
   );
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [toast, setToast] = useState("");
@@ -522,6 +522,8 @@ export default function App() {
         onFilters={setFilters}
         onEvent={setEventDetail}
         onTask={setModal}
+        onPostpone={postpone}
+        onDelete={task => setTasks(ts => ts.filter(t => t.id !== task.id))}
         onToggleTask={toggleTask}
         onAdd={addTask}
         loading={workspace.loading}
@@ -565,7 +567,7 @@ export default function App() {
               className={page === name ? "selected" : ""}
               onClick={() => setPage(name)}
             >
-              <Icon size={18} />
+              <span className="clay-nav-icon" data-nav={name} aria-hidden="true"/><Icon size={18} />
               {uk(name)}
               {name === "Today" && attention.length > 0 && (
                 <span className="nav-count">{attention.length}</span>
@@ -647,7 +649,7 @@ export default function App() {
           </button>
         </div>
       </aside>
-      <div className="main-shell">
+      <div className={`main-shell page-${page.toLowerCase()}`}>
         <header className="topbar">
           <div className="breadcrumb">
             <PanelLeftClose size={17} />

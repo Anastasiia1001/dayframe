@@ -1,3 +1,4 @@
+import { DayPlanner } from "./DayPlanner";
 import { themes } from "../appearance";
 import { PlannerDecoration } from "./PlannerDecoration";
 import { taskCadence } from "../taskCadence";
@@ -33,6 +34,8 @@ type Props = {
   onFilters: (s: string[]) => void;
   onEvent: (e: CalendarEvent) => void;
   onTask: (t: PersonalTask) => void;
+  onPostpone: (t: PersonalTask) => void;
+  onDelete: (t: PersonalTask) => void;
   onToggleTask: (t: PersonalTask) => void;
   onAdd: (date: string) => void;
   loading: boolean;
@@ -49,7 +52,10 @@ export function CalendarBoard(p: Props) {
     const changeSmall = () => setMobile(small.matches);
     media.addEventListener("change", change);
     small.addEventListener("change", changeSmall);
-    return () => { media.removeEventListener("change", change); small.removeEventListener("change", changeSmall); };
+    return () => {
+      media.removeEventListener("change", change);
+      small.removeEventListener("change", changeSmall);
+    };
   }, []);
   const pane = useRef<HTMLDivElement>(null);
   const key = dateKey(p.date);
@@ -172,15 +178,254 @@ export function CalendarBoard(p: Props) {
       </section>
     );
   };
+  const calendarContent =
+    p.view === "Month" ? (
+      <>
+        <div className="month-weekdays">
+          {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"].map((d) => (
+            <span key={d}>{d}</span>
+          ))}
+        </div>
+        <div className="calendar-grid view-month">
+          {days.map((day) => {
+            const entries = events.filter((e) => eventOnDay(e, day)),
+              dailyTasks = tasks.filter((t) => t.date === day);
+            const total = entries.length + dailyTasks.length;
+            return (
+              <div
+                className={`calendar-cell ${day === key ? "is-selected" : ""} ${day === p.today ? "is-today" : ""} ${fromDate(day).getMonth() !== p.date.getMonth() ? "outside-month" : ""}`}
+                key={day}
+              >
+                <button
+                  className="month-day"
+                  aria-label={`Відкрити ${shortDate(day)}`}
+                  aria-current={day === p.today ? "date" : undefined}
+                  aria-pressed={day === key}
+                  onClick={() => selectMonthDay(day)}
+                >
+                  {fromDate(day).getDate()}
+                </button>
+                {mobile && total > 0 && (
+                  <button
+                    className="month-indicators"
+                    aria-label={`${entries.length} подій, ${dailyTasks.length} завдань`}
+                    onClick={() => selectMonthDay(day)}
+                  >
+                    <span>
+                      {entries.length > 0 && <i className="event-indicator" />}
+                      {dailyTasks.length > 0 && (
+                        <i className="task-indicator" />
+                      )}
+                    </span>
+                    <small>{total}</small>
+                  </button>
+                )}
+                {!mobile && entries.slice(0, 2).map(eventChip)}
+                {!mobile &&
+                  entries.length < 2 &&
+                  dailyTasks.slice(0, 2 - entries.length).map(taskButton)}
+                {!mobile && total > 2 && (
+                  <button className="month-more" onClick={() => selectDay(day)}>
+                    +{total - 2} ще
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {mobile && <div className="month-mobile-preview">{agenda(key)}</div>}
+      </>
+    ) : p.view === "Agenda" || (compact && p.view === "Week") ? (
+      <div className="calendar-agenda">
+        {(p.view === "Agenda"
+          ? Array.from({ length: 7 }, (_, i) => addDays(key, i))
+          : days
+        ).map(agenda)}
+      </div>
+    ) : (
+      <>
+        <div
+          className="time-day-head"
+          style={{
+            gridTemplateColumns: `48px repeat(${days.length},minmax(0,1fr))`,
+          }}
+        >
+          <div
+            className="time-zone-label"
+            title={Intl.DateTimeFormat().resolvedOptions().timeZone}
+          >
+            <Clock size={14} />
+          </div>
+          {days.map((day) => (
+            <button
+              key={day}
+              onClick={() => selectDay(day)}
+              className={day === p.today ? "today" : ""}
+              aria-pressed={day === key}
+              aria-current={day === p.today ? "date" : undefined}
+            >
+              <small>
+                {fromDate(day).toLocaleDateString(locale, {
+                  weekday: "short",
+                })}
+              </small>
+              <strong>{fromDate(day).getDate()}</strong>
+            </button>
+          ))}
+        </div>
+        <div
+          className="untimed-band"
+          style={{
+            gridTemplateColumns: `48px repeat(${days.length},minmax(0,1fr))`,
+          }}
+        >
+          <span>Без часу</span>
+          {days.map((day) => (
+            <div key={day}>
+              {events
+                .filter((e) => e.allDay && eventOnDay(e, day))
+                .map(eventChip)}
+              {p.view !== "Day" &&
+                tasks
+                  .filter((t) => t.date === day)
+                  .slice(0, 3)
+                  .map(taskButton)}
+              {p.view !== "Day" &&
+                tasks.filter((t) => t.date === day).length > 3 && (
+                  <button
+                    className="month-more"
+                    onClick={() => {
+                      p.onDate(fromDate(day));
+                      p.onView("Agenda");
+                    }}
+                  >
+                    Усі завдання · {tasks.filter((t) => t.date === day).length}
+                  </button>
+                )}
+            </div>
+          ))}
+        </div>
+        <div className="time-scroll" ref={pane}>
+          <div
+            className="time-canvas"
+            style={{
+              height: hours.length * 60,
+              gridTemplateColumns: `48px repeat(${days.length},minmax(0,1fr))`,
+            }}
+          >
+            <div className="time-axis">
+              {hours.map((h) => (
+                <span key={h} style={{ top: (h - startHour) * 60 }}>
+                  {String(h).padStart(2, "0")}:00
+                </span>
+              ))}
+            </div>
+            {days.map((day, i) => (
+              <div
+                className={`time-day ${day === p.today ? "is-today" : ""}`}
+                key={day}
+              >
+                {hours.map((h) => (
+                  <div
+                    className="hour-line"
+                    key={h}
+                    style={{ top: (h - startHour) * 60 }}
+                  />
+                ))}
+                {positions[i].map((pos) => (
+                  <button
+                    key={pos.event.id}
+                    className={`calendar-event timed-event ${pos.end - pos.start < 45 ? "short-event" : ""} source-${pos.event.source.toLowerCase()}`}
+                    title={`${pos.event.start}–${pos.event.end} · ${pos.event.title}`}
+                    style={{
+                      top: pos.start - startHour * 60,
+                      height: Math.max(23, pos.end - pos.start - 2),
+                      left: `calc(${(pos.column / pos.columns) * 100}% + 3px)`,
+                      width: `calc(${100 / pos.columns}% - 6px)`,
+                    }}
+                    onClick={() => p.onEvent(pos.event)}
+                  >
+                    <span className="calendar-event-time">
+                      {String(Math.floor(pos.start / 60)).padStart(2, "0")}:
+                      {String(pos.start % 60).padStart(2, "0")}–
+                      {String(Math.floor(pos.end / 60)).padStart(2, "0")}:
+                      {String(pos.end % 60).padStart(2, "0")}
+                    </span>
+                    <strong>{pos.event.title}</strong>
+                    {pos.end - pos.start >= 50 && (
+                      <small>
+                        {pos.event.accountLabel || pos.event.source}
+                      </small>
+                    )}
+                  </button>
+                ))}
+                {day === p.today &&
+                  new Date().getHours() >= startHour &&
+                  new Date().getHours() < endHour && (
+                    <div
+                      className="now-line"
+                      aria-label="Поточний час"
+                      style={{
+                        top:
+                          new Date().getHours() * 60 +
+                          new Date().getMinutes() -
+                          startHour * 60,
+                      }}
+                    />
+                  )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
   return (
     <section
-      className={`calendar-board ${(p.view === "Day" || (p.view === "Week" && !compact)) ? "is-timed" : ""}`}
+      className={`calendar-board planner-view-${p.view.toLowerCase()} ${p.view === "Day" || (p.view === "Week" && !compact) ? "is-timed" : ""}`}
       aria-label="Календар"
     >
       <div className="planner-cover">
-        <div className="planner-cover-title"><span className="planner-kicker">ПЕРСОНАЛЬНИЙ ПЛАНЕР</span><h2>{p.date.toLocaleDateString(locale, p.view === "Day" ? { weekday:"long", day:"numeric", month:"long" } : { month:"long", year:"numeric" })}</h2><p>{p.view === "Day" ? "Один день. Достатньо місця для важливого." : "Твої зустрічі й справи, дбайливо впорядковані."}</p></div>
-        <PlannerDecoration theme={p.theme} />
-        <label className="planner-theme-picker">Оформлення<select aria-label="Оформлення планера" value={p.theme} onChange={e => p.onTheme(e.target.value)}>{themes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+        <div className="planner-cover-title">
+          <span className="planner-kicker">ПЕРСОНАЛЬНИЙ ПЛАНЕР</span>
+          <h1>
+            {p.date.toLocaleDateString(
+              locale,
+              p.view === "Day"
+                ? { weekday: "long", day: "numeric", month: "long" }
+                : { month: "long", year: "numeric" },
+            )}
+          </h1>
+          <p>
+            {p.view === "Day"
+              ? "Один день. Достатньо місця для важливого."
+              : "Твої зустрічі й справи, дбайливо впорядковані."}
+          </p>
+        </div>
+        {["Pastel", "CutePlanner"].includes(p.theme) ? (
+          <img
+            className="planner-hero-art"
+            data-decoration={p.theme}
+            src={`${import.meta.env.BASE_URL}assets/planner/bunny-calendar.png`}
+            alt=""
+            aria-hidden="true"
+          />
+        ) : (
+          <PlannerDecoration theme={p.theme} />
+        )}
+        <label className="planner-theme-picker">
+          Оформлення
+          <select
+            aria-label="Оформлення планера"
+            value={p.theme}
+            onChange={(e) => p.onTheme(e.target.value)}
+          >
+            {themes.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
       <div className="calendar-top">
         <div className="calendar-controls">
@@ -284,192 +529,32 @@ export function CalendarBoard(p: Props) {
           Оновлюємо події…
         </div>
       )}
-      {p.view === "Month" ? (
-        <>
-          <div className="month-weekdays">
-            {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"].map((d) => (
-              <span key={d}>{d}</span>
-            ))}
-          </div>
-          <div className="calendar-grid view-month">
-            {days.map((day) => {
-              const entries = events.filter((e) => eventOnDay(e, day)),
-                dailyTasks = tasks.filter((t) => t.date === day);
-              const total = entries.length + dailyTasks.length;
-              return (
-                <div
-                  className={`calendar-cell ${day === key ? "is-selected" : ""} ${day === p.today ? "is-today" : ""} ${fromDate(day).getMonth() !== p.date.getMonth() ? "outside-month" : ""}`}
-                  key={day}
-                >
-                  <button
-                    className="month-day"
-                    aria-label={`Відкрити ${shortDate(day)}`}
-                    aria-current={day === p.today ? "date" : undefined}
-                    aria-pressed={day === key}
-                    onClick={() => selectMonthDay(day)}
-                  >
-                    {fromDate(day).getDate()}
-                  </button>
-                  {mobile && total > 0 && <button className="month-indicators" aria-label={`${entries.length} подій, ${dailyTasks.length} завдань`} onClick={() => selectMonthDay(day)}><span>{entries.length > 0 && <i className="event-indicator" />}{dailyTasks.length > 0 && <i className="task-indicator" />}</span><small>{total}</small></button>}
-                  {!mobile && entries.slice(0, 2).map(eventChip)}
-                  {!mobile && entries.length < 2 &&
-                    dailyTasks.slice(0, 2 - entries.length).map(taskButton)}
-                  {!mobile && total > 2 && (
-                    <button
-                      className="month-more"
-                      onClick={() => selectDay(day)}
-                    >
-                      +{total - 2} ще
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          {mobile && <div className="month-mobile-preview">{agenda(key)}</div>}
-        </>
-      ) : p.view === "Agenda" ||
-        (compact && p.view === "Week") ? (
-        <div className="calendar-agenda">
-          {(p.view === "Agenda"
-            ? Array.from({ length: 7 }, (_, i) => addDays(key, i))
-            : days
-          ).map(agenda)}
-        </div>
+      {p.view === "Day" ? (
+        <DayPlanner
+          key={key}
+          date={key}
+          today={p.today}
+          tasks={p.tasks.filter(
+            (t) =>
+              t.date === key &&
+              !t.isTemplate &&
+              !t.inBacklog &&
+              !t.disabled &&
+              p.filters.includes("Personal"),
+          )}
+          onTask={p.onTask}
+          onToggle={p.onToggleTask}
+          onAdd={() => p.onAdd(key)}
+          onPostpone={p.onPostpone}
+          onDelete={p.onDelete}
+          schedule={calendarContent}
+        />
       ) : (
-        <>
-          <div
-            className="time-day-head"
-            style={{
-              gridTemplateColumns: `48px repeat(${days.length},minmax(0,1fr))`,
-            }}
-          >
-            <div
-              className="time-zone-label"
-              title={Intl.DateTimeFormat().resolvedOptions().timeZone}
-            >
-              <Clock size={14} />
-            </div>
-            {days.map((day) => (
-              <button
-                key={day}
-                onClick={() => selectDay(day)}
-                className={day === p.today ? "today" : ""}
-                aria-pressed={day === key}
-                aria-current={day === p.today ? "date" : undefined}
-              >
-                <small>
-                  {fromDate(day).toLocaleDateString(locale, {
-                    weekday: "short",
-                  })}
-                </small>
-                <strong>{fromDate(day).getDate()}</strong>
-              </button>
-            ))}
-          </div>
-          <div
-            className="untimed-band"
-            style={{
-              gridTemplateColumns: `48px repeat(${days.length},minmax(0,1fr))`,
-            }}
-          >
-            <span>Без часу</span>
-            {days.map((day) => (
-              <div key={day}>
-                {events
-                  .filter((e) => e.allDay && eventOnDay(e, day))
-                  .map(eventChip)}
-                {tasks
-                  .filter((t) => t.date === day)
-                  .slice(0, 3)
-                  .map(taskButton)}
-                {tasks.filter((t) => t.date === day).length > 3 && (
-                  <button
-                    className="month-more"
-                    onClick={() => {
-                      p.onDate(fromDate(day));
-                      p.onView("Agenda");
-                    }}
-                  >
-                    Усі завдання · {tasks.filter((t) => t.date === day).length}
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="time-scroll" ref={pane}>
-            <div
-              className="time-canvas"
-              style={{
-                height: hours.length * 60,
-                gridTemplateColumns: `48px repeat(${days.length},minmax(0,1fr))`,
-              }}
-            >
-              <div className="time-axis">
-                {hours.map((h) => (
-                  <span key={h} style={{ top: (h - startHour) * 60 }}>
-                    {String(h).padStart(2, "0")}:00
-                  </span>
-                ))}
-              </div>
-              {days.map((day, i) => (
-                <div
-                  className={`time-day ${day === p.today ? "is-today" : ""}`}
-                  key={day}
-                >
-                  {hours.map((h) => (
-                    <div
-                      className="hour-line"
-                      key={h}
-                      style={{ top: (h - startHour) * 60 }}
-                    />
-                  ))}
-                  {positions[i].map((pos) => (
-                    <button
-                      key={pos.event.id}
-                      className={`calendar-event timed-event ${pos.end - pos.start < 45 ? "short-event" : ""} source-${pos.event.source.toLowerCase()}`}
-                      title={`${pos.event.start}–${pos.event.end} · ${pos.event.title}`}
-                      style={{
-                        top: pos.start - startHour * 60,
-                        height: Math.max(23, pos.end - pos.start - 2),
-                        left: `calc(${(pos.column / pos.columns) * 100}% + 3px)`,
-                        width: `calc(${100 / pos.columns}% - 6px)`,
-                      }}
-                      onClick={() => p.onEvent(pos.event)}
-                    >
-                      <span className="calendar-event-time">
-                        {String(Math.floor(pos.start / 60)).padStart(2, "0")}:
-                        {String(pos.start % 60).padStart(2, "0")}–
-                        {String(Math.floor(pos.end / 60)).padStart(2, "0")}:
-                        {String(pos.end % 60).padStart(2, "0")}
-                      </span>
-                      <strong>{pos.event.title}</strong>
-                      {pos.end - pos.start >= 50 && (
-                        <small>
-                          {pos.event.accountLabel || pos.event.source}
-                        </small>
-                      )}
-                    </button>
-                  ))}
-                  {day === p.today &&
-                    new Date().getHours() >= startHour &&
-                    new Date().getHours() < endHour && (
-                      <div
-                        className="now-line"
-                        aria-label="Поточний час"
-                        style={{
-                          top:
-                            new Date().getHours() * 60 +
-                            new Date().getMinutes() -
-                            startHour * 60,
-                        }}
-                      />
-                    )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
+        <div
+          className={`planner-calendar-surface mode-${p.view.toLowerCase()}`}
+        >
+          {calendarContent}
+        </div>
       )}
       <div className="calendar-caption">
         {Intl.DateTimeFormat().resolvedOptions().timeZone} · Події лише для
