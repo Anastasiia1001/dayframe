@@ -510,8 +510,8 @@ test("household templates stay outside active tasks and are scheduled explicitly
   await demo(page);
   await go(page, "Personal");
   await expect(page.getByRole("tab")).toHaveCount(0);
-  const backlog = page.getByRole("region", {name:"Беклог",exact:true});
-  const tomorrowColumn = page.getByRole("region", {name:"Завтра",exact:true});
+  const backlog = page.getByRole("region", {name:"Місяць",exact:true});
+  const tomorrowColumn = page.getByRole("region", {name:"День",exact:true});
   const card = backlog.locator(".planning-card").filter({hasText:"Помити холодильник"});
   await card.getByRole("button", {name:"На завтра",exact:true}).click();
   await expect(card).toBeVisible();
@@ -521,7 +521,7 @@ test("household templates stay outside active tasks and are scheduled explicitly
   expect(saved.find((t: {isTemplate?:boolean}) => !t.isTemplate)).toMatchObject({recurrence:"monthly",isTemplate:false,inBacklog:false});
   await page.reload();
   await go(page,"Personal");
-  await expect(page.getByRole("region", {name:"Завтра",exact:true}).getByRole("button", {name:"Помити холодильник",exact:true})).toBeVisible();
+  await expect(page.getByRole("region", {name:"День",exact:true}).getByRole("button", {name:"Помити холодильник",exact:true})).toBeVisible();
 });
 
 test("calendar supports timed overlaps, date navigation, month overflow and event details", async ({

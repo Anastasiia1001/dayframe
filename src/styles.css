@@ -5699,3 +5699,14 @@ button:disabled {
 @media(max-width:1250px) { .unified-planning .planning-columns { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .unified-planning .planning-columns { grid-template-columns:minmax(0,1fr); } .unified-planning .planning-date { display:flex; } }
 .unified-planning .planning-toolbar { gap:8px; flex-wrap:wrap; }
+.unified-planning .horizon-columns { grid-template-columns:repeat(5,minmax(0,1fr)); }
+.horizon-destination { font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; }
+.horizon-destination select { min-width:0; width:100%; padding:6px; border-radius:7px; background:var(--surface); color:var(--text); border:1px solid var(--border); }
+@media(max-width:1350px) { .unified-planning .horizon-columns { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:1000px) { .unified-planning .horizon-columns { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { .unified-planning .horizon-columns { grid-template-columns:minmax(0,1fr); } }
+.horizon-columns [data-horizon="backlog"] { border-top:3px solid #8792a3; }
+.horizon-columns [data-horizon="year"] { border-top:3px solid #a97cce; }
+.horizon-columns [data-horizon="month"] { border-top:3px solid #64a782; }
+.horizon-columns [data-horizon="week"] { border-top:3px solid #6d9ed5; }
+.horizon-columns [data-horizon="day"] { border-top:3px solid #d479a4; }

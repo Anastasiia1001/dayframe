@@ -1,3 +1,4 @@
+import { planInHorizon } from "./domain/horizons";
 import { ThemeAtmosphere } from "./components/ThemeAtmosphere";
 import { CalendarBoard } from "./components/CalendarBoard";
 import { PersonalBoard } from "./components/PersonalBoard";
@@ -705,7 +706,7 @@ export default function App() {
                 {page === "Today"
                   ? "Зустрічі, актуальні справи й запити на відповідь."
                   : page === "Personal"
-                    ? "Беклог і плани на день — в одному просторі."
+                    ? "Від року до конкретного дня — усі плани поруч."
                     : page === "Work"
                       ? "Прямі згадки й повідомлення вибраних каналів."
                       : page === "Calendar"
@@ -912,10 +913,15 @@ export default function App() {
               onDelete={(t) =>
                 setTasks((ts) => ts.filter((x) => x.id !== t.id))
               }
+              onPlan={(task, horizon) => {
+                const planned = planInHorizon(task, horizon, today, crypto.randomUUID());
+                setTasks(ts => task.isTemplate ? [...ts, planned] : ts.map(t => t.id === task.id ? planned : t));
+                setToast(task.isTemplate ? "Шаблон додано до плану" : "Період планування змінено");
+              }}
               onSchedule={(task, date) => {
                 if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
                 if (!date && task.isTemplate) return;
-                const planned = { ...task, id: task.isTemplate ? crypto.randomUUID() : task.id, isTemplate: false, inBacklog: !date, date: date || task.date, completed: false, completedOn: undefined, nextOccurrence: undefined };
+                const planned = { ...task, id: task.isTemplate ? crypto.randomUUID() : task.id, isTemplate: false, planningHorizon: date ? "day" as const : "backlog" as const, planningAnchor: today, inBacklog: !date, date: date || task.date, completed: false, completedOn: undefined, nextOccurrence: undefined };
                 setTasks(ts => task.isTemplate ? [...ts, planned] : ts.map(t => t.id === task.id ? planned : t));
                 setToast(task.isTemplate ? "Справу заплановано, шаблон збережено" : date ? "Дату завдання змінено" : "Завдання повернуто в беклог");
               }}
@@ -1327,7 +1333,7 @@ export default function App() {
                 onChange={(e) => setModal({ ...modal, title: e.target.value })}
               />
             </label>
-            {!modal.isTemplate && <label className="setting-row"><span>Без дати (у беклог)</span><input type="checkbox" checked={!!modal.inBacklog} onChange={e => setModal({ ...modal, inBacklog: e.target.checked })} /></label>}
+            {!modal.isTemplate && <label className="setting-row"><span>Без конкретної дати</span><input type="checkbox" checked={!!modal.inBacklog} onChange={e => setModal({ ...modal, inBacklog: e.target.checked, planningHorizon: e.target.checked ? "backlog" : "day" })} /></label>}
             <div className="form-grid">
               {!modal.isTemplate && !modal.inBacklog && (
                 <label>

@@ -1,6 +1,6 @@
 import { PlanningBoard } from "./PlanningBoard";
 import { useState } from "react";
-import type { PersonalTask } from "../types";
+import type { PersonalTask, PlanningHorizon } from "../types";
 import { TaskList } from "./TaskList";
 type Props = {
   tasks: PersonalTask[];
@@ -9,6 +9,7 @@ type Props = {
   onEdit: (t: PersonalTask) => void;
   onPostpone: (t: PersonalTask) => void;
   onDelete: (t: PersonalTask) => void;
+  onPlan: (t: PersonalTask, horizon: PlanningHorizon) => void;
   onSchedule: (t: PersonalTask, date: string) => void;
   onImportJira: (title: string, url: string) => void;
   onAddBacklog: () => void;
@@ -29,7 +30,7 @@ export function PersonalBoard(p: Props) {
         <button className="primary" type="submit">Додати у беклог</button><button type="button" className="text-button" onClick={() => setImporting(false)}>Скасувати</button>
       </form>}
 
-    <PlanningBoard tasks={p.tasks} today={p.today} onSchedule={p.onSchedule} onEdit={p.onEdit} onToggle={p.onToggle} onDelete={p.onDelete} />
+    <PlanningBoard tasks={p.tasks} today={p.today} onSchedule={p.onSchedule} onPlan={p.onPlan} onEdit={p.onEdit} onToggle={p.onToggle} onDelete={p.onDelete} />
     {completed.length > 0 && <details className="completed-group"><summary>Показати виконані · {completed.length}</summary><TaskList tasks={completed} today={p.today} onToggle={p.onToggle} onEdit={p.onEdit} onPostpone={p.onPostpone} onDelete={p.onDelete} /></details>}
     {paused.length > 0 && <details className="completed-group"><summary>Призупинені · {paused.length}</summary><TaskList tasks={paused} today={p.today} onToggle={p.onToggle} onEdit={p.onEdit} onPostpone={p.onPostpone} onDelete={p.onDelete} /></details>}
   </section>;

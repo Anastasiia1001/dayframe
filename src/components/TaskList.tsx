@@ -48,7 +48,7 @@ export function TaskList({
                 className={`task-due ${!t.inBacklog && t.date < today && !t.completed ? "overdue" : ""}`}
               >
                 {!t.inBacklog && t.date < today && !t.completed ? "Прострочено · " : ""}
-                {t.inBacklog ? "Без дати · беклог" : t.date === today ? "Сьогодні" : shortDate(t.date)}
+                {t.inBacklog ? "Без конкретної дати" : t.date === today ? "Сьогодні" : shortDate(t.date)}
               </span>
               <span className="task-repeat cadence-badge">
                 {t.recurrence !== "once" && <Repeat2 size={12} />}

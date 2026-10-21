@@ -38,7 +38,10 @@ export function sortTasks(tasks: PersonalTask[]) {
 export function postponedTask(t: PersonalTask, today: string): PersonalTask {
   return {
     ...t,
-    date: addDays(t.date > today ? t.date : today, 1),
+    date: addDays(!t.inBacklog && t.date > today ? t.date : today, 1),
+    inBacklog: false,
+    planningHorizon: "day",
+    planningAnchor: today,
     completed: false,
     completedOn: undefined,
     nextOccurrence: undefined,

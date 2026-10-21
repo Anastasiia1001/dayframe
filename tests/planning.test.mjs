@@ -1,3 +1,4 @@
+import { taskHorizon, planInHorizon } from "../src/domain/horizons.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -132,4 +133,23 @@ test("backlog tasks are excluded from scheduled work while existing dated tasks 
   const planned = { ...task, completed: false };
   const backlog = { ...planned, id: "backlog", inBacklog: true };
   assert.deepEqual(activeTasks([planned, backlog, { ...planned, id: "template", isTemplate: true }]), [planned]);
+});
+
+test("planning horizons stay independent from recurrence and do not invent day deadlines", () => {
+  const template = { ...task, category: "Year", recurrence: "yearly", completed:false, isTemplate:true };
+  assert.equal(taskHorizon(template), "year");
+  const month = planInHorizon(template, "month", "2026-10-21", "copy");
+  assert.equal(month.id, "copy");
+  assert.equal(month.recurrence, "yearly");
+  assert.equal(taskHorizon(month), "month");
+  assert.deepEqual(activeTasks([month]), []);
+  const week = planInHorizon(month, "week", "2026-10-21", "ignored");
+  assert.equal(week.id, month.id);
+  assert.equal(week.planningAnchor, "2026-10-21");
+  const day = planInHorizon(week, "day", "2026-10-21", "ignored");
+  assert.equal(day.date, "2026-10-21");
+  assert.equal(day.inBacklog, false);
+  assert.equal(day.recurrence, "yearly");
+  assert.deepEqual(activeTasks([day]), [day]);
+  assert.equal(taskHorizon({ ...task, inBacklog:true }), "backlog");
 });

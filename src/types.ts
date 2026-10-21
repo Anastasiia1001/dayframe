@@ -50,7 +50,10 @@ export interface ConfluencePage {
   summary: string;
 }
 export type Period = "Day" | "Month" | "Quarter" | "Year";
+export type PlanningHorizon = "backlog" | "year" | "month" | "week" | "day";
 export interface PersonalTask {
+  planningHorizon?: PlanningHorizon;
+  planningAnchor?: string;
   id: string;
   title: string;
   category: Period;
