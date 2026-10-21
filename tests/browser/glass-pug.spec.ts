@@ -166,7 +166,7 @@ test("pug winks with one eye on greeting while the other keeps the normal blink"
   await page.getByRole("button",{name:"Привітатися з помічником",exact:true}).click();
   expect(await pug.locator(".mascot-eye-right").evaluate(el=>getComputedStyle(el).animationName)).toContain("soft-wink");
   expect(await pug.locator(".mascot-eye-left").evaluate(el=>getComputedStyle(el).animationName)).toBe("soft-blink");
-  expect(await pug.locator(".pug-tail").evaluate(el=>getComputedStyle(el).animationName)).toBe("happy-tail");
+  expect(await pug.locator(".pug-tail").evaluate(el=>getComputedStyle(el).animationName)).toBe("pug-tail-delight");
   expect(await pug.locator(".mascot-body").evaluate(el=>getComputedStyle(el).animationName)).toBe("soft-breathe");
 });
 

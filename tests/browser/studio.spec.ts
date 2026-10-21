@@ -45,6 +45,8 @@ test("create edit overlap resize move delete and undo a scheduled task, preservi
   await dialog.getByLabel("Дедлайн", { exact: true }).fill("2026-12-02");
   await dialog.getByRole("button", { name: "Зберегти", exact: true }).click();
   const event = page.locator(".studio-timed-event");
+  // Leave room below the event for the full drag, rather than scrolling it only to the viewport edge.
+  await event.evaluate((el) => el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" }));
   await event.scrollIntoViewIfNeeded();
   const box = await event.boundingBox();
   if (!box) throw Error();
@@ -62,6 +64,7 @@ test("create edit overlap resize move delete and undo a scheduled task, preservi
       ),
     )
     .toBe("16:00");
+  await page.locator(".studio-resize").evaluate((el) => el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" }));
   await page.locator(".studio-resize").scrollIntoViewIfNeeded();
   const handle = await page.locator(".studio-resize").boundingBox();
   if (!handle) throw Error();
