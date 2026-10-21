@@ -1,3 +1,4 @@
+import { taskCadence } from "../taskCadence";
 import { useState } from "react";
 import { Plus, Search, CheckCheck, BookOpen } from "lucide-react";
 import type { PersonalTask, Period } from "../types";
@@ -115,7 +116,7 @@ export function PersonalBoard(p: Props) {
             {templates
               .filter((t) => t.category === shownPeriod)
               .map((t) => (
-                <article key={t.id}>
+                <article key={t.id} data-cadence={taskCadence(t)}>
                   <div>
                     <strong>{t.title}</strong>
                     <small>{uk(t.recurrence)}</small>

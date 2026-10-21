@@ -1,3 +1,4 @@
+import { taskCadence, cadenceLabel } from "../taskCadence";
 import {
   Check,
   Repeat2,
@@ -7,7 +8,7 @@ import {
   Trash2,
 } from "lucide-react";
 import type { PersonalTask } from "../types";
-import { uk, shortDate } from "../locale";
+import { shortDate } from "../locale";
 export function TaskList({
   tasks,
   today,
@@ -31,6 +32,7 @@ export function TaskList({
         <div
           className={`task-row ${t.completed ? "completed" : ""} ${t.priority === "High" && !t.completed ? "is-important" : ""} ${t.disabled ? "disabled" : ""}`}
           key={t.id}
+          data-cadence={taskCadence(t)}
         >
           <button
             className={`checkbox ${t.completed ? "checked" : ""}`}
@@ -48,14 +50,10 @@ export function TaskList({
                 {t.date < today && !t.completed ? "Прострочено · " : ""}
                 {t.date === today ? "Сьогодні" : shortDate(t.date)}
               </span>
-              {t.recurrence !== "once" && (
-                <span className="task-repeat">
-                  <Repeat2 size={12} />
-                  {t.recurrence === "custom"
-                    ? `Кожні ${t.customDays || 2} дн.`
-                    : uk(t.recurrence)}
-                </span>
-              )}
+              <span className="task-repeat cadence-badge">
+                {t.recurrence !== "once" && <Repeat2 size={12} />}
+                {cadenceLabel(t)}
+              </span>
               {t.origin?.source === "Slack" && <span>Додано зі Slack</span>}
               {t.priority === "High" && (
                 <span className="task-priority">

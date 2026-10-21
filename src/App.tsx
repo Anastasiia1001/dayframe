@@ -1,3 +1,4 @@
+import { ThemeAtmosphere } from "./components/ThemeAtmosphere";
 import { CalendarBoard } from "./components/CalendarBoard";
 import { PersonalBoard } from "./components/PersonalBoard";
 import { TaskList } from "./components/TaskList";
@@ -73,6 +74,7 @@ export default function App() {
       .join("")
       .toUpperCase() || "♡";
   const [burst, setBurst] = useState(0);
+  const [ambient, setAmbient] = useLocal("dayframe-ambient", true);
   const [page, setPage] = useState("Today");
   const [mascot, setMascot] = useLocal("dayframe-mascot", "bunny");
   const [theme, setTheme] = useLocal("dayframe-theme", "Default");
@@ -524,6 +526,7 @@ export default function App() {
   }
   return (
     <div className="app">
+      {ambient && <ThemeAtmosphere theme={theme} />}
       <aside className="sidebar">
         <a
           className="brand"
@@ -1041,6 +1044,10 @@ export default function App() {
                 </div>
               </Section>
               <Section title="Особисті завдання">
+                <label className="setting-row">
+                  <div><strong>Анімований фон</strong><small>Листя, пелюстки, зорі й хмаринки під настрій теми. Враховує системне зменшення руху.</small></div>
+                  <input type="checkbox" aria-label="Анімований фон" checked={ambient} onChange={e => setAmbient(e.target.checked)} />
+                </label>
                 <label className="setting-row">
                   <div>
                     <strong>Показувати маленького помічника</strong>

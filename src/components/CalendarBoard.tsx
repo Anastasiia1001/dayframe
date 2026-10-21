@@ -1,3 +1,4 @@
+import { taskCadence } from "../taskCadence";
 import { useState, useEffect, useRef } from "react";
 import {
   ChevronLeft,
@@ -81,7 +82,7 @@ export function CalendarBoard(p: Props) {
     p.onView("Day");
   };
   const taskButton = (t: PersonalTask) => (
-    <div key={t.id} className="calendar-task">
+    <div key={t.id} className="calendar-task" data-cadence={taskCadence(t)}>
       <button
         aria-label={`Виконати ${t.title}`}
         onClick={() => p.onToggleTask(t)}

@@ -10,11 +10,8 @@ export function Mascot({ kind }: { kind: MascotId }) {
           ? "#acd5a1"
           : kind === "star"
             ? "#f5d586"
-            : "var(--bunny)";
-  const ink =
-    kind === "bunny" || kind === "cat"
-      ? "var(--mascot-ink,#493648)"
-      : "#493648";
+            : "#fffaf8";
+  const ink = "#493648";
   return (
     <svg
       className={`bunny mascot-art mascot-${kind}`}
@@ -28,7 +25,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
         cy="100"
         rx="25"
         ry="4"
-        fill="var(--accent)"
+        fill="#a43b79"
         opacity=".12"
       />
       <g className="mascot-body">
@@ -40,7 +37,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
               rx="10"
               ry="23"
               fill={fill}
-              stroke="var(--bunny-line)"
+              stroke="#cc8fa7"
               strokeWidth="1.6"
               transform="rotate(-12 37 29)"
             />
@@ -50,7 +47,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
               rx="10"
               ry="23"
               fill={fill}
-              stroke="var(--bunny-line)"
+              stroke="#cc8fa7"
               strokeWidth="1.6"
               transform="rotate(12 63 29)"
             />
@@ -59,7 +56,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
               cy="28"
               rx="4"
               ry="15"
-              fill="var(--blush)"
+              fill="#f3a8c3"
               transform="rotate(-12 37 28)"
             />
             <ellipse
@@ -67,7 +64,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
               cy="28"
               rx="4"
               ry="15"
-              fill="var(--blush)"
+              fill="#f3a8c3"
               transform="rotate(12 63 28)"
             />
           </g>
@@ -77,12 +74,12 @@ export function Mascot({ kind }: { kind: MascotId }) {
             <path
               d="M20 57L20 24Q20 19 25 23L43 40M57 40L75 23Q80 19 80 25L80 57"
               fill={fill}
-              stroke="var(--bunny-line)"
+              stroke="#cc8fa7"
               strokeWidth="1.6"
             />
             <path
               d="M26 39L26 29L36 39M64 39L74 29L74 39"
-              fill="var(--blush)"
+              fill="#f3a8c3"
             />
           </g>
         )}
@@ -115,8 +112,8 @@ export function Mascot({ kind }: { kind: MascotId }) {
               stroke="#ad856c"
               strokeWidth="1.6"
             />
-            <circle cx="25" cy="39" r="7" fill="var(--blush)" />
-            <circle cx="75" cy="39" r="7" fill="var(--blush)" />
+            <circle cx="25" cy="39" r="7" fill="#f3a8c3" />
+            <circle cx="75" cy="39" r="7" fill="#f3a8c3" />
           </g>
         )}
         {kind === "frog" && (
@@ -160,7 +157,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
                   ? "#ad856c"
                   : kind === "frog"
                     ? "#719e65"
-                    : "var(--bunny-line)"
+                    : "#cc8fa7"
             }
             strokeWidth="1.6"
           />
@@ -205,8 +202,8 @@ export function Mascot({ kind }: { kind: MascotId }) {
             fill="white"
           />
         </g>
-        <ellipse cx="28" cy="71" rx="7" ry="4" fill="var(--blush)" />
-        <ellipse cx="72" cy="71" rx="7" ry="4" fill="var(--blush)" />
+        <ellipse cx="28" cy="71" rx="7" ry="4" fill="#f3a8c3" />
+        <ellipse cx="72" cy="71" rx="7" ry="4" fill="#f3a8c3" />
         <path
           d={
             kind === "frog"
@@ -222,7 +219,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
         {kind === "cat" && (
           <path
             d="M13 67L29 69M12 75L28 73M71 69L87 67M72 73L88 75"
-            stroke="var(--bunny-line)"
+            stroke="#cc8fa7"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
@@ -234,12 +231,12 @@ export function Mascot({ kind }: { kind: MascotId }) {
             rx="9"
             ry="11"
             fill={fill}
-            stroke="var(--bunny-line)"
+            stroke="#cc8fa7"
             strokeWidth="1.4"
           />
           <path
             d="M75 82L75 85M80 81L80 84"
-            stroke="var(--bunny-line)"
+            stroke="#cc8fa7"
             strokeWidth="1.3"
             strokeLinecap="round"
           />
@@ -248,7 +245,7 @@ export function Mascot({ kind }: { kind: MascotId }) {
       <path
         className="mascot-glint"
         d="M88 12l2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6Z"
-        fill="var(--accent)"
+        fill="#a43b79"
         opacity=".7"
       />
     </svg>
