@@ -5689,3 +5689,13 @@ button:disabled {
 .personal-board .planning-columns { margin:0 16px 20px; }
 .planning-toolbar { padding:14px 16px 0; }
 .drag-grip { cursor:grab; font-size:16px; padding-inline-end:3px; }
+/* One workspace: the backlog stays beside the scheduled days. */
+.unified-planning .planning-columns { grid-template-columns:minmax(260px,1.25fr) repeat(3,minmax(190px,1fr)); }
+.unified-planning .planning-column:first-child { background:color-mix(in srgb,var(--accent) 5%,var(--surface)); }
+.unified-planning .planning-card { gap:7px; padding:10px; }
+.unified-planning .planning-date { display:none; }
+.unified-planning .planning-card:focus-within .planning-date,.unified-planning .planning-card:hover .planning-date { display:flex; }
+.unified-planning .completed-group { margin:16px; }
+@media(max-width:1250px) { .unified-planning .planning-columns { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { .unified-planning .planning-columns { grid-template-columns:minmax(0,1fr); } .unified-planning .planning-date { display:flex; } }
+.unified-planning .planning-toolbar { gap:8px; flex-wrap:wrap; }

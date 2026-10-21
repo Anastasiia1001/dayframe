@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  activeTasks,
   moveDate,
   dateKey,
   postponedTask,
@@ -125,4 +126,10 @@ test("only untouched seeded routines move to the library; rescheduled and edited
   assert.equal(result[3].isTemplate, undefined);
   assert.equal(result[2].date, "2026-11-01");
   assert.equal(result[3].notes, "Мій власний план");
+});
+
+test("backlog tasks are excluded from scheduled work while existing dated tasks remain", () => {
+  const planned = { ...task, completed: false };
+  const backlog = { ...planned, id: "backlog", inBacklog: true };
+  assert.deepEqual(activeTasks([planned, backlog, { ...planned, id: "template", isTemplate: true }]), [planned]);
 });

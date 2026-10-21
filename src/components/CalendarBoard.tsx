@@ -59,6 +59,7 @@ export function CalendarBoard(p: Props) {
       !t.completed &&
       !t.disabled &&
       !t.isTemplate &&
+      !t.inBacklog &&
       p.filters.includes("Personal"),
   );
   const positions = days.map((d) => layoutEvents(events, d));

@@ -110,7 +110,7 @@ test("task CRUD, completion and preferences persist across reloads", async ({
   ).toBeVisible();
   await page.reload();
   await go(page, "Personal");
-  await page.getByRole("button", { name: /Показати виконані/ }).click();
+  await page.locator(".completed-group summary").filter({hasText:"Показати виконані"}).click();
   await expect(
     page.getByLabel("Позначити невиконаним Записатися до стоматолога", {
       exact: true,
@@ -128,10 +128,8 @@ test("task CRUD, completion and preferences persist across reloads", async ({
       exact: true,
     })
     .click();
-  await page
-    .getByLabel("Перенести Записатися до стоматолога на огляд", { exact: true })
-    .click();
-  await page.getByRole("tab", { name: /Найближчі 7 днів/ }).click();
+  await page.locator(".planning-card").filter({hasText:"Записатися до стоматолога на огляд"}).getByRole("button", {name:"На завтра",exact:true}).click();
+
   const postponed = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("dayframe-tasks")!).find(
       (t) => t.title === "Записатися до стоматолога на огляд",
@@ -511,48 +509,19 @@ test("household templates stay outside active tasks and are scheduled explicitly
 }) => {
   await demo(page);
   await go(page, "Personal");
-  await expect(page.locator(".task-row:not(.completed)")).toHaveCount(3);
-  await expect(
-    page.getByText("Помити холодильник", { exact: true }),
-  ).toHaveCount(0);
-  await page.getByRole("tab", { name: /Шаблони/ }).click();
-  await expect(
-    page.getByText("Помити холодильник", { exact: true }),
-  ).toBeVisible();
-  await page
-    .getByRole("button", {
-      name: "Запланувати Помити холодильник",
-      exact: true,
-    })
-    .click();
-  const next = new Date(date + "T12:00:00");
-  next.setDate(next.getDate() + 1);
-  const tomorrow = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}-${String(next.getDate()).padStart(2, "0")}`;
-  await page.getByLabel("Дата", { exact: true }).fill(tomorrow);
-  await page
-    .getByRole("button", { name: "Зберегти завдання", exact: true })
-    .click();
-  await page.getByRole("tab", { name: /Найближчі 7 днів/ }).click();
-  await expect(page.locator(".task-row")).toHaveCount(1);
-  await expect(page.locator(".task-row")).toContainText("Помити холодильник");
-  const saved = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem("dayframe-tasks")!).filter(
-      (t) => t.title === "Помити холодильник",
-    ),
-  );
+  await expect(page.getByRole("tab")).toHaveCount(0);
+  const backlog = page.getByRole("region", {name:"Беклог",exact:true});
+  const tomorrowColumn = page.getByRole("region", {name:"Завтра",exact:true});
+  const card = backlog.locator(".planning-card").filter({hasText:"Помити холодильник"});
+  await card.getByRole("button", {name:"На завтра",exact:true}).click();
+  await expect(card).toBeVisible();
+  await expect(tomorrowColumn.getByRole("button", {name:"Помити холодильник",exact:true})).toBeVisible();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("dayframe-tasks")!).filter((t: {title:string}) => t.title === "Помити холодильник"));
   expect(saved).toHaveLength(2);
-  expect(saved.find((t) => !t.isTemplate)).toMatchObject({
-    date: tomorrow,
-    recurrence: "monthly",
-    isTemplate: false,
-  });
+  expect(saved.find((t: {isTemplate?:boolean}) => !t.isTemplate)).toMatchObject({recurrence:"monthly",isTemplate:false,inBacklog:false});
   await page.reload();
-  await go(page, "Personal");
-  await expect(
-    page.getByText("Помити холодильник", { exact: true }),
-  ).toHaveCount(0);
-  await page.getByRole("tab", { name: /Найближчі 7 днів/ }).click();
-  await expect(page.locator(".task-row")).toContainText("Помити холодильник");
+  await go(page,"Personal");
+  await expect(page.getByRole("region", {name:"Завтра",exact:true}).getByRole("button", {name:"Помити холодильник",exact:true})).toBeVisible();
 });
 
 test("calendar supports timed overlaps, date navigation, month overflow and event details", async ({
@@ -644,7 +613,7 @@ test("Slack suggestions become concrete tasks only after the user supplies a tit
     .click();
   await go(page, "Personal");
   const task = page
-    .locator(".task-row")
+    .locator(".planning-card")
     .filter({ hasText: "Перевірити екран нагород перед зустріччю" });
   await expect(task).toContainText("Додано зі Slack");
   expect(

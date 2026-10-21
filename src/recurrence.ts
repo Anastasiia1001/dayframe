@@ -43,7 +43,7 @@ export function reopenDueTasks(
     const due =
       t.nextOccurrence ||
       (t.completed ? nextOccurrence(t, t.completedOn || t.date) : undefined);
-    if (t.completed && !t.disabled && due && due <= today) {
+    if (t.completed && !t.disabled && !t.inBacklog && due && due <= today) {
       changed = true;
       return {
         ...t,

@@ -45,10 +45,10 @@ export function TaskList({
             <strong>{t.title}</strong>
             <span className="task-facts">
               <span
-                className={`task-due ${t.date < today && !t.completed ? "overdue" : ""}`}
+                className={`task-due ${!t.inBacklog && t.date < today && !t.completed ? "overdue" : ""}`}
               >
-                {t.date < today && !t.completed ? "Прострочено · " : ""}
-                {t.date === today ? "Сьогодні" : shortDate(t.date)}
+                {!t.inBacklog && t.date < today && !t.completed ? "Прострочено · " : ""}
+                {t.inBacklog ? "Без дати · беклог" : t.date === today ? "Сьогодні" : shortDate(t.date)}
               </span>
               <span className="task-repeat cadence-badge">
                 {t.recurrence !== "once" && <Repeat2 size={12} />}

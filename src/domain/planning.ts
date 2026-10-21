@@ -23,7 +23,7 @@ export function moveDate(d: Date, view: string, direction: number) {
   return next;
 }
 export function activeTasks(tasks: PersonalTask[]) {
-  return tasks.filter((t) => !t.isTemplate && !t.disabled);
+  return tasks.filter((t) => !t.isTemplate && !t.disabled && !t.inBacklog);
 }
 export function sortTasks(tasks: PersonalTask[]) {
   const ranks: Record<string, number> = { High: 0, Normal: 1, Low: 2 };

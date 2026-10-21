@@ -176,10 +176,11 @@ export default function App() {
     }
     openMock(title, body, source);
   };
-  const addTask = (date = today) =>
+  const addTask = (date = today, inBacklog = false) =>
     setModal({
       id: crypto.randomUUID(),
       title: "",
+      inBacklog,
       category: "Day",
       date,
       recurrence: prefs.defaultRecurrence,
@@ -704,7 +705,7 @@ export default function App() {
                 {page === "Today"
                   ? "Зустрічі, актуальні справи й запити на відповідь."
                   : page === "Personal"
-                    ? "Найближчі справи — окремо від довгострокових заготовок."
+                    ? "Беклог і плани на день — в одному просторі."
                     : page === "Work"
                       ? "Прямі згадки й повідомлення вибраних каналів."
                       : page === "Calendar"
@@ -912,27 +913,18 @@ export default function App() {
                 setTasks((ts) => ts.filter((x) => x.id !== t.id))
               }
               onSchedule={(task, date) => {
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-                const planned = { ...task, id: task.isTemplate ? crypto.randomUUID() : task.id, isTemplate: false, date, completed: false, completedOn: undefined, nextOccurrence: undefined };
+                if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+                if (!date && task.isTemplate) return;
+                const planned = { ...task, id: task.isTemplate ? crypto.randomUUID() : task.id, isTemplate: false, inBacklog: !date, date: date || task.date, completed: false, completedOn: undefined, nextOccurrence: undefined };
                 setTasks(ts => task.isTemplate ? [...ts, planned] : ts.map(t => t.id === task.id ? planned : t));
-                setToast(task.isTemplate ? "Справу заплановано, шаблон збережено" : "Дату завдання змінено");
+                setToast(task.isTemplate ? "Справу заплановано, шаблон збережено" : date ? "Дату завдання змінено" : "Завдання повернуто в беклог");
               }}
               onImportJira={(title, url) => {
                 if (url) { try { if (new URL(url).protocol !== "https:") return; } catch { return; } }
-                setTasks(ts => [...ts, { id: crypto.randomUUID(), title, jiraUrl: url || undefined, category: "Day", date: today, recurrence: "once", priority: "Normal", notes: "Додано з Jira вручну. Без синхронізації.", completed: false, disabled: false }]);
+                setTasks(ts => [...ts, { id: crypto.randomUUID(), title, inBacklog: true, jiraUrl: url || undefined, category: "Day", date: today, recurrence: "once", priority: "Normal", notes: "Додано з Jira вручну. Без синхронізації.", completed: false, disabled: false }]);
                 setToast("Назву тікета додано як особисте завдання");
               }}
-              onAdd={() => addTask()}
-              onUseTemplate={(t) =>
-                setModal({
-                  ...t,
-                  id: crypto.randomUUID(),
-                  isTemplate: false,
-                  date: today,
-                  completed: false,
-                  disabled: false,
-                })
-              }
+              onAddBacklog={() => addTask(today, true)}
             />
           )}
           {page === "Work" && (
@@ -1335,8 +1327,9 @@ export default function App() {
                 onChange={(e) => setModal({ ...modal, title: e.target.value })}
               />
             </label>
+            {!modal.isTemplate && <label className="setting-row"><span>Без дати (у беклог)</span><input type="checkbox" checked={!!modal.inBacklog} onChange={e => setModal({ ...modal, inBacklog: e.target.checked })} /></label>}
             <div className="form-grid">
-              {!modal.isTemplate && (
+              {!modal.isTemplate && !modal.inBacklog && (
                 <label>
                   Дата
                   <input
