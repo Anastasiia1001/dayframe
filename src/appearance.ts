@@ -63,6 +63,7 @@ export const themes = [
   },
 ];
 export const mascots = [
+  {id:"pug",name:"Мопс Бублик",description:"Сопе, кліпає й підтримує"},
   {
     id: "bunny",
     name: "Зайчик Пух",

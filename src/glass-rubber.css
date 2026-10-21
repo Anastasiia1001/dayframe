@@ -1,0 +1,594 @@
+/* A readable solid fallback; supported browsers get translucent layered glass. */
+:root {
+  --glass-edge: color-mix(in srgb, var(--ui-frame) 65%, white);
+  --glass-tint: color-mix(in srgb, var(--surface) 88%, transparent);
+  --rubber-ease: cubic-bezier(0.16, 1.65, 0.38, 1);
+}
+:root[data-theme="Dark"],
+:root[data-theme="Moonlight"] {
+  --glass-edge: color-mix(in srgb, var(--ui-frame) 78%, #ffffff50);
+  --glass-tint: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+:root[data-theme]
+  :is(
+    .planner-sheet,
+    .calendar-pocket,
+    .task-modal,
+    .detail-modal,
+    .search-modal,
+    .notification-panel
+  ) {
+  background-color: var(--surface);
+}
+@supports (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  :root[data-theme]
+    :is(
+      .planner-sheet,
+      .card,
+      .personal-board,
+      .task-modal,
+      .detail-modal,
+      .search-modal,
+      .notification-panel,
+      .calendar-pocket
+    ) {
+    background-color: var(--glass-tint);
+    -webkit-backdrop-filter: blur(14px) saturate(125%);
+    backdrop-filter: blur(14px) saturate(125%);
+    border-color: var(--glass-edge);
+    background-image:
+      linear-gradient(
+        125deg,
+        #ffffff25,
+        transparent 32%,
+        #ffffff06 60%,
+        transparent
+      ),
+      var(--ui-texture);
+    box-shadow:
+      var(--ui-shadow),
+      inset 1px 1px 0 var(--ui-light),
+      inset -1px -1px 0 #ffffff16;
+  }
+  :root[data-theme] .page-calendar .calendar-board {
+    background-color: color-mix(in srgb, var(--soft) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  :root[data-theme] :is(.sidebar, .topbar, .mobile-nav) {
+    background-color: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(18px) saturate(125%);
+    -webkit-backdrop-filter: blur(18px) saturate(125%);
+  }
+  :root[data-planner] .sidebar {
+    background-color: color-mix(
+      in srgb,
+      var(--planner-sidebar) 87%,
+      transparent
+    );
+  }
+}
+:root[data-theme] .app :is(button, summary, a, .planning-card) {
+  transition:
+    scale 0.42s var(--rubber-ease),
+    transform 0.32s var(--rubber-ease),
+    translate 0.32s var(--rubber-ease),
+    rotate 0.32s var(--rubber-ease),
+    box-shadow 0.22s,
+    background-color 0.2s;
+}
+:root[data-theme] .app [data-touch-pressed="true"] {
+  scale: 1.035 0.91;
+  transition: scale 0.08s ease-out;
+}
+:root[data-theme] .checkbox[data-touch-pressed="true"],
+:root[data-theme] .priority-check[data-touch-pressed="true"] {
+  scale: 0.84 1.08;
+}
+:root[data-theme] .planning-card[data-dragging="true"] {
+  scale: 1.035 0.97;
+  rotate: -3deg;
+}
+:root[data-theme] .calendar-event:active {
+  scale: 0.975 1.04;
+}
+:root[data-theme] .calendar-pocket-tabs button {
+  min-height: 42px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 15px 15px 10px 10px;
+  padding: 9px 12px;
+  background:
+    linear-gradient(135deg, var(--ui-light), transparent 70%), var(--glass-tint);
+  color: var(--text);
+  box-shadow:
+    0 4px 0 color-mix(in srgb, var(--ui-frame) 45%, var(--surface)),
+    inset 0 1px 1px var(--ui-light);
+}
+.calendar-dock {
+  position: relative;
+  margin: -8px 0 26px;
+}
+.calendar-pocket-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.calendar-pocket-tabs button {
+  font-size: 12px;
+}
+.calendar-pocket-tabs small {
+  min-width: 16px;
+  min-height: 16px;
+  border-radius: 50%;
+  background: var(--selected);
+  color: var(--accent);
+  font-size: 10px;
+  display: grid;
+  place-items: center;
+}
+:root[data-theme] .calendar-pocket-tabs .pocket-active {
+  border-color: var(--accent);
+  color: var(--accent);
+  translate: 0 2px;
+  box-shadow:
+    0 1px 0 var(--ui-frame),
+    inset 0 1px 4px var(--ui-cast);
+}
+.calendar-pocket {
+  position: fixed;
+  margin: 0;
+  inset: auto;
+  width: min(390px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 0;
+  border: 2px solid var(--glass-edge);
+  border-radius: 24px;
+  color: var(--text);
+  background: var(--surface);
+  box-shadow:
+    0 12px 0 #00000008,
+    0 20px 60px var(--ui-cast),
+    inset 0 1px 1px var(--ui-light);
+}
+.calendar-pocket:popover-open {
+  display: block;
+  animation: pocket-open 0.3s var(--rubber-ease);
+}
+.calendar-pocket::backdrop {
+  background: transparent;
+}
+.pocket-header {
+  padding: 17px 18px 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.pocket-header h2 {
+  font-size: 16px;
+  line-height: 1.4;
+}
+.pocket-header small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.pocket-header > button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--soft);
+  flex-shrink: 0;
+}
+.pocket-content {
+  padding: 18px;
+}
+.pocket-content .task-list {
+  padding: 0;
+  margin-top: 16px;
+}
+.pocket-content .task-row {
+  padding-inline: 8px !important;
+}
+.pocket-content .task-actions {
+  flex-wrap: wrap;
+}
+.pocket-content .task-actions button {
+  width: 27px;
+}
+.pocket-content .task-title strong {
+  font-size: 12px;
+}
+.pocket-empty {
+  padding: 15px 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.pocket-notes-label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.pocket-notes-label textarea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.mini-month {
+  padding: 12px 16px 18px;
+}
+.mini-month-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.mini-month-heading strong {
+  font-size: 14px;
+  text-transform: capitalize;
+}
+.mini-month-heading button {
+  width: 34px;
+  height: 34px;
+  background: var(--soft);
+  border-radius: 50%;
+}
+.mini-weekdays,
+.mini-date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  text-align: center;
+}
+.mini-weekdays {
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.mini-date-grid button {
+  border-radius: 12px;
+  min-height: 35px;
+  font-size: 12px;
+}
+.mini-date-grid button:hover {
+  background: var(--selected);
+}
+.mini-date-grid .mini-outside {
+  color: var(--muted);
+  opacity: 0.65;
+}
+.mini-date-grid .mini-today {
+  outline: 1px solid var(--accent);
+  outline-offset: -3px;
+}
+.mini-date-grid [aria-pressed="true"] {
+  background: var(--selected);
+  color: var(--accent);
+  font-weight: 700;
+}
+.mini-date-footer {
+  margin-top: 15px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mini-date-footer label {
+  font-size: 10px;
+  color: var(--muted);
+}
+.mini-date-footer input {
+  display: block;
+  margin-top: 3px;
+  padding: 7px;
+  font-size: 12px;
+}
+@keyframes pocket-open {
+  from {
+    opacity: 0;
+    scale: 0.92 0.88;
+    translate: 0 -7px;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+  }
+}
+/* Each character cycles through breathing, a glance, a stretch, a drowsy blink and a wave. */
+:root[data-theme] .mascot-art {
+  --idle-span: 22s;
+}
+:root[data-theme] .mascot-cat {
+  --idle-span: 25s;
+}
+:root[data-theme] .mascot-fox {
+  --idle-span: 19s;
+}
+:root[data-theme] .mascot-bear {
+  --idle-span: 29s;
+}
+:root[data-theme] .mascot-frog {
+  --idle-span: 18s;
+}
+:root[data-theme] .mascot-star {
+  --idle-span: 20s;
+}
+:root[data-theme] .mascot-pug {
+  --idle-span: 24s;
+}
+:root[data-theme] .mascot-art .mascot-body {
+  transform-origin: 50px 96px;
+  animation: companion-idle var(--idle-span) ease-in-out infinite;
+}
+:root[data-theme] .mascot-art .mascot-eyes {
+  transform-origin: 50px 60px;
+  animation: companion-gaze var(--idle-span) ease-in-out infinite;
+}
+:root[data-theme] .mascot-pug .mascot-eyes {
+  transform-origin: 50px 48px;
+}
+:root[data-theme] .mascot-art .mascot-ears {
+  transform-origin: 50px 46px;
+  animation: companion-ear var(--idle-span) ease-in-out infinite;
+}
+:root[data-theme] .mascot-art .mascot-paw {
+  transform-origin: 73px 84px;
+  animation: companion-paw var(--idle-span) ease-in-out infinite;
+}
+:root[data-theme] .mascot-pug .mascot-paw {
+  transform-origin: 34px 92px;
+}
+:root[data-theme] .mascot-art .mascot-shadow {
+  transform-origin: 50px 100px;
+  animation: companion-shadow var(--idle-span) ease-in-out infinite;
+}
+:root[data-theme] .mascot-pug .mascot-tongue {
+  transform-origin: 50px 72px;
+  animation: pug-pant 6s ease-in-out infinite;
+}
+:root[data-theme] .pug-tail {
+  transform-origin: 78px 84px;
+  animation: pug-tail 8s ease-in-out infinite;
+}
+:root[data-theme] .calendar-companion.is-greeting .mascot-body,
+:root[data-theme] .is-playing .mascot-art .mascot-body {
+  animation: companion-rubber-hello 0.7s var(--rubber-ease);
+}
+@keyframes companion-idle {
+  0%,
+  14%,
+  38%,
+  65%,
+  100% {
+    transform: scale(1) rotate(0);
+  }
+  7%,
+  20% {
+    transform: scale(1.025, 0.98);
+  }
+  28% {
+    transform: rotate(-5deg) scale(1.01);
+  }
+  31% {
+    transform: rotate(4deg);
+  }
+  48% {
+    transform: translateY(-3px) scale(0.97, 1.05);
+  }
+  53% {
+    transform: scale(1.04, 0.97);
+  }
+  73%,
+  80% {
+    transform: scale(1.025, 0.98) rotate(-2deg);
+  }
+  90% {
+    transform: translateY(-2px) rotate(2deg);
+  }
+}
+@keyframes companion-gaze {
+  0%,
+  17%,
+  21%,
+  36%,
+  39%,
+  67%,
+  83%,
+  100% {
+    transform: translateX(0) scaleY(1);
+  }
+  18%,
+  38% {
+    transform: scaleY(0.12);
+  }
+  25%,
+  29% {
+    transform: translateX(-2px);
+  }
+  31%,
+  34% {
+    transform: translateX(2px);
+  }
+  73%,
+  79% {
+    transform: scaleY(0.35);
+  }
+  90% {
+    transform: scaleY(0.13);
+  }
+}
+@keyframes companion-ear {
+  0%,
+  22%,
+  38%,
+  100% {
+    transform: rotate(0);
+  }
+  27%,
+  33% {
+    transform: rotate(5deg);
+  }
+  30% {
+    transform: rotate(-5deg);
+  }
+  47% {
+    transform: rotate(-3deg);
+  }
+}
+@keyframes companion-paw {
+  0%,
+  85%,
+  100% {
+    transform: rotate(0);
+  }
+  89%,
+  95% {
+    transform: rotate(-12deg);
+  }
+  92% {
+    transform: rotate(8deg);
+  }
+}
+@keyframes companion-shadow {
+  0%,
+  40%,
+  60%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.12;
+  }
+  48% {
+    transform: scaleX(0.9);
+    opacity: 0.09;
+  }
+}
+@keyframes pug-pant {
+  0%,
+  15%,
+  45%,
+  100% {
+    transform: scaleY(1);
+  }
+  22%,
+  34% {
+    transform: scaleY(1.25);
+  }
+  28%,
+  40% {
+    transform: scaleY(0.8);
+  }
+}
+@keyframes pug-tail {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  65%,
+  75% {
+    transform: rotate(-12deg);
+  }
+  70%,
+  80% {
+    transform: rotate(9deg);
+  }
+}
+@keyframes companion-rubber-hello {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.1, 0.9);
+  }
+  45% {
+    transform: translateY(-7px) scale(0.93, 1.08) rotate(-4deg);
+  }
+  70% {
+    transform: scale(1.05, 0.96) rotate(4deg);
+  }
+}
+@media (max-width: 700px) {
+  .calendar-pocket-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  :root[data-theme] .calendar-pocket-tabs button {
+    flex-direction: column;
+    min-height: 62px;
+    padding: 7px 3px;
+    gap: 4px;
+    font-size: 10px;
+    position: relative;
+  }
+  .calendar-pocket-tabs small {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    min-width: 14px;
+    min-height: 14px;
+    font-size: 9px;
+  }
+  .calendar-pocket .pocket-header > button {
+    width: 44px;
+    height: 44px;
+  }
+  .mini-date-grid button {
+    min-height: 40px;
+  }
+  .calendar-pocket input,
+  .calendar-pocket button {
+    min-height: 40px;
+  }
+  .calendar-pocket .pocket-header {
+    padding: 12px;
+  }
+  .pocket-content {
+    padding: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] *,
+  :root[data-theme] *::before,
+  :root[data-theme] *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  :root[data-theme] .app [data-touch-pressed="true"] {
+    scale: 1;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme]
+    :is(
+      .planner-sheet,
+      .card,
+      .personal-board,
+      .task-modal,
+      .detail-modal,
+      .search-modal,
+      .notification-panel,
+      .calendar-pocket,
+      .sidebar,
+      .topbar,
+      .mobile-nav
+    ) {
+    background-color: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+.app::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(ellipse at 8% 12%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 45%),radial-gradient(ellipse at 92% 70%,color-mix(in srgb,var(--google) 12%,transparent),transparent 45%); }

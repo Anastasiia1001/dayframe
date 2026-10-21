@@ -6,4 +6,5 @@ import './planner.css';
 import './planner-layout.css';
 import './theme-finish.css';
 import './touch-feedback.css';
+import './glass-rubber.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);

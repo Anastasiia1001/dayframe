@@ -1,7 +1,6 @@
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import {
   Plus,
-  Trash2,
   Check,
   Bell,
   ListChecks,
@@ -9,22 +8,11 @@ import {
   Star,
   Clock,
 } from "lucide-react";
-import { useLocal } from "../useLocal";
+import type { DailyPlan } from "../dailyPlans";
+import { RemindersEditor } from "./RemindersEditor";
 import type { PersonalTask } from "../types";
 import { TaskList } from "./TaskList";
 
-type Priority = { title: string; done: boolean };
-type Reminder = { id: string; title: string; time: string; done: boolean };
-type DailyPlan = {
-  priorities: Priority[];
-  notes: string;
-  reminders: Reminder[];
-};
-const blankPlan = (): DailyPlan => ({
-  priorities: Array.from({ length: 3 }, () => ({ title: "", done: false })),
-  notes: "",
-  reminders: [],
-});
 export function DayPlanner({
   date,
   today,
@@ -35,7 +23,11 @@ export function DayPlanner({
   onAdd,
   onPostpone,
   onDelete,
+  plan,
+  update,
 }: {
+  plan: DailyPlan;
+  update: (patch: Partial<DailyPlan>) => void;
   date: string;
   today: string;
   tasks: PersonalTask[];
@@ -46,18 +38,6 @@ export function DayPlanner({
   onPostpone: (t: PersonalTask) => void;
   onDelete: (t: PersonalTask) => void;
 }) {
-  const [plans, setPlans] = useLocal<Record<string, DailyPlan>>(
-    "dayframe-daily-plans",
-    {},
-  );
-  const [reminderTitle, setReminderTitle] = useState("");
-  const [reminderTime, setReminderTime] = useState("");
-  const plan = plans[date] || blankPlan();
-  const update = (patch: Partial<DailyPlan>) =>
-    setPlans((all) => ({
-      ...all,
-      [date]: { ...(all[date] || blankPlan()), ...patch },
-    }));
   return (
     <div className="day-planner-layout">
       <div className="day-left-column">
@@ -194,113 +174,10 @@ export function DayPlanner({
             className="stationery-sticker pushpin-sticker"
             aria-hidden="true"
           />
-          <ul className="daily-reminders">
-            {plan.reminders.map((r) => (
-              <li key={r.id} className={r.done ? "reminder-done" : ""}>
-                <input
-                  aria-label={`Виконати нагадування ${r.title}`}
-                  type="checkbox"
-                  checked={r.done}
-                  onChange={() =>
-                    update({
-                      reminders: plan.reminders.map((item) =>
-                        item.id === r.id ? { ...item, done: !item.done } : item,
-                      ),
-                    })
-                  }
-                />
-                <div className="reminder-value">
-                  <input
-                    aria-label={`Текст нагадування ${r.title}`}
-                    value={r.title}
-                    maxLength={240}
-                    onChange={(e) =>
-                      update({
-                        reminders: plan.reminders.map((item) =>
-                          item.id === r.id
-                            ? { ...item, title: e.target.value }
-                            : item,
-                        ),
-                      })
-                    }
-                  />
-                  <input
-                    aria-label={`Час для ${r.title}`}
-                    type="time"
-                    value={r.time}
-                    onChange={(e) =>
-                      update({
-                        reminders: plan.reminders.map((item) =>
-                          item.id === r.id
-                            ? { ...item, time: e.target.value }
-                            : item,
-                        ),
-                      })
-                    }
-                  />
-                </div>
-                <button
-                  aria-label={`Видалити нагадування ${r.title}`}
-                  onClick={() =>
-                    update({
-                      reminders: plan.reminders.filter(
-                        (item) => item.id !== r.id,
-                      ),
-                    })
-                  }
-                >
-                  <Trash2 size={13} />
-                </button>
-              </li>
-            ))}
-          </ul>
-          <form
-            className="reminder-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!reminderTitle.trim()) return;
-              update({
-                reminders: [
-                  ...plan.reminders,
-                  {
-                    id: crypto.randomUUID(),
-                    title: reminderTitle.trim(),
-                    time: reminderTime,
-                    done: false,
-                  },
-                ],
-              });
-              setReminderTitle("");
-              setReminderTime("");
-            }}
-          >
-            <input
-              aria-label="Нове нагадування"
-              placeholder="Про що нагадати собі?"
-              maxLength={240}
-              required
-              value={reminderTitle}
-              onChange={(e) => setReminderTitle(e.target.value)}
-            />
-            <div>
-              <label>
-                Час{" "}
-                <input
-                  aria-label="Час нагадування"
-                  type="time"
-                  value={reminderTime}
-                  onChange={(e) => setReminderTime(e.target.value)}
-                />
-              </label>
-              <button className="sheet-add" type="submit">
-                <Plus size={14} />
-                Додати
-              </button>
-            </div>
-          </form>
-          <small className="autosave-label">
-            Список для цього дня, без сповіщень пристрою
-          </small>
+          <RemindersEditor
+            reminders={plan.reminders}
+            onChange={(reminders) => update({ reminders })}
+          />
           <img
             className="planner-plant"
             src={`${import.meta.env.BASE_URL}assets/planner/plant.png`}

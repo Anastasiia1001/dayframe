@@ -22,7 +22,7 @@ export function CalendarCompanion({
     const timer = setTimeout(() => setGreeting(-1), 2600);
     return () => clearTimeout(timer);
   }, [greeting]);
-  const clay = ["Pastel", "CutePlanner"].includes(theme);
+  const clay = ["Pastel", "CutePlanner"].includes(theme) && mascot === "bunny";
   return (
     <button
       className={`calendar-companion ${clay ? "clay-companion" : ""} ${greeting >= 0 ? "is-greeting" : ""}`}
@@ -44,7 +44,7 @@ export function CalendarCompanion({
           alt=""
           aria-hidden="true"
         />
-      ) : isPlannerTheme(theme) ? (
+      ) : isPlannerTheme(theme) && mascot === "bunny" ? (
         <PlannerDecoration theme={theme} />
       ) : (
         <div className="theme-mascot-vignette" aria-hidden="true">

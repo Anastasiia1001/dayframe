@@ -1,3 +1,5 @@
+import {useDailyPlan} from "../dailyPlans";
+import {CalendarDock} from "./CalendarDock";
 import { CalendarCompanion } from "./CalendarCompanion";
 import { DayPlanner } from "./DayPlanner";
 import { themes, type MascotId } from "../appearance";
@@ -60,6 +62,7 @@ export function CalendarBoard(p: Props) {
   }, []);
   const pane = useRef<HTMLDivElement>(null);
   const key = dateKey(p.date);
+  const {plan,update} = useDailyPlan(key);
   const first = new Date(p.date);
   if (p.view === "Month") first.setDate(1);
   if (p.view === "Month" || p.view === "Week")
@@ -506,6 +509,9 @@ export function CalendarBoard(p: Props) {
             ))}
         </div>
       </div>
+      <CalendarDock date={key} today={p.today} plan={plan} onUpdate={update} onDate={p.onDate}
+        tasks={p.tasks.filter(t=>!t.isTemplate && !t.inBacklog && !t.disabled && t.date===key)}
+        onTask={p.onTask} onToggle={p.onToggleTask} onPostpone={p.onPostpone} onDelete={p.onDelete} onAdd={()=>p.onAdd(key)} />
       {!p.hasCalendar && !p.loading && (
         <div className="calendar-connection-hint">
           <CalendarDays size={17} />
@@ -522,6 +528,7 @@ export function CalendarBoard(p: Props) {
       )}
       {p.view === "Day" ? (
         <DayPlanner
+          plan={plan} update={update}
           key={key}
           date={key}
           today={p.today}
