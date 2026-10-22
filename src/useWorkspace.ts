@@ -8,7 +8,10 @@ import {
 } from "./data/live";
 import { providers } from "./data/providers";
 import { useLocal } from "./useLocal";
-export function useWorkspace(date: Date) {
+export function useWorkspace(
+  date: Date,
+  overview?: { from: string; to: string },
+) {
   const [mode, setMode] = useLocal<"live" | "demo">(
     "dayframe-data-mode",
     "live",
@@ -23,7 +26,9 @@ export function useWorkspace(date: Date) {
     [updated, setUpdated] = useState<Date | null>(null);
   const [loadedMode, setLoadedMode] = useState<"live" | "demo" | null>(null);
   const generation = useRef(0);
-  const rangeKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  const rangeKey = overview
+    ? `${overview.from}:${overview.to}`
+    : `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
   const refresh = useCallback(async () => {
     const g = ++generation.current;
     setLoading(true);
@@ -45,7 +50,27 @@ export function useWorkspace(date: Date) {
       const current = await live.status();
       if (g !== generation.current) return;
       setStatus(current);
-      const { start, end } = calendarRange(date);
+      const range = calendarRange(date);
+      const start = overview
+        ? new Date(overview.from + "T00:00:00")
+        : range.start;
+      const end = overview ? new Date(overview.to + "T00:00:00") : range.end;
+      if (overview) end.setDate(end.getDate() + 1);
+      const readCalendar = async (
+        id: "google" | "outlook-work" | "outlook-personal",
+      ) => {
+        const combined: CalendarEvent[] = [];
+        // The server limits each request to 62 days. Query wider overviews in bounded windows.
+        for (let cursor = start.getTime(); cursor < end.getTime();) {
+          if (g !== generation.current) return combined;
+          const until = Math.min(cursor + 61 * 86400000, end.getTime());
+          combined.push(
+            ...(await live.calendar(id, new Date(cursor), new Date(until))),
+          );
+          cursor = until;
+        }
+        return combined;
+      };
       const selected = current.providers.filter((p) => p.connected);
       const results = await Promise.allSettled(
         selected.map(async (p) =>
@@ -53,7 +78,7 @@ export function useWorkspace(date: Date) {
             ? { id: p.id, data: await live.jira() }
             : p.id === "slack"
               ? { id: p.id, data: await live.slack(channels) }
-              : { id: p.id, data: await live.calendar(p.id, start, end) },
+              : { id: p.id, data: await readCalendar(p.id) },
         ),
       );
       if (g !== generation.current) return;

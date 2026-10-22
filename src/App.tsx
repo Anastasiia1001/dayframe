@@ -6,7 +6,7 @@ import {
   PeriodOverview,
   overviewPeriods,
 } from "./components/TodayOverview";
-import type { OverviewPeriod } from "./domain/overview";
+import { overviewRange, type OverviewPeriod } from "./domain/overview";
 import { FitnessTracker } from "./components/FitnessTracker";
 import { useTaskReminders } from "./useTaskReminders";
 import { CalendarStudio } from "./components/CalendarStudio";
@@ -152,6 +152,9 @@ export default function App() {
   });
   const workspace = useWorkspace(
     page === "Calendar" ? calendarDate : new Date(),
+    page === "Today" && overviewPeriod !== "day"
+      ? overviewRange(today, overviewPeriod)
+      : undefined,
   );
   const { events, slack } = workspace;
   const visibleEvents = events.filter((e) => eventOnDay(e, today));
@@ -873,6 +876,7 @@ export default function App() {
           )}
           {page === "Today" && overviewPeriod !== "day" && (
             <PeriodOverview
+              loading={workspace.loading}
               period={overviewPeriod}
               today={today}
               tasks={tasks}

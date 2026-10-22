@@ -193,6 +193,7 @@ export const overviewPeriods: [OverviewPeriod, string][] = [
 ];
 export function PeriodOverview({
   period,
+  loading,
   today,
   tasks,
   events,
@@ -201,6 +202,7 @@ export function PeriodOverview({
   onEvent,
 }: {
   period: OverviewPeriod;
+  loading?: boolean;
   today: string;
   tasks: PersonalTask[];
   events: CalendarEvent[];
@@ -253,6 +255,9 @@ export function PeriodOverview({
         </article>
         <article className="today-card">
           <h3>Події календаря</h3>
+          {loading && (
+            <p role="status">Оновлюємо події за весь обраний період…</p>
+          )}
           {meetings.map((event) => (
             <button
               key={event.id}

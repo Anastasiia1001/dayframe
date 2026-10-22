@@ -177,3 +177,80 @@ test("weather location changes from search and errors do not show invented weath
   await expect(card).toContainText("попередні дані");
   await expect(card.locator(".weather-temp")).toHaveText("3°");
 });
+
+test("year overview reads connected calendars beyond the current month in bounded requests", async ({
+  page,
+}) => {
+  const year = new Date().getFullYear();
+  const target = `${year}-12-20`;
+  const windows: { start: number; end: number }[] = [];
+  await page.route("**/api/status", (route) =>
+    route.fulfill({
+      json: {
+        providers: [
+          {
+            id: "google",
+            name: "Календар Google",
+            configured: true,
+            connected: true,
+          },
+        ],
+        disabled: [],
+        sessionStorage: "memory",
+        sessionHours: 8,
+      },
+    }),
+  );
+  await page.route("**/api/calendar/google?*", (route) => {
+    const url = new URL(route.request().url());
+    const start = Date.parse(url.searchParams.get("start")!);
+    const end = Date.parse(url.searchParams.get("end")!);
+    windows.push({ start, end });
+    const at = Date.parse(target + "T12:00:00Z");
+    return route.fulfill({
+      json: {
+        events:
+          at >= start && at < end
+            ? [
+                {
+                  id: "year-event",
+                  title: "Зустріч наприкінці року",
+                  source: "Google",
+                  date: target,
+                  start: "14:00",
+                  end: "15:00",
+                  location: "",
+                  participants: [],
+                  reminder: false,
+                },
+              ]
+            : [],
+      },
+    });
+  });
+  await page.goto("/");
+  await page
+    .locator(".sidebar")
+    .getByRole("button", { name: "Сьогодні", exact: true })
+    .click();
+  await page
+    .getByRole("navigation", { name: "Період огляду" })
+    .getByRole("button", { name: "Рік", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("region", { name: "Плани на обраний період" })
+      .getByRole("button", { name: "Зустріч наприкінці року", exact: false }),
+  ).toBeVisible();
+  expect(
+    windows.every((w) => w.end > w.start && w.end - w.start <= 62 * 86400000),
+  ).toBeTruthy();
+  expect(
+    windows.some(
+      (w) =>
+        new Date(w.start).toLocaleDateString("sv-SE", {
+          timeZone: "Europe/Kyiv",
+        }) === `${year}-01-01`,
+    ),
+  ).toBeTruthy();
+});
