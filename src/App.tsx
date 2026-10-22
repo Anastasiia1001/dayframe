@@ -1,3 +1,12 @@
+import { WeatherCard } from "./components/WeatherCard";
+import { InspirationCard } from "./components/InspirationCard";
+import {
+  TodayFitness,
+  TodayPlan,
+  PeriodOverview,
+  overviewPeriods,
+} from "./components/TodayOverview";
+import type { OverviewPeriod } from "./domain/overview";
 import { FitnessTracker } from "./components/FitnessTracker";
 import { useTaskReminders } from "./useTaskReminders";
 import { CalendarStudio } from "./components/CalendarStudio";
@@ -97,6 +106,7 @@ export default function App() {
     "dayframe-classic-planner",
     false,
   );
+  const [overviewPeriod, setOverviewPeriod] = useState<OverviewPeriod>("day");
   const [page, setPage] = useState(legacyPlanner ? "Today" : "Calendar");
   const [mascot, setMascot] = useLocal("dayframe-mascot", "bunny");
   const [theme, setTheme] = useLocal("dayframe-theme", "Pastel");
@@ -605,7 +615,9 @@ export default function App() {
           <span className="brand-mark" aria-hidden="true">
             ✿
           </span>
-          <span className="brand-word">dayframe<span className="brand-dot">.</span></span>
+          <span className="brand-word">
+            dayframe<span className="brand-dot">.</span>
+          </span>
         </a>
         <div className="workspace">
           <span className="workspace-avatar">{initials}</span>
@@ -623,7 +635,10 @@ export default function App() {
             <button
               key={uk(name)}
               className={page === name ? "selected" : ""}
-              onClick={() => setPage(name)}
+              onClick={() => {
+                setPage(name);
+                if (name === "Today") setOverviewPeriod("day");
+              }}
             >
               <span
                 className="clay-nav-icon"
@@ -649,29 +664,37 @@ export default function App() {
           </span>
         </div>
         <div className="connections">
-          {["Outlook", "Google", "Slack", "Jira"].filter(s => s !== "Jira" || workspace.status?.providers.some(p => p.id === "jira" && p.configured)).map((s) => (
-            <button key={uk(s)} onClick={() => setPage("Settings")}>
-              <Source name={s} />
-              {s === "Google"
-                ? "Календар Google"
-                : s === "Outlook"
-                  ? "Календар Outlook"
-                  : s}
-              <i
-                className={
-                  workspace.mode === "live" &&
-                  workspace.status?.providers.some(
-                    (p) =>
-                      (s === "Outlook"
-                        ? p.id.startsWith("outlook-")
-                        : p.id === s.toLowerCase()) && p.connected,
-                  )
-                    ? "connected"
-                    : "disconnected"
-                }
-              />
-            </button>
-          ))}
+          {["Outlook", "Google", "Slack", "Jira"]
+            .filter(
+              (s) =>
+                s !== "Jira" ||
+                workspace.status?.providers.some(
+                  (p) => p.id === "jira" && p.configured,
+                ),
+            )
+            .map((s) => (
+              <button key={uk(s)} onClick={() => setPage("Settings")}>
+                <Source name={s} />
+                {s === "Google"
+                  ? "Календар Google"
+                  : s === "Outlook"
+                    ? "Календар Outlook"
+                    : s}
+                <i
+                  className={
+                    workspace.mode === "live" &&
+                    workspace.status?.providers.some(
+                      (p) =>
+                        (s === "Outlook"
+                          ? p.id.startsWith("outlook-")
+                          : p.id === s.toLowerCase()) && p.connected,
+                    )
+                      ? "connected"
+                      : "disconnected"
+                  }
+                />
+              </button>
+            ))}
         </div>
         <div className="sidebar-bottom">
           <div className="quiet-note">
@@ -769,7 +792,9 @@ export default function App() {
                       ? "Робочі повідомлення"
                       : page === "Calendar"
                         ? "Календар"
-                        : page === "Fitness" ? "Спорт і кроки" : "Налаштування"}
+                        : page === "Fitness"
+                          ? "Спорт і кроки"
+                          : "Налаштування"}
               </h1>
               <p>
                 {page === "Today"
@@ -780,7 +805,9 @@ export default function App() {
                       ? "Прямі згадки й повідомлення вибраних каналів."
                       : page === "Calendar"
                         ? "Події на шкалі часу. Завдання без часу — окремо."
-                        : page === "Fitness" ? "Вправи, тренування та щоденний рух у власному темпі." : "Теми, помічник і підключення облікових записів."}
+                        : page === "Fitness"
+                          ? "Вправи, тренування та щоденний рух у власному темпі."
+                          : "Теми, помічник і підключення облікових записів."}
               </p>
             </div>
           </div>
@@ -832,7 +859,42 @@ export default function App() {
               </div>
             ))}
           {page === "Today" && (
+            <nav className="overview-periods" aria-label="Період огляду">
+              {overviewPeriods.map(([id, name]) => (
+                <button
+                  key={id}
+                  aria-pressed={overviewPeriod === id}
+                  onClick={() => setOverviewPeriod(id)}
+                >
+                  {name}
+                </button>
+              ))}
+            </nav>
+          )}
+          {page === "Today" && overviewPeriod !== "day" && (
+            <PeriodOverview
+              period={overviewPeriod}
+              today={today}
+              tasks={tasks}
+              events={events}
+              onEdit={setModal}
+              onToggle={toggleTask}
+              onEvent={setEventDetail}
+            />
+          )}
+          {page === "Today" && overviewPeriod === "day" && (
             <div className="focused-dashboard">
+              <div className="today-overview-grid">
+                <TodayPlan
+                  date={today}
+                  onCalendar={() => {
+                    setCalendarDate(new Date(today + "T12:00:00"));
+                    setCalendarView("Day");
+                    setPage("Calendar");
+                  }}
+                />
+                <TodayFitness date={today} onOpen={() => setPage("Fitness")} />
+              </div>
               {!hasCalendar && !workspace.loading && (
                 <div className="connect-strip">
                   <CalendarDays size={21} />
@@ -907,23 +969,12 @@ export default function App() {
                       </span>
                       <span>{done} виконано</span>
                     </div>
-                    {taskRows(
-                      todaysTasks.filter((t) => !t.completed).slice(0, 4),
-                    )}
+                    {taskRows(todaysTasks.filter((t) => !t.completed))}
                     {!todaysTasks.some((t) => !t.completed) && (
                       <div className="board-empty">
                         <CheckCheck size={26} />
                         <p>На сьогодні все зроблено.</p>
                       </div>
-                    )}
-                    {todaysTasks.filter((t) => !t.completed).length > 4 && (
-                      <button
-                        className="overflow-tasks"
-                        onClick={() => setPage("Personal")}
-                      >
-                        Показати ще{" "}
-                        {todaysTasks.filter((t) => !t.completed).length - 4}
-                      </button>
                     )}
                     {done > 0 && (
                       <details className="today-completed">
@@ -940,6 +991,10 @@ export default function App() {
                     </button>
                   </Section>
                 )}
+              </div>
+              <div className="today-overview-grid">
+                <WeatherCard />
+                <InspirationCard />
               </div>
               {attention.length > 0 && (
                 <Section
@@ -1313,7 +1368,10 @@ export default function App() {
           <button
             className={page === n ? "active" : ""}
             key={n}
-            onClick={() => setPage(n)}
+            onClick={() => {
+              setPage(n);
+              if (n === "Today") setOverviewPeriod("day");
+            }}
           >
             <I size={20} />
             <span>{uk(n)}</span>

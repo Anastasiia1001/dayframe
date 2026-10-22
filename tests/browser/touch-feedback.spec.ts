@@ -8,11 +8,11 @@ test("touch feedback matches every theme, is bounded, and never intercepts contr
     .getByRole("button", { name: "Календар", exact: true })
     .click();
   for (const [theme, motif] of [
-    ["Pastel", "heart"],
+    ["Pastel", "star"],
     ["Dark", "star"],
-    ["Lagoon", "leaf"],
-    ["Blue", "cloud"],
-    ["Blossom", "flower"],
+    ["Lagoon", "star"],
+    ["Blue", "star"],
+    ["Blossom", "star"],
   ]) {
     await page
       .getByLabel("Оформлення планера", { exact: true })
@@ -38,8 +38,9 @@ test("touch feedback matches every theme, is bounded, and never intercepts contr
   await page.keyboard.press("Enter");
   await expect(page.locator(".touch-pulse").last()).toHaveAttribute(
     "data-motif",
-    "flower",
+    "star",
   );
+  await expect(page.locator(".touch-ring")).toHaveCount(0);
   expect(await page.locator(".touch-pulse").count()).toBeLessThanOrEqual(5);
   await expect(page.locator(".touch-pulse")).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: "reduce" });

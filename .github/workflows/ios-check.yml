@@ -1,0 +1,25 @@
+name: Перевірка iOS та HealthKit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - 'capacitor.config.ts'
+      - '.github/workflows/ios-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run ios:sync
+      - name: Зібрати iOS без підпису для перевірки Swift та HealthKit
+        run: xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/dayframe-ios CODE_SIGNING_ALLOWED=NO build

@@ -1,0 +1,361 @@
+.today-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+  align-items: start;
+}
+.today-card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      130deg,
+      color-mix(in srgb, var(--accent) 6%, transparent),
+      transparent
+    ),
+    var(--surface);
+  box-shadow: 0 8px 26px color-mix(in srgb, var(--text) 5%, transparent);
+  padding: 22px;
+  min-width: 0;
+}
+.today-card h2 {
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.today-card p {
+  color: var(--muted);
+  line-height: 1.65;
+  font-size: 13px;
+}
+.today-card button,
+.overview-periods button {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 9px 12px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+}
+.today-card label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.today-card input:not([type="checkbox"]),
+.today-card textarea,
+.today-card select {
+  width: 100%;
+  min-width: 0;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  font: inherit;
+  font-size: 13px;
+}
+.weather-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 14px 0;
+}
+.weather-scene {
+  width: 180px;
+  height: 110px;
+  flex-shrink: 0;
+  background: radial-gradient(
+    ellipse,
+    color-mix(in srgb, var(--accent) 7%, transparent),
+    transparent 70%
+  );
+  border-radius: 28px;
+}
+.weather-scene svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 6px 4px #536b7a12);
+}
+.weather-temp {
+  font-size: 40px;
+  font-weight: 650;
+  letter-spacing: -1px;
+}
+.weather-main p {
+  margin: 3px 0;
+}
+.weather-main small,
+.weather-source {
+  font-size: 11px;
+  color: var(--muted);
+}
+.weather-source {
+  display: block;
+  margin-top: 9px;
+}
+.weather-place {
+  font-size: 12px;
+}
+.weather-location {
+  display: grid;
+  gap: 8px;
+  margin-top: 15px;
+}
+.weather-location form {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
+.weather-location label {
+  flex: 1;
+  min-width: 0;
+}
+.weather-cloud-shape {
+  animation: weather-float 5s ease-in-out infinite;
+}
+.weather-drop {
+  animation: weather-rain 1.15s linear infinite;
+}
+.weather-flake {
+  animation: weather-snow 2.8s ease-in-out infinite;
+}
+.weather-sun-shape {
+  transform-origin: 112px 43px;
+  animation: weather-sun 8s ease-in-out infinite;
+}
+.weather-lightning {
+  animation: weather-flash 5s ease-in-out infinite;
+}
+@keyframes weather-float {
+  50% {
+    transform: translate(4px, -3px);
+  }
+}
+@keyframes weather-rain {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  30% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-5px, 17px);
+  }
+}
+@keyframes weather-snow {
+  0% {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(8px, 17px);
+  }
+}
+@keyframes weather-sun {
+  50% {
+    transform: scale(1.06);
+  }
+}
+@keyframes weather-flash {
+  0%,
+  80%,
+  100% {
+    opacity: 0.4;
+  }
+  85%,
+  92% {
+    opacity: 1;
+  }
+}
+.inspiration-text {
+  font-size: 20px !important;
+  line-height: 1.55 !important;
+  color: var(--text) !important;
+  margin: 24px 0;
+  min-height: 95px;
+  animation: inspiration-appear 0.3s ease both;
+}
+.inspiration-card > a {
+  color: var(--accent);
+  font-size: 12px;
+}
+.inspiration-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+@keyframes inspiration-appear {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+.today-steps {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 22px 0 14px;
+}
+.today-steps strong {
+  font-size: 32px;
+}
+.today-steps span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.today-fitness progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--accent);
+}
+.today-fitness ul,
+.today-plan ol {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.today-fitness .today-exercise {
+  width: 100%;
+  text-align: left;
+  background: var(--soft);
+}
+.today-exercise strong {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.today-exercise[aria-pressed="true"] strong {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.today-plan ol li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.today-plan input[type="checkbox"],
+.period-task input {
+  accent-color: var(--accent);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.today-card .today-reminder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+.overview-periods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 22px;
+}
+.overview-periods button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: var(--accent);
+}
+.period-overview > header {
+  margin: 0 0 20px;
+}
+.period-overview h2 {
+  font-size: 24px;
+}
+.period-overview > header p {
+  margin: 9px 0;
+}
+.period-overview > header span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.period-task {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+.period-task button,
+.today-card .period-event {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.period-task small,
+.period-event small {
+  color: var(--muted);
+}
+.period-event {
+  margin: 10px 0;
+}
+@media (max-width: 800px) {
+  .today-overview-grid {
+    grid-template-columns: 1fr;
+  }
+  .today-card {
+    padding: 18px;
+  }
+  .weather-scene {
+    width: clamp(110px, 36vw, 150px);
+  }
+  .inspiration-text {
+    min-height: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .weather-scene *,
+  .inspiration-text {
+    animation: none !important;
+  }
+}
+
+.today-fitness progress {
+  appearance: none;
+  border: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--soft);
+}
+.today-fitness progress::-webkit-progress-bar {
+  background: var(--soft);
+  border-radius: 20px;
+}
+.today-fitness progress::-webkit-progress-value {
+  background: var(--accent);
+  border-radius: 20px;
+}
+.today-fitness progress::-moz-progress-bar {
+  background: var(--accent);
+  border-radius: 20px;
+}
+.focused-dashboard .focus-columns.tasks-first .card { max-width:none; }

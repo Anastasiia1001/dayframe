@@ -6,16 +6,7 @@ type Pulse = {
   motif: string;
   strong: boolean;
 };
-const motifFor = (theme: string) =>
-  ["Green", "Pistachio", "Lagoon", "Vintage", "Warm"].includes(theme)
-    ? "leaf"
-    : ["Dark", "Moonlight", "Blueberry", "Parchment", "NeonAzure", "NeonOcean", "NeonCobalt", "NeonAurora", "NeonIce"].includes(theme)
-      ? "star"
-      : ["Blue", "Graphite"].includes(theme)
-        ? "cloud"
-        : ["Purple", "Blossom"].includes(theme)
-          ? "flower"
-          : "heart";
+const motifFor = (_theme: string) => "star";
 function Glyph({ kind }: { kind: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -75,7 +66,7 @@ export function TouchFeedback() {
       const timer = setTimeout(() => {
         setPulses((all) => all.filter((p) => p.id !== id));
         timers.delete(timer);
-      }, 850);
+      }, 1100);
       timers.add(timer);
       return id;
     };
@@ -164,7 +155,28 @@ export function TouchFeedback() {
           data-motif={p.motif}
           style={{ left: p.x, top: p.y } as CSSProperties}
         >
-          <span className="touch-ring" />
+          {[0, 1].map((wave) => (
+            <span
+              className="touch-star-wave"
+              key={wave}
+              style={{ "--wave-delay": `${wave * 150}ms` } as CSSProperties}
+            >
+              {Array.from({ length: 8 }, (_, i) => (
+                <span
+                  className="touch-wave-star"
+                  key={i}
+                  style={
+                    {
+                      "--angle": `${i * 45 + wave * 22.5}deg`,
+                      "--flight": `${wave ? 46 : 30}px`,
+                    } as CSSProperties
+                  }
+                >
+                  <Glyph kind="star" />
+                </span>
+              ))}
+            </span>
+          ))}
           {Array.from({ length: p.strong ? 7 : 4 }, (_, i) => (
             <span
               className="touch-mote"

@@ -13,8 +13,7 @@ const tokens = new Map<
   { token: string; expires: number; account?: AccountInfo }
 >();
 let microsoft:
-  | { id: string; ready: Promise<PublicClientApplication> }
-  | undefined;
+  { id: string; ready: Promise<PublicClientApplication> } | undefined;
 let googleScript: Promise<void> | undefined;
 export function directIds(): { microsoft: string; google: string } {
   try {
@@ -254,7 +253,7 @@ export async function directCalendar(
       throw new Error(
         "Календар повернув некоректну адресу наступної сторінки.",
       );
-    const r = await fetch(target, {
+    const r: Response = await fetch(target, {
       headers: {
         Authorization: `Bearer ${bearer}`,
         ...(!google ? { Prefer: 'outlook.timezone="UTC"' } : {}),
