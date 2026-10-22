@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Upload, X } from "lucide-react";
 import {
+  keepSections,
   mergeKeepNotes,
   readKeepFiles,
   type KeepNote,
@@ -25,6 +26,8 @@ export function KeepImport({
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [skipped, setSkipped] = useState(0),
+    [excluded, setExcluded] = useState(0),
+    [missingAttachments, setMissingAttachments] = useState(0),
     [archived, setArchived] = useState(false),
     [page, setPage] = useState(0);
   const existing = new Set(
@@ -41,7 +44,7 @@ export function KeepImport({
   );
   const newNames = [
     ...new Set(
-      chosen.flatMap((n) => (n.labels.length ? n.labels : ["Нотатки Keep"])),
+      chosen.flatMap(keepSections),
     ),
   ].filter(
     (n) => !currentNames.has(n.trim().slice(0, 80).toLocaleLowerCase("uk")),
@@ -57,6 +60,8 @@ export function KeepImport({
       const result = await readKeepFiles(files);
       setNotes(result.notes);
       setSkipped(result.skipped);
+      setExcluded(result.excluded);
+      setMissingAttachments(result.missingAttachments);
       setSelected(
         result.notes
           .filter((n) => !n.archived && !existing.has(n.id))
@@ -161,9 +166,7 @@ export function KeepImport({
               onChange={(e) => {
                 if (e.target.files?.length)
                   void read(
-                    Array.from(e.target.files).filter((f) =>
-                      /\.json$/i.test(f.name),
-                    ),
+                    Array.from(e.target.files),
                   );
                 e.target.value = "";
               }}
@@ -206,12 +209,11 @@ export function KeepImport({
                   <button onClick={() => setSelected([])}>Зняти вибір</button>
                 </div>
                 <p>
-                  Мітки створять відсутні розділи:{" "}
+                  Будуть створені відсутні розділи:{" "}
                   {newNames.length
                     ? newNames.join(", ")
                     : "нових розділів немає"}
-                  . За кількох міток нотатка потрапить у перший розділ; усі
-                  мітки збережуться в тексті.
+                  . Мітки Keep зберігаються; без міток розділ визначається за темою заголовка. Архівні записи переносяться призупиненими.
                 </p>
                 <p>
                   Знайдені в тексті дати — лише пропозиції: перевір їх. Без дати
@@ -242,7 +244,8 @@ export function KeepImport({
                             .join("\n")}
                       </p>
                       <small>
-                        {note.labels.join(" · ") || "Нотатки Keep"}
+                        {keepSections(note).join(" · ")}
+                        {note.attachments?.length ? ` · Зображень: ${note.attachments.length}` : ""}
                         {note.archived ? " · Архів" : ""}
                         {note.checklist.length
                           ? ` · Пунктів: ${note.checklist.length}`
@@ -301,10 +304,12 @@ export function KeepImport({
               </>
             )}
             <p className="muted">
-              Зображення, аудіо та вкладення не переносяться. Повторно
+              Зображення переносяться з оригінального ZIP або теки Keep. Аудіо не підтримується. Повторно
               імпортовані нотатки пропускаються; наявні завдання не
               перезаписуються.
             </p>
+            {!!excluded && <p role="status">Нотатки з ознаками паролів або ключів не імпортуються: {excluded}.</p>}
+            {!!missingAttachments && <p role="status">Не вдалося перенести вкладень: {missingAttachments}. Для зображень обери оригінальний ZIP, а не окремі JSON.</p>}
             {error && (
               <p className="inline-error" role="alert">
                 {error}

@@ -5759,3 +5759,13 @@ button:disabled {
 .keep-import-dates input { min-width: 0; max-width: 100%; }
 @media (max-width: 500px) { .keep-import-content { padding: 15px; } .keep-import-content > footer { flex-wrap: wrap; } .keep-import-dates > label { flex: 1 1 110px; min-width: 0; } }
 @media (max-width: 759px) { .keep-import-trigger span { display: none; } }
+
+/* Keep the wordmark inside even the compact planner sidebar. */
+.sidebar .brand { padding-inline: 0; gap: 6px; font-size: 24px; min-width: 0; white-space: nowrap; }
+.sidebar .brand-mark { flex: 0 0 auto; font-size: 28px; }
+.sidebar .brand-word { min-width: 0; letter-spacing: -1.3px; }
+.sidebar .brand-dot { margin-left: 0; }
+@media (min-width: 760px) and (max-width: 1100px) {
+  .sidebar .brand { font-size: 21px; }
+  .sidebar .brand-mark { font-size: 25px; }
+}

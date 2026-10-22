@@ -602,7 +602,7 @@ export default function App() {
           <span className="brand-mark" aria-hidden="true">
             ✿
           </span>
-          dayframe<span className="brand-dot">.</span>
+          <span className="brand-word">dayframe<span className="brand-dot">.</span></span>
         </a>
         <div className="workspace">
           <span className="workspace-avatar">{initials}</span>

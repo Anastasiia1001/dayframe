@@ -55,7 +55,7 @@ test("explicit dates can be reviewed while invalid dates and discarded notes are
   assert.equal(result.tasks[0].scheduledStart, "14:30");
   assert.equal(result.tasks[0].date, "2026-11-12");
 });
-test("Takeout ZIP imports JSON only, skips HTML and attachments and rejects malformed JSON without changes", async () => {
+test("Takeout ZIP ignores HTML and unrelated files and rejects malformed JSON without changes", async () => {
   const zip = zipSync({
     "Takeout/Keep/note.json": strToU8(JSON.stringify(fixture)),
     "Takeout/Keep/note.html": strToU8("<script>throw 1</script>"),
@@ -73,4 +73,34 @@ test("Takeout ZIP imports JSON only, skips HTML and attachments and rejects malf
     readKeepFiles([new File([JSON.stringify({ no: "keep" })], "other.json")]),
     /не JSON-нотатка/,
   );
+});
+test("original ZIP preserves image-only notes, classifies topics and excludes credentials", async () => {
+  const png = Uint8Array.from([137,80,78,71,13,10,26,10]);
+  const imageNote = {createdTimestampUsec: 5678, attachments:[{filePath:'photo.png',mimetype:'image/png'}]};
+  const chores = {...fixture,createdTimestampUsec:999,title:'Домашні справи на тиждень (temp)',labels:[]};
+  const zip = zipSync({
+    'Takeout/Keep/image.json':strToU8(JSON.stringify(imageNote)),
+    'Takeout/Keep/photo.png':png,
+    'Takeout/Keep/chores.json':strToU8(JSON.stringify(chores)),
+    'Takeout/Keep/private.json':strToU8(JSON.stringify({...fixture,textContent:'password: example-only'})),
+  });
+  const result=await readKeepFiles([new File([zip],'original.zip')]);
+  assert.equal(result.notes.length,2);
+  assert.equal(result.excluded,1);
+  assert.equal(result.missingAttachments,0);
+  const merged=mergeKeepNotes(result.notes,[],[]);
+  assert.equal(merged.tasks[0].attachments[0].data,'data:image/png;base64,iVBORw0KGgo=');
+  assert.equal(merged.tasks[1].isTemplate,true);
+  assert.equal(merged.tasks[1].planningHorizon,'week');
+  assert.equal(merged.sections[1].name,'Дім і побут');
+  assert.equal(merged.tasks[1].notes.includes('Мітки Keep'),false);
+});
+test("archived lists stay paused, completed checklists stay completed, missing images are reported",async()=>{
+  const note={...fixture,isArchived:true,listContent:[{text:'Зроблено',isChecked:true}],attachments:[{filePath:'../outside.png'}]};
+  const result=await readKeepFiles([new File([JSON.stringify(note)],'archive.json')]);
+  assert.equal(result.missingAttachments,1);
+  const merged=mergeKeepNotes(result.notes,[],[]);
+  assert.equal(merged.tasks[0].disabled,true);
+  assert.equal(merged.tasks[0].completed,true);
+  assert.equal(merged.sections[0].name,'Архів Keep');
 });
