@@ -1,3 +1,4 @@
+import { isFitnessData, type FitnessData } from "./fitness.ts";
 import type { PersonalTask } from "../types";
 import type { DailyPlan } from "../dailyPlans";
 import type { Section } from "./studio";
@@ -13,6 +14,7 @@ const image = (v: unknown) =>
   typeof v === "string" && /^data:image\/(png|jpeg|webp|gif);base64,/.test(v);
 export function parseBackup(value: unknown): {
   tasks: PersonalTask[];
+  fitness?: FitnessData;
   sections?: Section[];
   plans?: Record<string, DailyPlan>;
 } {
@@ -124,9 +126,12 @@ export function parseBackup(value: unknown): {
       ))
   )
     throw Error("plans");
+  const fitness = data["dayframe-fitness"];
+  if (fitness !== undefined && !isFitnessData(fitness)) throw Error("fitness");
   const unique = new Map((tasks as PersonalTask[]).map((t) => [t.id, t]));
   return {
     tasks: [...unique.values()],
+    fitness: fitness as FitnessData | undefined,
     sections: sections as Section[] | undefined,
     plans: plans as Record<string, DailyPlan> | undefined,
   };

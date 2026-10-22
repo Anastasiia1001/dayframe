@@ -4,6 +4,7 @@ const labels: Record<string, string> = {
   Calendar: "Календар",
   Work: "Робота",
   Personal: "Особисте",
+  Fitness: "Спорт",
   Settings: "Налаштування",
   Day: "День",
   Week: "Тиждень",

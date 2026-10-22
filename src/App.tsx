@@ -1,3 +1,4 @@
+import { FitnessTracker } from "./components/FitnessTracker";
 import { useTaskReminders } from "./useTaskReminders";
 import { CalendarStudio } from "./components/CalendarStudio";
 import { TouchFeedback } from "./components/TouchFeedback";
@@ -25,6 +26,7 @@ import { Source, Section } from "./components/Primitives";
 import { useLocal } from "./useLocal";
 import { useEffect, useState } from "react";
 import {
+  Dumbbell,
   Sun,
   CalendarDays,
   BriefcaseBusiness,
@@ -57,6 +59,7 @@ const nav = [
   ["Calendar", CalendarDays],
   ["Work", BriefcaseBusiness],
   ["Personal", CheckCheck],
+  ["Fitness", Dumbbell],
 ] as const;
 export default function App() {
   const [now, setNow] = useState(() => new Date());
@@ -766,7 +769,7 @@ export default function App() {
                       ? "Робочі повідомлення"
                       : page === "Calendar"
                         ? "Календар"
-                        : "Налаштування"}
+                        : page === "Fitness" ? "Спорт і кроки" : "Налаштування"}
               </h1>
               <p>
                 {page === "Today"
@@ -777,7 +780,7 @@ export default function App() {
                       ? "Прямі згадки й повідомлення вибраних каналів."
                       : page === "Calendar"
                         ? "Події на шкалі часу. Завдання без часу — окремо."
-                        : "Теми, помічник і підключення облікових записів."}
+                        : page === "Fitness" ? "Вправи, тренування та щоденний рух у власному темпі." : "Теми, помічник і підключення облікових записів."}
               </p>
             </div>
           </div>
@@ -969,6 +972,7 @@ export default function App() {
             </div>
           )}
           {page === "Calendar" && calendar()}
+          {page === "Fitness" && <FitnessTracker />}
           {page === "Personal" && (
             <PersonalBoard
               tasks={tasks}

@@ -726,6 +726,11 @@ export function CalendarStudio(p: Props) {
         "dayframe-tasks": merged,
         "dayframe-sections": mergedSections,
         "dayframe-daily-plans": { ...incoming.plans, ...currentPlans },
+        ...(incoming.fitness ? {"dayframe-fitness": {
+          ...incoming.fitness,
+          ...(JSON.parse(localStorage.getItem("dayframe-fitness") || "null") || {}),
+          days: {...incoming.fitness.days, ...(JSON.parse(localStorage.getItem("dayframe-fitness") || "null")?.days || {})},
+        }} : {}),
       });
       setSections(mergedSections);
       save(merged);
