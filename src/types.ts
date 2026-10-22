@@ -74,7 +74,7 @@ export interface PersonalTask {
   notes: string;
   completed: boolean;
   disabled: boolean;
-  origin?: { source: "Slack"; id: string };
+  origin?: { source: "Slack" | "GoogleKeep"; id: string };
   jiraUrl?: string;
   inBacklog?: boolean;
   isTemplate?: boolean;

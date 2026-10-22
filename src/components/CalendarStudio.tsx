@@ -1,3 +1,4 @@
+import { KeepImport } from "./KeepImport";
 import { ManualAssistant } from "./ManualAssistant";
 import { taskHorizon } from "../domain/horizons";
 import { parseBackup, writeBackup } from "../domain/backup";
@@ -935,6 +936,29 @@ export function CalendarStudio(p: Props) {
           date={key}
           today={today}
           onCreate={(task) => save([...p.tasks, task])}
+        />
+        <KeepImport
+          tasks={p.tasks}
+          sections={sections}
+          onImport={(nextTasks, nextSections, count) => {
+            try {
+              writeBackup(localStorage, {
+                "dayframe-tasks": nextTasks,
+                "dayframe-sections": nextSections,
+              });
+            } catch {
+              throw new Error(
+                "Не вдалося зберегти імпорт. Перевір вільне місце в браузері; наявні дані не замінено.",
+              );
+            }
+            setSections(nextSections);
+            p.onTasks(nextTasks);
+            setUndo(null);
+            window.dispatchEvent(new Event("dayframe-import"));
+            setMessage(
+              `Імпортовано нотаток Keep: ${count}. Відсутні розділи створено.`,
+            );
+          }}
         />
         <button
           className="studio-panel-toggle"

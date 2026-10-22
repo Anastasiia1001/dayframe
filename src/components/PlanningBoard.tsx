@@ -45,6 +45,7 @@ export function PlanningBoard({ tasks, today, onSchedule, onPlan, onEdit, onTogg
             <span className="cadence-badge"><span className="drag-grip" aria-hidden="true" title="Перетягнути картку">⠿ </span>{cadenceLabel(t)}</span>
             <button className="planning-title" onClick={() => onEdit(t)}>{t.title}</button>
             {t.origin?.source === "Slack" && <small>Додано зі Slack</small>}
+            {t.origin?.source === "GoogleKeep" && <small>З Google Keep</small>}
             {t.priority === "High" && <small>⚑ Важливе</small>}
             <small>{periodLabel(t, today)}</small>
             {t.jiraUrl?.startsWith("https://") && <a href={t.jiraUrl} target="_blank" rel="noopener noreferrer">Тікет Jira ↗</a>}

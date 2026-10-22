@@ -55,6 +55,7 @@ export function TaskList({
                 {cadenceLabel(t)}
               </span>
               {t.origin?.source === "Slack" && <span>Додано зі Slack</span>}
+              {t.origin?.source === "GoogleKeep" && <span>З Google Keep</span>}
               {t.priority === "High" && (
                 <span className="task-priority">
                   <Flag size={11} />
