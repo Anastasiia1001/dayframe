@@ -1,3 +1,4 @@
+import { PlannerMonthRail } from "./PlannerMonthRail";
 import { KeepImport } from "./KeepImport";
 import { ManualAssistant } from "./ManualAssistant";
 import { taskHorizon } from "../domain/horizons";
@@ -723,14 +724,48 @@ export function CalendarStudio(p: Props) {
         localStorage.getItem("dayframe-daily-plans") || "{}",
       );
       writeBackup(localStorage, {
+        ...(incoming.care
+          ? {
+              "dayframe-self-care": {
+                ...incoming.care,
+                ...JSON.parse(
+                  localStorage.getItem("dayframe-self-care") || "{}",
+                ),
+              },
+            }
+          : {}),
+        ...(incoming.habits
+          ? {
+              "dayframe-habits": [
+                ...JSON.parse(localStorage.getItem("dayframe-habits") || "[]"),
+                ...incoming.habits.filter(
+                  (h) =>
+                    !JSON.parse(
+                      localStorage.getItem("dayframe-habits") || "[]",
+                    ).some((old: { id: string }) => old.id === h.id),
+                ),
+              ],
+            }
+          : {}),
         "dayframe-tasks": merged,
         "dayframe-sections": mergedSections,
         "dayframe-daily-plans": { ...incoming.plans, ...currentPlans },
-        ...(incoming.fitness ? {"dayframe-fitness": {
-          ...incoming.fitness,
-          ...(JSON.parse(localStorage.getItem("dayframe-fitness") || "null") || {}),
-          days: {...incoming.fitness.days, ...(JSON.parse(localStorage.getItem("dayframe-fitness") || "null")?.days || {})},
-        }} : {}),
+        ...(incoming.fitness
+          ? {
+              "dayframe-fitness": {
+                ...incoming.fitness,
+                ...(JSON.parse(
+                  localStorage.getItem("dayframe-fitness") || "null",
+                ) || {}),
+                days: {
+                  ...incoming.fitness.days,
+                  ...(JSON.parse(
+                    localStorage.getItem("dayframe-fitness") || "null",
+                  )?.days || {}),
+                },
+              },
+            }
+          : {}),
       });
       setSections(mergedSections);
       save(merged);
@@ -877,6 +912,15 @@ export function CalendarStudio(p: Props) {
           <CalendarCompanion theme={p.theme} mascot={p.mascot} />
         </div>
       </header>
+      {(p.view === "Month" || !mobile) && (
+        <PlannerMonthRail
+          date={p.date}
+          onSelect={(date) => {
+            p.onDate(date);
+            p.onView("Month");
+          }}
+        />
+      )}
       <div className="studio-tools">
         <button
           aria-label="Показати або сховати навігацію календаря"

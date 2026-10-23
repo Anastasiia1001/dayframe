@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import type { PersonalTask } from "./types";
 import { addDays, fromDate, minutes } from "./domain/planning";
 import { scheduledEvents } from "./domain/studio";
-export type TaskReminder = { id: string; title: string; time: string };
+export type TaskReminder = {
+  id: string;
+  taskId?: string;
+  title: string;
+  time: string;
+};
 export function useTaskReminders(tasks: PersonalTask[]) {
   const [alerts, setAlerts] = useState<TaskReminder[]>([]);
   const seen = useRef(new Set<string>());
@@ -47,7 +52,7 @@ export function useTaskReminders(tasks: PersonalTask[]) {
         } catch {}
         setAlerts((previous) => [
           ...previous,
-          { id, title: task.title, time: event.start },
+          { id, taskId: task.id, title: task.title, time: event.start },
         ]);
       }
     };

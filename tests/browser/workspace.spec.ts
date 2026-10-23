@@ -300,7 +300,7 @@ for (const width of [320, 390, 768])
     await page.emulateMedia({ reducedMotion: "reduce" });
     expect(
       await page
-        .locator(".bunny-eyes")
+        .locator(".cozy-note .bunny-eyes")
         .evaluate((e) => getComputedStyle(e).animationName),
     ).toBe("none");
   });
@@ -401,7 +401,7 @@ test("Ukrainian labels preserve saved task keys and user-written content", async
   );
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "uk");
-  await page.locator(".today-completed summary").click();
+  await expect(page.locator('[data-planner-column="done"]')).toBeVisible();
   await expect(
     page.getByRole("button", {
       name: "Позначити невиконаним Полити рослини",

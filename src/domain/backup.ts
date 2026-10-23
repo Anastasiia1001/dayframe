@@ -1,3 +1,5 @@
+import { validCare, type CareEntry } from "./selfCare.ts";
+import { validHabits, type Habit } from "./habits.ts";
 import { isFitnessData, type FitnessData } from "./fitness.ts";
 import type { PersonalTask } from "../types";
 import type { DailyPlan } from "../dailyPlans";
@@ -15,6 +17,8 @@ const image = (v: unknown) =>
 export function parseBackup(value: unknown): {
   tasks: PersonalTask[];
   fitness?: FitnessData;
+  habits?: Habit[];
+  care?: Record<string, CareEntry>;
   sections?: Section[];
   plans?: Record<string, DailyPlan>;
 } {
@@ -38,6 +42,9 @@ export function parseBackup(value: unknown): {
         typeof t.notes === "string" &&
         typeof t.recurrence === "string" &&
         typeof t.completed === "boolean" &&
+        (t.plannerRank === undefined ||
+          (typeof t.plannerRank === "number" &&
+            Number.isFinite(t.plannerRank))) &&
         typeof t.disabled === "boolean" &&
         (!t.scheduledStart || time(t.scheduledStart)) &&
         (t.scheduledDuration === undefined ||
@@ -128,10 +135,16 @@ export function parseBackup(value: unknown): {
     throw Error("plans");
   const fitness = data["dayframe-fitness"];
   if (fitness !== undefined && !isFitnessData(fitness)) throw Error("fitness");
+  const habits = data["dayframe-habits"];
+  if (habits !== undefined && !validHabits(habits)) throw Error("habits");
+  const care = data["dayframe-self-care"];
+  if (care !== undefined && !validCare(care)) throw Error("care");
   const unique = new Map((tasks as PersonalTask[]).map((t) => [t.id, t]));
   return {
     tasks: [...unique.values()],
     fitness: fitness as FitnessData | undefined,
+    habits: habits as Habit[] | undefined,
+    care: care as Record<string, CareEntry> | undefined,
     sections: sections as Section[] | undefined,
     plans: plans as Record<string, DailyPlan> | undefined,
   };

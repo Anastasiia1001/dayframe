@@ -1,3 +1,6 @@
+import type { PersonalTask } from "../types";
+import type { TaskReminder } from "../useTaskReminders";
+import { useLocal } from "../useLocal";
 import { useEffect, useState } from "react";
 import { Heart, Sparkles } from "lucide-react";
 import { Mascot } from "./Mascot";
@@ -13,12 +16,67 @@ const notes = [
 export function CozyCompanion({
   mascot = "bunny",
   burst = 0,
+  tasks = [],
+  today = "",
+  alerts = [],
+  onOpenTask,
+  onOpenChat,
 }: {
   mascot?: MascotId;
   burst?: number;
+  tasks?: PersonalTask[];
+  today?: string;
+  alerts?: TaskReminder[];
+  onOpenTask?: (task: PersonalTask) => void;
+  onOpenChat?: () => void;
 }) {
   const [note, setNote] = useState(0),
     [play, setPlay] = useState(false);
+  const [tick, setTick] = useState(Date.now());
+  const [snoozed, setSnoozed] = useLocal<Record<string, number>>(
+    "dayframe-assistant-snoozed",
+    {},
+  );
+  useEffect(() => {
+    const timer = setInterval(() => setTick(Date.now()), 15000);
+    return () => clearInterval(timer);
+  }, []);
+  const pending = tasks.filter(
+    (t) =>
+      !t.completed &&
+      !t.disabled &&
+      !t.isTemplate &&
+      !t.inBacklog &&
+      t.date === today &&
+      (snoozed[t.id] || 0) <= tick,
+  );
+  const reminder = alerts.find((alert) => (snoozed[alert.id] || 0) <= tick);
+  const current = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Kyiv",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(tick);
+  const upcoming = pending
+    .filter((t) => t.scheduledStart && t.scheduledStart >= current)
+    .sort((a, b) =>
+      (a.scheduledStart || "").localeCompare(b.scheduledStart || ""),
+    )[0];
+  const focus = reminder
+    ? tasks.find(
+        (t) =>
+          (reminder.taskId
+            ? t.id === reminder.taskId
+            : t.title === reminder.title) && !t.completed,
+      )
+    : upcoming || pending.find((t) => t.priority === "High") || pending[0];
+  const suggestion = focus
+    ? reminder
+      ? `Нагадую: ${reminder.time} — ${reminder.title}`
+      : upcoming
+        ? `Найближча справа о ${upcoming.scheduledStart}: ${upcoming.title}`
+        : `Можемо почати з маленького кроку: ${focus.title}`
+    : "";
   useEffect(() => {
     if (!burst && !note) return;
     setPlay(true);
@@ -49,9 +107,31 @@ export function CozyCompanion({
           <Sparkles size={12} /> СПРАВИ З ТУРБОТОЮ ПРО СЕБЕ
         </span>
         <p key={note} aria-live="polite">
-          {notes[note % notes.length]}
+          {suggestion || notes[note % notes.length]}
         </p>
       </div>
+      {focus && (
+        <div className="mascot-assistant-actions">
+          <button onClick={() => onOpenTask?.(focus)}>Відкрити справу</button>
+          <button
+            onClick={() => {
+              setSnoozed((old) => ({
+                ...old,
+                [focus.id]: Date.now() + 15 * 60000,
+                ...(reminder ? { [reminder.id]: Date.now() + 15 * 60000 } : {}),
+              }));
+              setTick(Date.now());
+            }}
+          >
+            Нагадати за 15 хв
+          </button>
+        </div>
+      )}
+      {onOpenChat && (
+        <div className="mascot-assistant-actions">
+          <button onClick={onOpenChat}>Поговорити з помічником</button>
+        </div>
+      )}
       <span className="cozy-signoff">
         <Heart size={13} /> Одна маленька справа за раз
       </span>

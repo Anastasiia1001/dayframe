@@ -101,22 +101,22 @@ test("inspiration rotates at the chosen frequency, supports manual mode and pers
     .locator(".mobile-nav")
     .getByRole("button", { name: "Сьогодні", exact: true })
     .click();
-  const card = page.getByRole("article", { name: "Афірмації та цікаві факти" });
-  await card.getByLabel("Що показувати").selectOption("facts");
+  const card = page.getByRole("article", { name: "Цікавинки", exact: true });
+  await expect(page.getByRole("article",{name:"Афірмації",exact:true})).toBeVisible();
   await card
-    .getByLabel("Частота зміни афірмацій і фактів", { exact: true })
+    .getByLabel("Частота зміни цікавинок", { exact: true })
     .selectOption("1");
   const first = await card.locator(".inspiration-text").innerText();
   await page.clock.fastForward(60001);
   await expect(card.locator(".inspiration-text")).not.toHaveText(first);
   await card
-    .getByLabel("Частота зміни афірмацій і фактів", { exact: true })
+    .getByLabel("Частота зміни цікавинок", { exact: true })
     .selectOption("0");
   const manual = await card.locator(".inspiration-text").innerText();
   await page.clock.fastForward(120001);
   await expect(card.locator(".inspiration-text")).toHaveText(manual);
   await card
-    .getByRole("button", { name: "Наступна афірмація або факт" })
+    .getByRole("button", { name: "Наступна цікавинка" })
     .click();
   await expect(card.locator(".inspiration-text")).not.toHaveText(manual);
   expect(
@@ -132,7 +132,7 @@ test("inspiration rotates at the chosen frequency, supports manual mode and pers
     .getByRole("button", { name: "Сьогодні", exact: true })
     .click();
   await expect(
-    card.getByLabel("Частота зміни афірмацій і фактів", { exact: true }),
+    card.getByLabel("Частота зміни цікавинок", { exact: true }),
   ).toHaveValue("0");
 });
 test("weather location changes from search and errors do not show invented weather", async ({

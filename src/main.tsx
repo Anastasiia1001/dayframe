@@ -11,4 +11,6 @@ import './modern-soft.css';
 import './calendar-studio.css';
 import './neon.css';
 import './living-mascots.css';
+import './planner-desk.css';
+import './prism-ui.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);

@@ -1,3 +1,7 @@
+import { HabitTracker } from "./components/HabitTracker";
+import { TodayTaskBoard } from "./components/TodayTaskBoard";
+import { PlannerCare, ChatGPTQuestions } from "./components/PlannerCare";
+import { moveTodayTask } from "./domain/todayBoard";
 import { WeatherCard } from "./components/WeatherCard";
 import { InspirationCard } from "./components/InspirationCard";
 import {
@@ -106,6 +110,7 @@ export default function App() {
     "dayframe-classic-planner",
     false,
   );
+  const [openAIKey, setOpenAIKey] = useState("");
   const [overviewPeriod, setOverviewPeriod] = useState<OverviewPeriod>("day");
   const [page, setPage] = useState(legacyPlanner ? "Today" : "Calendar");
   const [mascot, setMascot] = useLocal("dayframe-mascot", "bunny");
@@ -604,7 +609,7 @@ export default function App() {
     );
   }
   return (
-    <div className="app">
+    <div className="app planner-prism">
       {ambient && !isPlannerTheme(theme) && <ThemeAtmosphere theme={theme} />}
       <aside className="sidebar">
         <a
@@ -848,7 +853,25 @@ export default function App() {
             )}
           </div>
           {prefs.cozyMode !== false && page === "Today" && (
-            <CozyCompanion mascot={safeMascot(mascot)} burst={burst} />
+            <CozyCompanion
+              mascot={safeMascot(mascot)}
+              burst={burst}
+              tasks={tasks}
+              today={today}
+              alerts={taskReminders.alerts}
+              onOpenTask={setModal}
+              onOpenChat={() => {
+                document
+                  .getElementById("planner-chat")
+                  ?.scrollIntoView({
+                    behavior: matchMedia("(prefers-reduced-motion: reduce)")
+                      .matches
+                      ? "auto"
+                      : "smooth",
+                    block: "start",
+                  });
+              }}
+            />
           )}
           {workspace.errors
             .filter((e) => workspace.status || page === "Settings")
@@ -888,6 +911,30 @@ export default function App() {
           )}
           {page === "Today" && overviewPeriod === "day" && (
             <div className="focused-dashboard">
+              <nav className="planner-shortcuts" aria-label="Розділи планера">
+                {[
+                  ["planner-tasks", "Справи"],
+                  ["planner-habits", "Трекер"],
+                  ["planner-care", "Турбота"],
+                  ["planner-weather", "Погода"],
+                  ["planner-chat", "ChatGPT"],
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    onClick={() =>
+                      document.getElementById(id)?.scrollIntoView({
+                        behavior: matchMedia("(prefers-reduced-motion: reduce)")
+                          .matches
+                          ? "auto"
+                          : "smooth",
+                        block: "start",
+                      })
+                    }
+                  >
+                    {label}
+                  </button>
+                ))}
+              </nav>
               <div className="today-overview-grid">
                 <TodayPlan
                   date={today}
@@ -954,51 +1001,41 @@ export default function App() {
                     </div>
                   </Section>
                 )}
-                {prefs.showPersonal && (
-                  <Section
-                    title="Завдання на сьогодні"
-                    action={
-                      <button
-                        className="text-button"
-                        onClick={() => setPage("Personal")}
-                      >
-                        Усі завдання <ArrowRight size={15} />
-                      </button>
+              </div>
+              {prefs.showPersonal && (
+                <TodayTaskBoard
+                  tasks={tasks}
+                  today={today}
+                  onToggle={toggleTask}
+                  onEdit={setModal}
+                  onPostpone={postpone}
+                  onAdd={() => addTask()}
+                  onMove={(id, column, before) => {
+                    setTasks((old) =>
+                      moveTodayTask(old, id, column, today, before),
+                    );
+                    if (column === "done") {
+                      setBurst((n) => n + 1);
+                      setToast("Маленька перемога. Ти молодець! ♡");
                     }
-                  >
-                    <div className="today-task-caption">
-                      <span>
-                        {todaysTasks.filter((t) => !t.completed).length}{" "}
-                        невиконаних
-                      </span>
-                      <span>{done} виконано</span>
-                    </div>
-                    {taskRows(todaysTasks.filter((t) => !t.completed))}
-                    {!todaysTasks.some((t) => !t.completed) && (
-                      <div className="board-empty">
-                        <CheckCheck size={26} />
-                        <p>На сьогодні все зроблено.</p>
-                      </div>
-                    )}
-                    {done > 0 && (
-                      <details className="today-completed">
-                        <summary>Виконані · {done}</summary>
-                        {taskRows(todaysTasks.filter((t) => t.completed))}
-                      </details>
-                    )}
-                    <button
-                      className="add-task-inline"
-                      onClick={() => addTask()}
-                    >
-                      <Plus size={16} />
-                      Додати завдання
-                    </button>
-                  </Section>
-                )}
+                  }}
+                />
+              )}
+              <HabitTracker today={today} />
+              <div className="today-overview-grid">
+                <PlannerCare today={today} />
+                <ChatGPTQuestions
+                  apiKey={openAIKey}
+                  onKey={setOpenAIKey}
+                  mascot={safeMascot(mascot)}
+                />
               </div>
               <div className="today-overview-grid">
                 <WeatherCard />
-                <InspirationCard />
+                <div className="planner-inspiration-pair">
+                  <InspirationCard kind="affirmations" />
+                  <InspirationCard kind="facts" />
+                </div>
               </div>
               {attention.length > 0 && (
                 <Section

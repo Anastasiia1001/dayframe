@@ -77,7 +77,27 @@ export function WeatherCard() {
   useEffect(() => () => searchController.current?.abort(), []);
   const kind = weather ? weatherKind(weather.code) : "cloud";
   return (
-    <article className="today-card weather-card" aria-label="Погода">
+    <article
+      className={`today-card weather-card weather-surface-${weather ? kind : "unavailable"}`}
+      aria-label="Погода"
+      id="planner-weather"
+    >
+      {weather && (
+        <div className="weather-atmosphere" aria-hidden="true">
+          {Array.from({ length: kind === "snow" ? 18 : 14 }, (_, i) => (
+            <span
+              key={i}
+              style={
+                {
+                  "--wx": `${(i * 37) % 100}%`,
+                  "--wd": `${(i % 7) * 0.37}s`,
+                  "--ws": `${3 + (i % 4)}px`,
+                } as import("react").CSSProperties
+              }
+            />
+          ))}
+        </div>
+      )}
       <div className="weather-top">
         <h2>Погода сьогодні</h2>
         <button

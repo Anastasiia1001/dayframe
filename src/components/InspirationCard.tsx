@@ -37,91 +37,76 @@ const facts = [
     "https://science.nasa.gov/sun/facts/",
   ],
 ];
-export function InspirationCard() {
-  const [prefs, setPrefs] = useLocal("dayframe-inspiration", {
-    kind: "mixed",
-    minutes: 5,
-  });
+export function InspirationCard({
+  kind = "affirmations",
+}: {
+  kind?: "affirmations" | "facts";
+}) {
+  const [minutes, setMinutes] = useLocal(`dayframe-inspiration-${kind}`, 5);
   const [index, setIndex] = useState(0);
-  const next = () => setIndex((i) => i + 1);
   useEffect(() => {
-    if (!prefs.minutes) return;
+    if (!minutes) return;
     const timer = setInterval(() => {
       if (!document.hidden) setIndex((i) => i + 1);
-    }, prefs.minutes * 60000);
+    }, minutes * 60000);
     return () => clearInterval(timer);
-  }, [prefs.minutes, prefs.kind]);
-  const fact =
-    prefs.kind === "facts" || (prefs.kind === "mixed" && index % 2 === 1);
-  const contentIndex = prefs.kind === "mixed" ? Math.floor(index / 2) : index;
-  const content = fact
-    ? facts[contentIndex % facts.length][0]
-    : affirmations[contentIndex % affirmations.length];
+  }, [minutes]);
+  const fact = kind === "facts",
+    label = fact ? "Цікавинки" : "Афірмації";
   return (
     <article
-      className="today-card inspiration-card"
-      aria-label="Афірмації та цікаві факти"
+      className={`today-card inspiration-card inspiration-${kind}`}
+      aria-label={label}
     >
       <div className="weather-top">
         <h2>
-          <Sparkles size={17} /> {fact ? "Цікавий факт" : "Трохи підтримки"}
+          <Sparkles size={17} />
+          {fact ? "Цікавинка дня" : "Трохи підтримки"}
         </h2>
-        <button aria-label="Наступна афірмація або факт" onClick={next}>
+        <button
+          aria-label={fact ? "Наступна цікавинка" : "Наступна афірмація"}
+          onClick={() => setIndex((i) => i + 1)}
+        >
           <ArrowRight size={17} />
         </button>
       </div>
-      <p className="inspiration-text" key={`${prefs.kind}:${index}`}>
-        {content}
+      <p className="inspiration-text" key={index}>
+        {fact
+          ? facts[index % facts.length][0]
+          : affirmations[index % affirmations.length]}
       </p>
       {fact && (
         <a
-          href={facts[contentIndex % facts.length][1]}
+          href={facts[index % facts.length][1]}
           target="_blank"
           rel="noreferrer"
         >
           Джерело факту ↗
         </a>
       )}
-      <div className="inspiration-controls">
-        <label>
-          Що показувати
-          <select
-            aria-label="Що показувати"
-            value={prefs.kind}
-            onChange={(e) => {
-              setPrefs({ ...prefs, kind: e.target.value });
-              setIndex(0);
-            }}
-          >
-            <option value="mixed">Афірмації та факти</option>
-            <option value="affirmations">Лише афірмації</option>
-            <option value="facts">Лише факти</option>
-          </select>
-        </label>
-        <label>
-          Змінювати
-          <select
-            aria-label="Частота зміни афірмацій і фактів"
-            value={prefs.minutes}
-            onChange={(e) =>
-              setPrefs({ ...prefs, minutes: Number(e.target.value) })
-            }
-          >
-            {[
-              [0, "Лише вручну"],
-              [1, "Щохвилини"],
-              [5, "Кожні 5 хв"],
-              [15, "Кожні 15 хв"],
-              [30, "Кожні 30 хв"],
-              [60, "Щогодини"],
-            ].map(([value, name]) => (
-              <option key={value} value={value}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <label>
+        Змінювати
+        <select
+          aria-label={
+            fact ? "Частота зміни цікавинок" : "Частота зміни афірмацій"
+          }
+          value={minutes}
+          onChange={(e) => setMinutes(Number(e.target.value))}
+        >
+          {[
+            [0, "Лише вручну"],
+            [1, "Щохвилини"],
+            [5, "Кожні 5 хв"],
+            [15, "Кожні 15 хв"],
+            [30, "Кожні 30 хв"],
+            [60, "Щогодини"],
+          ].map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
     </article>
   );
 }
