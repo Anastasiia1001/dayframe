@@ -336,3 +336,443 @@
     radial-gradient(circle at 38% 78%, #d5dcf588 0 1px, transparent 2px);
   animation: weather-card-glow 8s ease-in-out infinite;
 }
+/* Visible frosted material, rather than another nearly white card. */
+:root[data-theme]
+  .planner-prism
+  :is(
+    .today-card,
+    .habit-sheet,
+    .today-board-column,
+    .card,
+    .studio-navigation,
+    .studio-backlog
+  ) {
+  background:
+    linear-gradient(
+      155deg,
+      #ffffff60 0%,
+      #ffffff14 38%,
+      #ffffff04 39%,
+      #0000000d 100%
+    ),
+    color-mix(in srgb, var(--surface) 72%, var(--accent) 28%);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+  box-shadow:
+    inset 0 2px 0 #ffffffb3,
+    inset 1px 0 0 #ffffff55,
+    inset 0 -2px 0 #00000012,
+    0 16px 36px color-mix(in srgb, var(--accent) 17%, transparent),
+    0 3px 5px #00000012;
+  border-radius: 22px;
+}
+:root[data-theme] .planner-prism .today-plan {
+  padding: 0;
+  overflow: hidden;
+}
+:root[data-theme] .planner-prism .today-plan > .weather-top {
+  padding: 20px 24px;
+  margin: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  background:
+    linear-gradient(#ffffff38, #ffffff05),
+    color-mix(in srgb, var(--accent) 16%, var(--surface));
+  box-shadow: 0 1px #ffffff60;
+}
+.focus-kicker {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  font-weight: 750;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+:root[data-theme] .planner-prism .today-plan > p {
+  margin: 18px 24px 12px;
+}
+:root[data-theme] .planner-prism .today-plan > ol {
+  margin: 0;
+  padding: 0 24px 18px;
+  display: grid;
+  gap: 10px;
+}
+:root[data-theme] .planner-prism .today-plan > ol > li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  border-radius: 14px;
+  background:
+    linear-gradient(110deg, #ffffff45, #ffffff06),
+    color-mix(in srgb, var(--surface) 88%, var(--accent));
+  box-shadow:
+    inset 0 1px #ffffff99,
+    0 3px 7px #00000008;
+}
+.focus-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  height: 34px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent) 17%, var(--surface));
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  box-shadow: inset 0 1px #ffffff80;
+}
+:root[data-theme] .planner-prism .today-plan li input:not([type="checkbox"]) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 7px 0;
+  min-width: 0;
+  flex: 1;
+  border-radius: 0;
+}
+:root[data-theme] .planner-prism .today-plan li input[type="checkbox"] {
+  order: 3;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+.today-plan li[data-done="true"] input:not([type="checkbox"]) {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+:root[data-theme] .planner-prism .today-plan > .focus-notepaper {
+  display: block;
+  margin: 0 24px 24px;
+  padding: 15px 16px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px 14px 14px 4px;
+  background: color-mix(in srgb, var(--surface) 93%, var(--accent));
+  border-left: 4px solid color-mix(in srgb, var(--accent) 50%, var(--surface));
+  box-shadow: 0 4px 9px #00000008;
+  font-weight: 650;
+}
+:root[data-theme] .planner-prism .focus-notepaper textarea {
+  margin-top: 8px;
+  border: 0;
+  border-radius: 0;
+  background: repeating-linear-gradient(
+    transparent 0 27px,
+    color-mix(in srgb, var(--accent) 16%, transparent) 27px 28px
+  );
+  box-shadow: none;
+  line-height: 28px;
+  padding: 0;
+  font-weight: 400;
+}
+:root[data-theme] .planner-prism .weather-card {
+  min-height: 300px;
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--surface) 90%, var(--accent)) 0%,
+    color-mix(in srgb, var(--surface) 58%, #87b6d7) 100%
+  );
+}
+.weather-landscape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.85;
+}
+.weather-landscape .landscape-cloud {
+  transform-origin: center;
+  filter: drop-shadow(0 10px 12px #4b749c22);
+  animation: landscape-drift 18s ease-in-out infinite alternate;
+}
+.weather-landscape .landscape-cloud-far {
+  opacity: 0.68;
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+.weather-landscape .landscape-orb {
+  animation: landscape-sun 12s ease-in-out infinite;
+  transform-origin: 650px 88px;
+}
+:root[data-theme] .planner-prism .weather-main {
+  width: 65%;
+}
+:root[data-theme] .planner-prism .weather-scene {
+  width: 95px;
+  flex: 0 0 95px;
+}
+.weather-card .weather-atmosphere::before,
+.weather-card .weather-atmosphere::after {
+  opacity: 0.35;
+}
+.weather-surface-rain .landscape-cloud-near,
+.weather-surface-storm .landscape-cloud-near {
+  fill: #a1bad0;
+}
+.weather-surface-snow .landscape-hill {
+  fill: #ffffff;
+  opacity: 0.6;
+}
+.weather-card[data-night="true"] .weather-landscape {
+  opacity: 0.65;
+}
+@keyframes landscape-drift {
+  from {
+    transform: translateX(-18px);
+  }
+  to {
+    transform: translateX(24px);
+  }
+}
+@keyframes landscape-sun {
+  50% {
+    transform: scale(1.06);
+    opacity: 0.8;
+  }
+}
+@media (max-width: 600px) {
+  :root[data-theme] .planner-prism .today-plan > .weather-top {
+    padding: 16px;
+  }
+  .focus-kicker {
+    font-size: 9px;
+  }
+  :root[data-theme] .planner-prism .today-plan > p {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  :root[data-theme] .planner-prism .today-plan > ol {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  :root[data-theme] .planner-prism .today-plan > .focus-notepaper {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  .weather-landscape {
+    width: 150%;
+    left: -35%;
+    opacity: 0.55;
+  }
+  :root[data-theme] .planner-prism .weather-main {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .weather-landscape * {
+    animation: none !important;
+  }
+}
+:root[data-pet-paused="true"] .weather-landscape * {
+  animation-play-state: paused !important;
+}
+/* Tactile reactions without perpetual jumping or layout movement. */
+:root[data-theme] .mascot-art {
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+:root[data-theme]
+  :is(.mascot-choice, .bunny-button, .calendar-companion button):active
+  .mascot-art {
+  transform: scale(0.94);
+}
+:root[data-theme] .mascot-choice[aria-pressed="true"] .mascot-art {
+  filter: drop-shadow(0 4px 5px #00000015);
+}
+:root[data-theme]
+  .mascot-plush-friend
+  :is(.mascot-eye-left, .mascot-eye-right) {
+  transform-box: view-box;
+  animation: plush-blink 7.2s -1s linear infinite;
+}
+@keyframes plush-blink {
+  0%,
+  39%,
+  44%,
+  76%,
+  81%,
+  100% {
+    transform: scaleY(1);
+  }
+  40.5%,
+  42%,
+  77.5%,
+  79% {
+    transform: scaleY(0.04);
+  }
+}
+:root[data-theme]
+  :is(
+    .calendar-companion.is-greeting,
+    .cozy-note.companion-celebrating,
+    .bunny-button.is-playing,
+    .mascot-choice[aria-pressed="true"]
+  )
+  .mascot-art
+  .mascot-eye-right {
+  animation:
+    soft-wink 1.15s ease-in-out 1,
+    plush-blink 7.2s 1.15s linear infinite;
+}
+@keyframes soft-wink {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  20%,
+  72% {
+    transform: scaleY(0.035);
+  }
+}
+:root[data-theme] .mascot-plush-friend .mascot-body {
+  transform-origin: 50px 102px;
+  animation: soft-breathe 4.8s ease-in-out infinite;
+}
+@keyframes soft-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  42% {
+    transform: translateY(-0.65px) scale(1.015, 1.03);
+  }
+  65% {
+    transform: translateY(-0.25px) scale(1.009, 1.016);
+  }
+}
+:root[data-theme]
+  .planner-prism
+  :is(
+    .today-card,
+    .card,
+    .habit-sheet,
+    .today-board-column,
+    .studio-navigation,
+    .studio-backlog
+  ) {
+  border-radius: 28px 28px 24px 24px;
+  transition:
+    box-shadow 0.24s,
+    border-color 0.24s,
+    background-color 0.24s;
+}
+@media (hover: hover) {
+  :root[data-theme]
+    .planner-prism
+    :is(
+      .today-card,
+      .card,
+      .habit-sheet,
+      .today-board-column,
+      .studio-navigation,
+      .studio-backlog
+    ):hover {
+    border-color: color-mix(in srgb, var(--accent) 65%, var(--border));
+    box-shadow:
+      inset 0 2px #ffffffc0,
+      inset 0 -1px #ffffff30,
+      0 18px 40px color-mix(in srgb, var(--accent) 23%, transparent),
+      0 0 0 3px color-mix(in srgb, var(--accent) 7%, transparent);
+  }
+}
+:root[data-theme]
+  .planner-prism
+  :is(.today-card, .card, .habit-sheet, .today-board-column):active {
+  box-shadow:
+    inset 0 2px 8px #00000016,
+    inset 0 1px #ffffffa0,
+    0 8px 20px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .mascot-art * {
+    animation: none !important;
+  }
+  :root[data-theme]
+    .planner-prism
+    :is(.today-card, .card, .habit-sheet, .today-board-column),
+  :root[data-theme] .mascot-art {
+    transition: none !important;
+  }
+}
+@font-face {
+  font-family: Dayframe Rounded;
+  src: url("../public/assets/fonts/nunito.ttf") format("truetype");
+  font-weight: 200 1000;
+  font-display: swap;
+}
+@font-face {
+  font-family: Dayframe Tech;
+  src: url("../public/assets/fonts/exo2.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: Dayframe Book;
+  src: url("../public/assets/fonts/marmelad.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+:root[data-theme] {
+  --planner-font: "Dayframe Rounded", "Trebuchet MS", sans-serif;
+  --planner-heading: var(--planner-font);
+  font-family: var(--planner-font);
+}
+:root:is([data-theme="Vintage"], [data-theme="Warm"]) {
+  --planner-font: "Dayframe Book", Georgia, serif;
+  --planner-heading: Georgia, "Dayframe Book", serif;
+}
+:root[data-theme="Parchment"] {
+  --planner-font: "Dayframe Book", Georgia, serif;
+  --planner-heading: Georgia, serif;
+}
+:root[data-theme^="Neon"],
+:root:is([data-theme="Graphite"], [data-theme="Dark"], [data-theme="Blue"]) {
+  --planner-font: "Dayframe Tech", "Segoe UI", sans-serif;
+  --planner-heading: var(--planner-font);
+}
+:root[data-theme] :is(button, input, textarea, select) {
+  font-family: var(--planner-font);
+}
+:root[data-theme] :is(h1, h2, h3, .eyebrow, .focus-kicker) {
+  font-family: var(--planner-heading);
+}
+:root[data-theme]
+  :is(.weather-temp, .today-steps strong, .studio-hours, .studio-day-number) {
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme]
+  .planner-prism
+  :is(
+    .today-card,
+    .card,
+    .habit-sheet,
+    .today-board-column,
+    .fitness-card,
+    .studio-navigation,
+    .studio-backlog
+  )[data-glass-near="true"] {
+  background-image:
+    radial-gradient(
+      circle 190px at var(--glass-x) var(--glass-y),
+      #ffffff55,
+      transparent
+    ),
+    linear-gradient(155deg, #ffffff40, #ffffff08 45%, #0000000b);
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+}
+:root[data-theme] .mascot-choice .mascot-art {
+  animation: none !important;
+  transition:
+    scale 0.2s ease,
+    filter 0.2s ease;
+}
+:root[data-theme] .mascot-choice[aria-pressed="true"] .mascot-art {
+  scale: 1.04;
+}
+:root[data-theme] .mascot-choice:active .mascot-art {
+  scale: 0.96;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .mascot-choice .mascot-art {
+    transition: none !important;
+  }
+}

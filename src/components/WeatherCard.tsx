@@ -85,6 +85,60 @@ export function WeatherCard() {
     >
       {weather && (
         <div className="weather-atmosphere" aria-hidden="true">
+          <svg
+            className="weather-landscape"
+            viewBox="0 0 800 360"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            {(kind === "sun" || kind === "cloud") && (
+              <g className="landscape-orb">
+                <circle
+                  cx="650"
+                  cy="88"
+                  r="86"
+                  fill={weather.isDay ? "#ffd786" : "#dce9ff"}
+                  opacity=".22"
+                />
+                <circle
+                  cx="650"
+                  cy="88"
+                  r="58"
+                  fill={weather.isDay ? "#ffdf9a" : "#e8f0ff"}
+                />
+                {!weather.isDay && (
+                  <circle cx="674" cy="65" r="51" fill="#728ba5" />
+                )}
+              </g>
+            )}
+            {kind !== "sun" && (
+              <>
+                <g
+                  className="landscape-cloud landscape-cloud-far"
+                  fill="#c4d8e9"
+                >
+                  <path d="M330 168c-45 0-51-60-7-67 2-65 91-82 121-30 40-40 107-16 111 34 56-10 72 63 20 68Z" />
+                </g>
+                <g
+                  className="landscape-cloud landscape-cloud-near"
+                  fill="#edf5fc"
+                >
+                  <path d="M440 225c-53 0-63-64-13-78 3-67 94-91 130-37 45-44 119-15 119 39 61-4 70 76 12 80Z" />
+                </g>
+              </>
+            )}
+            <path
+              className="landscape-hill"
+              d="M0 342Q150 255 340 324T800 290V360H0Z"
+              fill="#80adbc"
+              opacity=".15"
+            />
+            <path
+              className="landscape-hill"
+              d="M0 360Q240 288 470 340T800 321V360Z"
+              fill="#719bb3"
+              opacity=".16"
+            />
+          </svg>
           {Array.from({ length: kind === "snow" ? 18 : 14 }, (_, i) => (
             <span
               key={i}

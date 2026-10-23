@@ -63,3 +63,48 @@ test("personal checklist and hidden Today blocks persist after reload", async ({
     page.getByRole("switch", { name: "Погода", exact: true }),
   ).not.toBeChecked();
 });
+
+test("glass proximity keeps form positions stable and theme fonts load locally", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("dayframe-classic-planner", "true"),
+  );
+  await page.goto("/");
+  const card = page.locator(".today-plan");
+  await card.scrollIntoViewIfNeeded();
+  const before = await card.boundingBox();
+  await page.mouse.move(before!.x + before!.width / 2, before!.y - 15);
+  await expect(card).toHaveAttribute("data-glass-near", "true");
+  const after = await card.boundingBox();
+  expect(after).toEqual(before);
+  await card
+    .getByLabel("Пріоритет дня 1", { exact: true })
+    .fill("М’який початок");
+  await expect(card.getByLabel("Пріоритет дня 1", { exact: true })).toHaveValue(
+    "М’який початок",
+  );
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.mouse.move(before!.x + 30, before!.y + 30);
+  await expect(card).not.toHaveAttribute("data-glass-near", "true");
+  const families = [];
+  for (const theme of ["Pastel", "Vintage", "NeonAzure"]) {
+    await page.evaluate(
+      (theme) => localStorage.setItem("dayframe-theme", JSON.stringify(theme)),
+      theme,
+    );
+    await page.reload();
+    await page.evaluate(() => document.fonts.ready);
+    families.push(
+      await page
+        .locator(".today-plan input:not([type=checkbox])")
+        .first()
+        .evaluate((el) => getComputedStyle(el).fontFamily),
+    );
+  }
+  expect(new Set(families).size).toBe(3);
+  const failedFonts = await page.evaluate(
+    () => Array.from(document.fonts).filter((f) => f.status === "error").length,
+  );
+  expect(failedFonts).toBe(0);
+});

@@ -1,3 +1,4 @@
+import { GlassResponse } from "./components/GlassResponse";
 import { TaskChecklist } from "./components/TaskChecklist";
 import { HabitTracker } from "./components/HabitTracker";
 import { TodayTaskBoard } from "./components/TodayTaskBoard";
@@ -1917,6 +1918,7 @@ export default function App() {
       </div>
       <HappyPetals burst={burst} />
       <TouchFeedback />
+      <GlassResponse />
     </div>
   );
 }

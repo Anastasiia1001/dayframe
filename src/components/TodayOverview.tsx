@@ -103,7 +103,10 @@ export function TodayPlan({
       aria-label="Пріоритети та нотатки на сьогодні"
     >
       <div className="weather-top">
-        <h2>Мій фокус на сьогодні</h2>
+        <div>
+          <span className="focus-kicker">ТРИ МАЛЕНЬКІ КРОКИ</span>
+          <h2>Мій фокус на сьогодні</h2>
+        </div>
         <button onClick={onCalendar}>
           Розклад <ArrowRight size={15} />
         </button>
@@ -111,7 +114,10 @@ export function TodayPlan({
       <p>Обери до трьох важливих справ. Решта може зачекати.</p>
       <ol>
         {plan.priorities.map((priority, index) => (
-          <li key={index}>
+          <li key={index} data-done={priority.done}>
+            <span className="focus-number" aria-hidden="true">
+              0{index + 1}
+            </span>
             <input
               type="checkbox"
               aria-label={`Виконано пріоритет ${index + 1}`}
@@ -147,7 +153,7 @@ export function TodayPlan({
           </li>
         ))}
       </ol>
-      <label>
+      <label className="focus-notepaper">
         Нотатки дня
         <textarea
           value={plan.notes}
