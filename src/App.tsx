@@ -1,3 +1,4 @@
+import { TaskChecklist } from "./components/TaskChecklist";
 import { HabitTracker } from "./components/HabitTracker";
 import { TodayTaskBoard } from "./components/TodayTaskBoard";
 import { PlannerCare, ChatGPTQuestions } from "./components/PlannerCare";
@@ -94,6 +95,25 @@ export default function App() {
     const timer = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
+  const blockLabels = {
+    plan: "План дня",
+    fitness: "Спорт і кроки",
+    tasks: "Дошка завдань",
+    habits: "Трекер звичок",
+    care: "Турбота про себе",
+    chat: "ChatGPT",
+    weather: "Погода",
+    affirmations: "Афірмації",
+    facts: "Цікавинки",
+    schedule: "Розклад на сьогодні",
+    attention: "Потребує відповіді",
+    connections: "Підказка підключення календаря",
+  };
+  const [blocks, setBlocks] = useLocal<Record<string, boolean>>(
+    "dayframe-visible-blocks",
+    {},
+  );
+  const visible = (key: string) => blocks[key] !== false;
   const [displayName, setDisplayName] = useLocal("dayframe-display-name", "");
   const initials =
     displayName
@@ -861,15 +881,16 @@ export default function App() {
               alerts={taskReminders.alerts}
               onOpenTask={setModal}
               onOpenChat={() => {
-                document
-                  .getElementById("planner-chat")
-                  ?.scrollIntoView({
+                setBlocks((old) => ({ ...old, chat: true }));
+                requestAnimationFrame(() =>
+                  document.getElementById("planner-chat")?.scrollIntoView({
                     behavior: matchMedia("(prefers-reduced-motion: reduce)")
                       .matches
                       ? "auto"
                       : "smooth",
                     block: "start",
-                  });
+                  }),
+                );
               }}
             />
           )}
@@ -918,35 +939,57 @@ export default function App() {
                   ["planner-care", "Турбота"],
                   ["planner-weather", "Погода"],
                   ["planner-chat", "ChatGPT"],
-                ].map(([id, label]) => (
-                  <button
-                    key={id}
-                    onClick={() =>
-                      document.getElementById(id)?.scrollIntoView({
-                        behavior: matchMedia("(prefers-reduced-motion: reduce)")
-                          .matches
-                          ? "auto"
-                          : "smooth",
-                        block: "start",
-                      })
-                    }
-                  >
-                    {label}
-                  </button>
-                ))}
+                ]
+                  .filter(([id]) =>
+                    visible(
+                      (
+                        {
+                          "planner-tasks": "tasks",
+                          "planner-habits": "habits",
+                          "planner-care": "care",
+                          "planner-weather": "weather",
+                          "planner-chat": "chat",
+                        } as Record<string, string>
+                      )[id],
+                    ),
+                  )
+                  .map(([id, label]) => (
+                    <button
+                      key={id}
+                      onClick={() =>
+                        document.getElementById(id)?.scrollIntoView({
+                          behavior: matchMedia(
+                            "(prefers-reduced-motion: reduce)",
+                          ).matches
+                            ? "auto"
+                            : "smooth",
+                          block: "start",
+                        })
+                      }
+                    >
+                      {label}
+                    </button>
+                  ))}
               </nav>
               <div className="today-overview-grid">
-                <TodayPlan
-                  date={today}
-                  onCalendar={() => {
-                    setCalendarDate(new Date(today + "T12:00:00"));
-                    setCalendarView("Day");
-                    setPage("Calendar");
-                  }}
-                />
-                <TodayFitness date={today} onOpen={() => setPage("Fitness")} />
+                {visible("plan") && (
+                  <TodayPlan
+                    date={today}
+                    onCalendar={() => {
+                      setCalendarDate(new Date(today + "T12:00:00"));
+                      setCalendarView("Day");
+                      setPage("Calendar");
+                    }}
+                  />
+                )}
+                {visible("fitness") && (
+                  <TodayFitness
+                    date={today}
+                    onOpen={() => setPage("Fitness")}
+                  />
+                )}
               </div>
-              {!hasCalendar && !workspace.loading && (
+              {!hasCalendar && !workspace.loading && visible("connections") && (
                 <div className="connect-strip">
                   <CalendarDays size={21} />
                   <div>
@@ -967,7 +1010,7 @@ export default function App() {
               <div
                 className={`focus-columns ${!hasCalendar ? "tasks-first" : ""}`}
               >
-                {hasCalendar && (
+                {hasCalendar && visible("schedule") && (
                   <Section
                     title="Розклад на сьогодні"
                     action={
@@ -1002,7 +1045,7 @@ export default function App() {
                   </Section>
                 )}
               </div>
-              {prefs.showPersonal && (
+              {prefs.showPersonal && visible("tasks") && (
                 <TodayTaskBoard
                   tasks={tasks}
                   today={today}
@@ -1021,23 +1064,27 @@ export default function App() {
                   }}
                 />
               )}
-              <HabitTracker today={today} />
+              {visible("habits") && <HabitTracker today={today} />}
               <div className="today-overview-grid">
-                <PlannerCare today={today} />
-                <ChatGPTQuestions
-                  apiKey={openAIKey}
-                  onKey={setOpenAIKey}
-                  mascot={safeMascot(mascot)}
-                />
+                {visible("care") && <PlannerCare today={today} />}
+                {visible("chat") && (
+                  <ChatGPTQuestions
+                    apiKey={openAIKey}
+                    onKey={setOpenAIKey}
+                    mascot={safeMascot(mascot)}
+                  />
+                )}
               </div>
               <div className="today-overview-grid">
-                <WeatherCard />
+                {visible("weather") && <WeatherCard />}
                 <div className="planner-inspiration-pair">
-                  <InspirationCard kind="affirmations" />
-                  <InspirationCard kind="facts" />
+                  {visible("affirmations") && (
+                    <InspirationCard kind="affirmations" />
+                  )}
+                  {visible("facts") && <InspirationCard kind="facts" />}
                 </div>
               </div>
-              {attention.length > 0 && (
+              {attention.length > 0 && visible("attention") && (
                 <Section
                   title="Потребує відповіді"
                   action={
@@ -1224,6 +1271,29 @@ export default function App() {
           )}
           {page === "Settings" && (
             <div className="settings-stack">
+              <Section title="Блоки на сьогодні">
+                <p className="section-description">
+                  Залиши те, що потрібно саме тобі. Дані прихованих блоків
+                  зберігаються.
+                </p>
+                {Object.entries(blockLabels).map(([key, label]) => (
+                  <label className="setting-row" key={key}>
+                    <span>{label}</span>
+                    <input
+                      type="checkbox"
+                      role="switch"
+                      aria-label={label}
+                      checked={visible(key)}
+                      onChange={(e) =>
+                        setBlocks((old) => ({
+                          ...old,
+                          [key]: e.target.checked,
+                        }))
+                      }
+                    />
+                  </label>
+                ))}
+              </Section>
               <Section title="Твій профіль">
                 <label className="setting-row">
                   <div>
@@ -1631,6 +1701,10 @@ export default function App() {
                 onChange={(e) => setModal({ ...modal, title: e.target.value })}
               />
             </label>
+            <TaskChecklist
+              items={modal.checklist}
+              onChange={(checklist) => setModal({ ...modal, checklist })}
+            />
             {!modal.isTemplate && (
               <label className="setting-row">
                 <span>Без конкретної дати</span>

@@ -79,6 +79,7 @@ export function WeatherCard() {
   return (
     <article
       className={`today-card weather-card weather-surface-${weather ? kind : "unavailable"}`}
+      data-night={weather ? !weather.isDay : undefined}
       aria-label="Погода"
       id="planner-weather"
     >

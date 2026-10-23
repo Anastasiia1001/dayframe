@@ -1,0 +1,338 @@
+/* Glossy material shared by every palette. Calendar geometry remains functional. */
+:root[data-theme] .planner-prism {
+  --glass-highlight: color-mix(in srgb, var(--surface) 60%, #fff 40%);
+  --glass-shadow: color-mix(in srgb, var(--text) 13%, transparent);
+  background-image:
+    radial-gradient(
+      ellipse at 8% 12%,
+      color-mix(in srgb, var(--accent) 22%, transparent),
+      transparent 48%
+    ),
+    radial-gradient(
+      ellipse at 90% 80%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 55%
+    );
+}
+:root[data-theme]
+  .planner-prism
+  :is(
+    .sidebar,
+    .today-card,
+    .card,
+    .habit-sheet,
+    .today-board-column,
+    .studio-navigation,
+    .studio-backlog
+  ),
+:root[data-theme] :is(.task-modal, .studio-editor, .manual-assistant-dialog) {
+  background-image: linear-gradient(
+    145deg,
+    #ffffff22,
+    #ffffff03 48%,
+    #00000005
+  );
+  background-color: color-mix(in srgb, var(--surface) 86%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  box-shadow:
+    inset 0 1px 0 #ffffff70,
+    inset 0 -1px 0 #0000000b,
+    0 12px 30px var(--glass-shadow, #00000012);
+  backdrop-filter: blur(24px) saturate(125%);
+}
+:root[data-theme]
+  .planner-prism
+  :is(
+    button.secondary,
+    .weather-place,
+    .planner-shortcuts button,
+    .studio-tools button,
+    .overview-periods button,
+    .studio-modes button,
+    .period-tabs button
+  ),
+:root[data-theme] .task-modal button.secondary {
+  background-image: linear-gradient(
+    180deg,
+    #ffffff30 0%,
+    #ffffff0a 49%,
+    #00000005 50%,
+    #00000009
+  );
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  box-shadow:
+    inset 0 1px 0 #ffffff85,
+    0 2px 3px #0000000d;
+  transition:
+    box-shadow 0.18s,
+    background-color 0.18s,
+    transform 0.18s;
+}
+:root[data-theme] .planner-prism button:not(:disabled):active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: inset 0 2px 5px #00000020;
+}
+:root[data-theme] .planner-prism button:not(:disabled):hover {
+  border-color: var(--accent);
+}
+:root[data-theme]
+  .planner-prism
+  :is(.overview-periods, .studio-modes, .period-tabs) {
+  gap: 2px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--text) 5%, var(--surface));
+  box-shadow: inset 0 2px 4px #00000012;
+  border-radius: 18px;
+}
+:root[data-theme]
+  .planner-prism
+  :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select),
+:root[data-theme]
+  .task-modal
+  :is(input:not([type="checkbox"]), textarea, select) {
+  background-color: color-mix(in srgb, var(--surface) 95%, var(--bg));
+  box-shadow:
+    inset 0 2px 4px #0000000c,
+    0 1px #ffffff40;
+}
+:root[data-theme] .planner-prism :is(.primary, .studio-add) {
+  background-image: linear-gradient(
+    #ffffff25,
+    #ffffff05 49%,
+    #00000008 50%,
+    #00000010
+  );
+  box-shadow:
+    inset 0 1px #ffffff60,
+    0 3px 8px color-mix(in srgb, var(--accent) 23%, transparent);
+}
+.task-checklist {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 8px 0;
+  padding: 16px 0;
+  min-width: 0;
+}
+.task-checklist legend {
+  font-weight: 700;
+  padding: 0 8px 0 0;
+}
+.checklist-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+.checklist-entry input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  accent-color: var(--accent);
+}
+.checklist-entry input:not([type="checkbox"]) {
+  min-width: 0;
+  flex: 1;
+}
+.checklist-entry:has(input:checked) input:not([type="checkbox"]) {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+.checklist-entry button {
+  flex: 0 0 36px;
+  min-height: 36px;
+}
+.today-overview-grid:empty,
+.planner-inspiration-pair:empty {
+  display: none;
+}
+.today-overview-grid > *:only-child {
+  grid-column: 1/-1;
+}
+/* Full-card atmosphere: large drifting cloud banks, never intercepting content. */
+.weather-atmosphere::before,
+.weather-atmosphere::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+.weather-surface-cloud .weather-atmosphere::before,
+.weather-surface-fog .weather-atmosphere::before {
+  inset: 0 -25%;
+  background:
+    radial-gradient(ellipse at 18% 42%, #b8cbdc55 0%, transparent 30%),
+    radial-gradient(ellipse at 72% 68%, #b8cbdc48 0%, transparent 36%),
+    radial-gradient(ellipse at 55% 5%, #ffffff60, transparent 40%);
+  animation: cloud-bank 24s ease-in-out infinite alternate;
+}
+.weather-surface-cloud .weather-atmosphere::after,
+.weather-surface-fog .weather-atmosphere::after {
+  width: 80%;
+  height: 45%;
+  right: -15%;
+  top: 14%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #d3dfea65, transparent 70%);
+  filter: blur(10px);
+  animation: cloud-bank 17s -8s ease-in-out infinite alternate-reverse;
+}
+.weather-surface-sun .weather-atmosphere::before {
+  inset: -60%;
+  background: conic-gradient(
+    from 0deg at 75% 30%,
+    transparent,
+    #ffd47d20,
+    transparent 12%,
+    #ffd47d25,
+    transparent 25%,
+    #ffd47d20,
+    transparent 40%
+  );
+  animation: sky-turn 90s linear infinite;
+}
+.weather-surface-rain .weather-atmosphere,
+.weather-surface-storm .weather-atmosphere {
+  background: linear-gradient(135deg, #89a7c32a, #637b9810);
+}
+.weather-surface-snow .weather-atmosphere {
+  background: linear-gradient(145deg, #a7c8e128, #ffffff28);
+}
+@keyframes cloud-bank {
+  from {
+    transform: translateX(-8%) scale(1);
+  }
+  to {
+    transform: translateX(12%) scale(1.12);
+  }
+}
+@keyframes sky-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Softer inhalation with a settled exhale instead of a repeated bounce. */
+@keyframes soft-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  38% {
+    transform: translateY(-0.45px) scale(1.012, 1.022);
+  }
+  58% {
+    transform: translateY(-0.3px) scale(1.009, 1.015);
+  }
+  80% {
+    transform: translateY(0) scale(1);
+  }
+}
+:root[data-theme] .plush-cat {
+  --pet-breath: 4.9s;
+  --pet-expression: 14s;
+  --pet-phase: -3s;
+}
+:root[data-theme] .mascot-ginger-cat {
+  --pet-breath: 5.3s;
+  --pet-phase: -8s;
+}
+:root[data-theme] .plush-cat .mascot-ear-left {
+  transform-origin: 30px 34px;
+  animation: cat-ear-listen 13s -3s ease-in-out infinite;
+}
+:root[data-theme] .plush-cat .mascot-ear-right {
+  transform-origin: 70px 34px;
+  animation: cat-ear-listen 17s -9s ease-in-out infinite reverse;
+}
+:root[data-theme] .plush-cat .mascot-tail {
+  transform-origin: 75px 89px;
+  animation: cat-tail-sway 7s ease-in-out infinite;
+}
+@keyframes cat-ear-listen {
+  0%,
+  68%,
+  85%,
+  100% {
+    transform: rotate(0);
+  }
+  72%,
+  79% {
+    transform: rotate(-7deg);
+  }
+  75%,
+  82% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes cat-tail-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  45% {
+    transform: rotate(7deg);
+  }
+  70% {
+    transform: rotate(2deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .plush-cat *,
+  .weather-atmosphere::before,
+  .weather-atmosphere::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+:root[data-pet-paused="true"] .plush-cat *,
+:root[data-pet-paused="true"] .weather-atmosphere::before,
+:root[data-pet-paused="true"] .weather-atmosphere::after {
+  animation-play-state: paused !important;
+}
+:root[data-theme] .plush-cat :is(.mascot-eye-left, .mascot-eye-right) {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-slow-blink 8.3s -2s linear infinite;
+}
+@keyframes cat-slow-blink {
+  0%,
+  42%,
+  46%,
+  73%,
+  77%,
+  100% {
+    transform: scaleY(1);
+  }
+  43.2%,
+  44.2%,
+  74.2%,
+  75% {
+    transform: scaleY(0.08);
+  }
+}
+:root[data-theme]
+  :is(
+    .calendar-companion.is-greeting,
+    .cozy-note.companion-celebrating,
+    .bunny-button.is-playing
+  )
+  .plush-cat
+  .mascot-eye-left {
+  animation: soft-wink 1s ease-in-out 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .plush-cat * {
+    animation: none !important;
+  }
+}
+.weather-card[data-night="true"] .weather-atmosphere {
+  background: radial-gradient(ellipse at 85% 15%, #8197c728, transparent 70%);
+}
+.weather-surface-sun[data-night="true"] .weather-atmosphere::before {
+  inset: 0;
+  background:
+    radial-gradient(circle at 75% 18%, #d5dcf5aa 0 1px, transparent 2px),
+    radial-gradient(circle at 85% 65%, #d5dcf588 0 1px, transparent 2px),
+    radial-gradient(circle at 49% 28%, #d5dcf588 0 1px, transparent 2px),
+    radial-gradient(circle at 38% 78%, #d5dcf588 0 1px, transparent 2px);
+  animation: weather-card-glow 8s ease-in-out infinite;
+}

@@ -105,6 +105,16 @@ export const themes = [
 ];
 export const mascots = [
   {
+    id: "fluffy-cat",
+    name: "Біла киця Хмарка",
+    description: "Пухнаста хмаринка, що муркоче поруч",
+  },
+  {
+    id: "ginger-cat",
+    name: "Рудий кіт Персик",
+    description: "Плоский носик, теплі щічки й велике серце",
+  },
+  {
     id: "axolotl",
     name: "Аксолотль Булька",
     description: "Махає зябрами й береже спокій",

@@ -1,3 +1,4 @@
+import { FluffyCat } from "./FluffyCats";
 import { PocketMascot, type PocketKind } from "./PocketMascots";
 import { PugMascot } from "./PugMascot";
 import type { MascotId } from "../appearance";
@@ -5,6 +6,8 @@ import type { MascotId } from "../appearance";
 export function Mascot({ kind }: { kind: MascotId }) {
   if (["axolotl", "penguin", "dragon", "otter"].includes(kind))
     return <PocketMascot kind={kind as PocketKind} />;
+  if (kind === "fluffy-cat" || kind === "ginger-cat")
+    return <FluffyCat ginger={kind === "ginger-cat"} />;
   if (kind === "pug") return <PugMascot />;
   const fill =
     kind === "fox"
