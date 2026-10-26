@@ -53,6 +53,25 @@ export function PugMascot() {
           <ellipse cx="31.7" cy="34" rx="8.3" ry="9.3" fill="black" />
           <ellipse cx="68.6" cy="35.2" rx="8.3" ry="9.3" fill="black" />
         </mask>
+        {[
+          [31.7, 34],
+          [68.6, 35.2],
+        ].map(([x, y], i) => (
+          <clipPath
+            key={i}
+            id={`${id}-shutter-${i}`}
+            clipPathUnits="userSpaceOnUse"
+          >
+            <rect
+              className={i ? "mascot-eye-right" : "mascot-eye-left"}
+              x={x - 9}
+              y={y - 10}
+              width="18"
+              height="20"
+              style={{ transformOrigin: `${x}px ${y}px` }}
+            />
+          </clipPath>
+        ))}
       </defs>
       <ellipse
         className="mascot-shadow"
@@ -69,8 +88,8 @@ export function PugMascot() {
         </g>
         <g mask={`url(#${id}-body)`}>
           <g mask={`url(#${id}-face)`}>{art}</g>
-          <ellipse cx="31.7" cy="34" rx="8.4" ry="9.4" fill="#51403a" />
-          <ellipse cx="68.6" cy="35.2" rx="8.4" ry="9.4" fill="#51403a" />
+          <ellipse cx="31.7" cy="34" rx="8.4" ry="9.4" fill="#a48870" />
+          <ellipse cx="68.6" cy="35.2" rx="8.4" ry="9.4" fill="#a48870" />
           <path
             d="M25 35Q31.7 38 38 35M62 36Q68.6 39 75 36"
             stroke="#2e2323"
@@ -78,17 +97,11 @@ export function PugMascot() {
             strokeLinecap="round"
           />
           <g className="mascot-eyes">
-            <g
-              className="mascot-eye-left"
-              style={{ transformOrigin: "31.7px 34px" }}
-            >
+            <g clipPath={`url(#${id}-shutter-0)`}>
               <ellipse cx="31.7" cy="34" rx="8.4" ry="9.4" fill="#473b38" />
               <g clipPath={`url(#${id}-left-eye)`}>{art}</g>
             </g>
-            <g
-              className="mascot-eye-right"
-              style={{ transformOrigin: "68.6px 35.2px" }}
-            >
+            <g clipPath={`url(#${id}-shutter-1)`}>
               <ellipse cx="68.6" cy="35.2" rx="8.4" ry="9.4" fill="#473b38" />
               <g clipPath={`url(#${id}-right-eye)`}>{art}</g>
             </g>

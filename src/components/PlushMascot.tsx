@@ -85,6 +85,22 @@ export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
             <ellipse cx={x} cy={eyeY + 5} rx={radius} ry={radius + 1} />
           </clipPath>
         ))}
+        {[left, right].map((x, i) => (
+          <clipPath
+            id={id + "shutter" + i}
+            key={i}
+            clipPathUnits="userSpaceOnUse"
+          >
+            <rect
+              className={i ? "mascot-eye-right" : "mascot-eye-left"}
+              x={x - radius - 1}
+              y={eyeY + 5 - radius - 2}
+              width={radius * 2 + 2}
+              height={radius * 2 + 4}
+              style={{ transformOrigin: `${x}px ${eyeY + 5}px` }}
+            />
+          </clipPath>
+        ))}
       </defs>
       <ellipse
         className="mascot-shadow"
@@ -117,11 +133,7 @@ export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
           ))}
           <g className="mascot-eyes bunny-eyes">
             {[left, right].map((x, i) => (
-              <g
-                key={i}
-                className={i ? "mascot-eye-right" : "mascot-eye-left"}
-                style={{ transformOrigin: `${x}px ${eyeY + 5}px` }}
-              >
+              <g key={i} clipPath={`url(#${id}shutter${i})`}>
                 <g clipPath={`url(#${id}eye${i})`}>{art}</g>
               </g>
             ))}

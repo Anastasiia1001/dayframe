@@ -776,3 +776,94 @@
     transition: none !important;
   }
 }
+/* A shutter reveals the unchanged eye artwork; pupils no longer squash. */
+:root[data-theme] .mascot-art rect:is(.mascot-eye-left, .mascot-eye-right) {
+  transform-box: view-box;
+}
+@keyframes soft-blink {
+  0%,
+  43%,
+  47%,
+  100% {
+    transform: scaleY(1);
+  }
+  44.5%,
+  45.2% {
+    transform: scaleY(0);
+  }
+}
+@keyframes plush-blink {
+  0%,
+  43%,
+  47%,
+  100% {
+    transform: scaleY(1);
+  }
+  44.5%,
+  45.2% {
+    transform: scaleY(0);
+  }
+}
+@keyframes soft-wink {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  22%,
+  65% {
+    transform: scaleY(0);
+  }
+}
+/* Transparency belongs to surfaces, never to their text or controls. */
+:root[data-theme]
+  .planner-prism
+  :is(
+    .sidebar,
+    .today-card,
+    .card,
+    .habit-sheet,
+    .today-board-column,
+    .fitness-card,
+    .studio-navigation,
+    .studio-backlog,
+    .schedule-sheet,
+    .tasks-sheet,
+    .notes-sheet
+  ) {
+  background-color: color-mix(in srgb, var(--surface) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(115%);
+}
+:root[data-theme]
+  .planner-prism
+  :is(
+    .today-card,
+    .card,
+    .habit-sheet,
+    .today-board-column,
+    .fitness-card,
+    .studio-navigation,
+    .studio-backlog
+  ) {
+  background-image: linear-gradient(
+    155deg,
+    #ffffff32,
+    #ffffff08 45%,
+    #00000008
+  );
+}
+:root[data-theme] .planner-prism .weather-card {
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--surface) 76%, transparent),
+    color-mix(in srgb, #87b6d7 48%, transparent)
+  );
+}
+:root[data-theme] .planner-prism .today-plan > .weather-top {
+  background:
+    linear-gradient(#ffffff25, #ffffff05),
+    color-mix(in srgb, var(--surface) 75%, transparent);
+}
+:root[data-theme] :is(.task-modal, .studio-editor, .manual-assistant-dialog) {
+  background-color: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(24px);
+}
