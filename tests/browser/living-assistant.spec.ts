@@ -74,7 +74,7 @@ test("short events keep a complete title line and first visible hour is not crop
     "Купити корм для собаки",
   );
 });
-test("every mascot breathes, smiles on greeting and keeps the reply below its head on mobile", async ({
+test("every mascot blinks without changing its mouth, greets with charms and stays usable on mobile", async ({
   page,
 }) => {
   test.slow();
@@ -87,15 +87,26 @@ test("every mascot breathes, smiles on greeting and keeps the reply below its he
     await page.reload();
     const art = page.locator(".calendar-companion .mascot-art");
     await expect(art).toHaveCount(1);
-    await expect(art.locator(".mascot-smile")).toHaveCount(1);
+    await expect(art.locator(".mascot-smile,.mascot-mouth-rest")).toHaveCount(
+      0,
+    );
     expect(
       await art
         .locator(".mascot-body")
         .evaluate((el) => getComputedStyle(el).animationName),
     ).toBe("soft-breathe");
     await page.getByLabel("Привітатися з помічником").click();
-    await expect(art.locator(".mascot-smile")).toHaveCSS("opacity", "1");
-    await expect(art.locator(".mascot-mouth-rest")).toHaveCSS("opacity", "0");
+    await expect(page.locator(".calendar-companion .mascot-charm")).toHaveCount(
+      4,
+    );
+    await expect(art.locator(".mascot-eye-left")).toHaveCSS(
+      "animation-name",
+      "calm-blink",
+    );
+    await expect(art.locator(".mascot-eye-right")).toHaveCSS(
+      "animation-name",
+      "calm-blink",
+    );
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByLabel("Привітатися з помічником").click();

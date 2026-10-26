@@ -17,7 +17,7 @@ const friends = {
 } as const;
 export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
   const id = useId().replace(/:/g, ""),
-    [col, row, left, right, eyeY, radius, , mouthY, rightEyeY] = friends[kind];
+    [col, row, left, right, eyeY, radius, , , rightEyeY] = friends[kind];
   const eyes = [
     [left, eyeY],
     [right, rightEyeY],
@@ -153,17 +153,6 @@ export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
             ))}
           </g>
         </g>
-        <path
-          className="mascot-mouth-rest"
-          d={`M48 ${mouthY + 5}q2 1 4 0`}
-          stroke="#825d52"
-          strokeWidth=".35"
-        />
-        <path
-          className="mascot-smile"
-          d={`M46 ${mouthY + 4}q4 7 8 0q-4 2-8 0`}
-          fill="#ad6c70"
-        />
       </g>
     </svg>
   );

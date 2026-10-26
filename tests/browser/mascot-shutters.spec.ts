@@ -15,7 +15,7 @@ test("blinks close a shutter without compressing the eye artwork", async ({
       animation.pause();
       const timing = animation.effect!.getTiming();
       animation.currentTime =
-        Number(timing.duration) * 0.448 + Number(timing.delay);
+        Number(timing.duration) * 0.469 + Number(timing.delay);
       return {
         shutter: new DOMMatrix(getComputedStyle(el).transform).d,
         distortedImages: [

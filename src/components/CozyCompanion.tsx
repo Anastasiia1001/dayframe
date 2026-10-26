@@ -1,3 +1,4 @@
+import { MascotCharms } from "./MascotCharms";
 import type { PersonalTask } from "../types";
 import type { TaskReminder } from "../useTaskReminders";
 import { useLocal } from "../useLocal";
@@ -98,9 +99,7 @@ export function CozyCompanion({
         }}
       >
         <Mascot key={mascot + ":" + note + ":" + burst} kind={mascot} />
-        <span className="bunny-heart" aria-hidden="true">
-          ♡
-        </span>
+        {play && <MascotCharms key={`charms:${note}:${burst}`} />}
       </button>
       <div className="cozy-copy">
         <span className="cozy-label">

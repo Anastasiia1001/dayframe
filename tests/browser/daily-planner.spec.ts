@@ -83,7 +83,7 @@ for (const width of [320, 390, 1440])
       .getByRole("button", { name: "Календар", exact: true })
       .click();
     await page.getByRole("button", { name: "День", exact: true }).click();
-    await expect(page.locator(".calendar-companion .mascot-bunny .mascot-smile")).toHaveCount(1);
+    await expect(page.locator(".calendar-companion .mascot-bunny .mascot-smile")).toHaveCount(0);
     const boxes = await page.locator(".day-planner-layout").evaluate((el) =>
       Object.fromEntries(
         ["priorities", "schedule", "tasks", "notes", "reminders"].map(

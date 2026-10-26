@@ -137,20 +137,6 @@ export function PugMascot() {
             </g>
           </g>
         </g>
-        <path
-          className="mascot-mouth-rest"
-          d="M47 51.2Q50 49.9 53 51.2"
-          stroke="#392c2b"
-          strokeWidth=".5"
-          strokeLinecap="round"
-        />
-        <path
-          className="mascot-smile"
-          d="M46 50.8Q50 53.1 54 50.8"
-          stroke="#392c2b"
-          strokeWidth=".65"
-          strokeLinecap="round"
-        />
       </g>
     </svg>
   );

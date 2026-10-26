@@ -1,3 +1,4 @@
+import { MascotCharms } from "./MascotCharms";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { type MascotId } from "../appearance";
@@ -21,11 +22,17 @@ export function CalendarCompanion({
   const button = useRef<HTMLButtonElement>(null);
   const [interaction, setInteraction] = useState(0);
   useEffect(() => {
-    setHost(button.current?.closest(".studio-header,.planner-cover") ||
-      button.current?.parentElement || null);
-    const timer = setInterval(() => {
-      setGreeting((value) => (value + 1) % greetings.length);
-    }, 5 * 60 * 1000);
+    setHost(
+      button.current?.closest(".studio-header,.planner-cover") ||
+        button.current?.parentElement ||
+        null,
+    );
+    const timer = setInterval(
+      () => {
+        setGreeting((value) => (value + 1) % greetings.length);
+      },
+      5 * 60 * 1000,
+    );
     return () => clearInterval(timer);
   }, []);
   useEffect(() => {
@@ -50,14 +57,13 @@ export function CalendarCompanion({
           aria-hidden="true"
         >
           <Mascot key={`${mascot}:${interaction}`} kind={mascot} />
+          {playing && <MascotCharms key={`charms:${interaction}`} />}
         </div>
       </button>
       {host &&
         createPortal(
           <div className="companion-reply">
-            <span className="companion-phrase">
-              {greetings[greeting]}
-            </span>
+            <span className="companion-phrase">{greetings[greeting]}</span>
           </div>,
           host,
         )}

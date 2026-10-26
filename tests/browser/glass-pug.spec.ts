@@ -192,7 +192,7 @@ test("task pocket creates and edits a real task and outside click dismisses it",
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
 });
 
-test("pug winks with one eye on greeting while the other keeps the normal blink", async ({
+test("pug keeps the same ordinary blink in both eyes when greeting", async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -211,12 +211,12 @@ test("pug winks with one eye on greeting while the other keeps the normal blink"
     await pug
       .locator(".mascot-eye-right")
       .evaluate((el) => getComputedStyle(el).animationName),
-  ).toContain("soft-wink");
+  ).toBe("calm-blink");
   expect(
     await pug
       .locator(".mascot-eye-left")
       .evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe("soft-blink");
+  ).toBe("calm-blink");
   expect(
     await pug
       .locator(".pug-tail")

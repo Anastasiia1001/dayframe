@@ -918,3 +918,87 @@
   border-radius: 12px;
   line-height: 1.6;
 }
+/* Both eyes share one blink. Greeting never changes the face or mouth. */
+:root[data-theme] .mascot-art rect:is(.mascot-eye-left, .mascot-eye-right) {
+  animation: calm-blink 6.5s linear infinite !important;
+}
+@keyframes calm-blink {
+  0%,
+  45%,
+  49%,
+  100% {
+    transform: scaleY(1);
+  }
+  46.5%,
+  47.2% {
+    transform: scaleY(0);
+  }
+}
+.calendar-companion,
+.bunny-button,
+.theme-mascot-vignette {
+  position: relative;
+}
+.mascot-charms {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.mascot-charm {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  opacity: 0;
+  filter: drop-shadow(0 1px 1px #00000012);
+  animation: charm-float 1.8s ease-out both;
+}
+.charm-0 {
+  left: 9%;
+  top: 36%;
+  --charm-drift: -4px;
+}
+.charm-1 {
+  right: 9%;
+  top: 28%;
+  --charm-drift: 4px;
+  animation-delay: 0.12s;
+}
+.charm-2 {
+  left: 7%;
+  top: 68%;
+  --charm-drift: -3px;
+  animation-delay: 0.22s;
+}
+.charm-3 {
+  right: 5%;
+  top: 65%;
+  --charm-drift: 3px;
+  animation-delay: 0.3s;
+}
+@keyframes charm-float {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.65);
+  }
+  18%,
+  60% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--charm-drift), -24px) scale(1.05);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .mascot-art rect:is(.mascot-eye-left, .mascot-eye-right) {
+    animation: none !important;
+  }
+  .mascot-charm {
+    animation: none;
+    opacity: 0.75;
+  }
+}
+:root[data-pet-paused="true"] .mascot-charm {
+  animation-play-state: paused !important;
+}
