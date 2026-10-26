@@ -7,11 +7,11 @@
   margin: 14px 0;
 }
 .planner-section-title h2 {
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale, 1));
   margin: 7px 0;
 }
 .planner-section-title p {
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   line-height: 1.6;
   color: var(--muted);
   margin: 8px 0;
@@ -44,10 +44,10 @@
   padding: 9px;
   min-width: 0;
   font: inherit;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .habit-tracker label {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   display: grid;
   gap: 6px;
 }
@@ -101,7 +101,7 @@
 }
 .habit-sheet h3 {
   text-transform: uppercase;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   letter-spacing: 1px;
   margin: 0;
 }
@@ -112,7 +112,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
 }
 .habit-week-nav button {
   padding: 4px;
@@ -131,7 +131,7 @@
   padding: 8px 4px;
   border-bottom: 1px solid var(--border);
   text-align: center;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
 }
 .habit-sheet th:first-child {
   text-align: left;
@@ -158,13 +158,13 @@
 }
 .habit-empty {
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   padding: 9px 16px;
   line-height: 1.5;
 }
 .habit-tracker .habit-add-row {
   margin: 6px 12px 12px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   border: 0;
   background: transparent;
 }
@@ -190,7 +190,7 @@
   align-items: center;
   gap: 8px;
   padding: 2px 4px 12px;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale, 1));
   margin: 0;
 }
 .today-board-column > h3 span {
@@ -200,7 +200,7 @@
   place-items: center;
   width: 25px;
   height: 25px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   margin-left: auto;
 }
 .today-board-column[data-planner-column="today"] {
@@ -246,11 +246,11 @@
 .today-board-task-tools select {
   max-width: 105px;
   margin-left: auto;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   padding: 5px;
 }
 .today-horizon {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: var(--muted);
 }
 .today-board-task .task-row {
@@ -267,21 +267,21 @@
   padding: 0;
 }
 .today-board-task .task-title strong {
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   overflow-wrap: anywhere;
   white-space: normal;
 }
 .today-board-task .task-facts {
   display: flex;
   flex-wrap: wrap;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   gap: 5px;
 }
 .today-board-task .task-repeat {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
 }
 .today-drop-empty {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: var(--muted);
   line-height: 1.6;
   padding: 16px 6px;
@@ -297,11 +297,11 @@
   border: 2px solid var(--accent);
   box-shadow: 0 12px 30px #00000025;
   max-width: 250px;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 .planner-inline-status {
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   min-height: 1em;
 }
 .mascot-assistant-actions {
@@ -313,7 +313,7 @@
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 7px 10px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: var(--text);
   background: var(--surface);
 }
@@ -327,14 +327,14 @@
 }
 .planner-inspiration-pair .inspiration-text {
   min-height: 0;
-  font-size: 17px !important;
+  font-size: calc(17px * var(--font-scale, 1)) !important;
   margin: 16px 0;
 }
 .planner-inspiration-pair .inspiration-card > label {
   margin-top: 14px;
 }
 .care-label {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: var(--muted);
   border: 1px solid var(--border);
   padding: 5px 9px;
@@ -351,10 +351,10 @@
   flex-direction: column;
   justify-content: center;
   padding: 10px 3px;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
 }
 .care-moods button > span {
-  font-size: 25px;
+  font-size: calc(25px * var(--font-scale, 1));
   color: var(--accent);
 }
 .care-moods button[aria-pressed="true"] {
@@ -382,7 +382,7 @@
   align-items: center;
   gap: 18px;
   margin: 20px 0 5px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: var(--muted);
 }
 .care-breath span {
@@ -523,12 +523,12 @@
 }
 .assistant-settings summary {
   cursor: pointer;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 .assistant-settings a {
   display: block;
   color: var(--accent);
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   margin: 10px 0;
 }
 .assistant-settings label {
@@ -555,7 +555,7 @@
   margin: 0 0 0 20px;
 }
 .assistant-message > strong {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: var(--muted);
 }
 .assistant-message p {
@@ -563,7 +563,7 @@
   overflow-wrap: anywhere;
   color: var(--text);
   margin: 7px 0 0;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale, 1));
 }
 .assistant-chat-mascot {
   display: inline-flex;

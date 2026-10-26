@@ -64,7 +64,7 @@ test("personal checklist and hidden Today blocks persist after reload", async ({
   ).not.toBeChecked();
 });
 
-test("glass proximity keeps form positions stable and theme fonts load locally", async ({
+test("hover has no spotlight, preserves form positions and theme fonts load locally", async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -75,7 +75,10 @@ test("glass proximity keeps form positions stable and theme fonts load locally",
   await card.scrollIntoViewIfNeeded();
   const before = await card.boundingBox();
   await page.mouse.move(before!.x + before!.width / 2, before!.y - 15);
-  await expect(card).toHaveAttribute("data-glass-near", "true");
+  await expect(card).not.toHaveAttribute("data-glass-near", "true");
+  expect(
+    await card.evaluate((el) => getComputedStyle(el).backgroundImage),
+  ).not.toContain("radial-gradient");
   const after = await card.boundingBox();
   expect(after).toEqual(before);
   await card
@@ -107,4 +110,38 @@ test("glass proximity keeps form positions stable and theme fonts load locally",
     () => Array.from(document.fonts).filter((f) => f.status === "error").length,
   );
   expect(failedFonts).toBe(0);
+});
+
+test("font size changes real text, persists and remains usable on mobile", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("dayframe-classic-planner", "true"),
+  );
+  await page.goto("/");
+  const field = page.getByLabel("Пріоритет дня 1", { exact: true });
+  const base = await field.evaluate((el) =>
+    parseFloat(getComputedStyle(el).fontSize),
+  );
+  await page
+    .locator(".sidebar")
+    .getByRole("button", { name: /Налаштування/ })
+    .click();
+  await page.getByRole("slider", { name: "Розмір шрифтів" }).focus();
+  await page.keyboard.press("End");
+  await expect(
+    page.getByRole("slider", { name: "Розмір шрифтів" }),
+  ).toHaveValue("125");
+  await page.reload();
+  expect(
+    await field.evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+  ).toBeCloseTo(base * 1.25, 1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    )
+    .toBe(true);
+  await field.fill("Текст має бути зручним");
+  await expect(field).toHaveValue("Текст має бути зручним");
 });

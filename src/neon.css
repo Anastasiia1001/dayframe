@@ -167,7 +167,7 @@
   background: var(--surface);
   box-shadow: 0 10px 35px #0004;
   color: var(--text);
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .studio-drag-ghost strong {
   display: block;
@@ -178,14 +178,14 @@
 .studio-drag-ghost span {
   display: block;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   margin-top: 5px;
 }
 .studio-task-row {
   gap: 3px;
 }
 .studio-task-row .studio-task-title strong {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 :root[data-theme] .mascot-axolotl .mascot-ears {
   transform-origin: 50px 48px;

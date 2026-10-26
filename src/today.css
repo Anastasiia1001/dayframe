@@ -20,7 +20,7 @@
   min-width: 0;
 }
 .today-card h2 {
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale, 1));
   display: flex;
   align-items: center;
   gap: 8px;
@@ -29,7 +29,7 @@
 .today-card p {
   color: var(--muted);
   line-height: 1.65;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 .today-card button,
 .overview-periods button {
@@ -47,7 +47,7 @@
 .today-card label {
   display: grid;
   gap: 6px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: var(--muted);
 }
 .today-card input:not([type="checkbox"]),
@@ -61,7 +61,7 @@
   border-radius: 10px;
   padding: 10px;
   font: inherit;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 .weather-top {
   display: flex;
@@ -94,7 +94,7 @@
   filter: drop-shadow(0 6px 4px #536b7a12);
 }
 .weather-temp {
-  font-size: 40px;
+  font-size: calc(40px * var(--font-scale, 1));
   font-weight: 650;
   letter-spacing: -1px;
 }
@@ -103,7 +103,7 @@
 }
 .weather-main small,
 .weather-source {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: var(--muted);
 }
 .weather-source {
@@ -111,7 +111,7 @@
   margin-top: 9px;
 }
 .weather-place {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .weather-location {
   display: grid;
@@ -191,7 +191,7 @@
   }
 }
 .inspiration-text {
-  font-size: 20px !important;
+  font-size: calc(20px * var(--font-scale, 1)) !important;
   line-height: 1.55 !important;
   color: var(--text) !important;
   margin: 24px 0;
@@ -200,7 +200,7 @@
 }
 .inspiration-card > a {
   color: var(--accent);
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .inspiration-controls {
   display: grid;
@@ -222,11 +222,11 @@
   margin: 22px 0 14px;
 }
 .today-steps strong {
-  font-size: 32px;
+  font-size: calc(32px * var(--font-scale, 1));
 }
 .today-steps span {
   color: var(--muted);
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 .today-fitness progress {
   width: 100%;
@@ -286,13 +286,13 @@
   margin: 0 0 20px;
 }
 .period-overview h2 {
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale, 1));
 }
 .period-overview > header p {
   margin: 9px 0;
 }
 .period-overview > header span {
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   color: var(--muted);
 }
 .period-task {

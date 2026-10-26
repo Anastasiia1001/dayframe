@@ -49,7 +49,7 @@
   box-shadow: none;
   clip-path: none;
   font-family: inherit;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   font-weight: 650;
   transform: none;
 }
@@ -70,7 +70,7 @@
   opacity: 0.65;
 }
 :root[data-theme] .daily-priorities input {
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 :root[data-theme] .daily-priorities li {
   gap: 11px;
@@ -128,7 +128,7 @@
 :root[data-theme] .calendar-board .segmented button {
   border: 0;
   border-radius: 10px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   background-image: none;
 }
 :root[data-theme] .calendar-board .segmented button.active {
@@ -390,7 +390,7 @@
     min-height: 0;
   }
   :root[data-theme] .planner-cover-title h1 {
-    font-size: 25px;
+    font-size: calc(25px * var(--font-scale, 1));
   }
   :root[data-theme] .page-calendar .calendar-board {
     border-width: 1px;
@@ -431,7 +431,7 @@
   padding: 8px 0;
 }
 :root[data-theme] .planner-kicker {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   letter-spacing: 1px;
   font-weight: 550;
 }

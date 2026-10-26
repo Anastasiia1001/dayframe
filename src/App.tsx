@@ -1,4 +1,3 @@
-import { GlassResponse } from "./components/GlassResponse";
 import { TaskChecklist } from "./components/TaskChecklist";
 import { HabitTracker } from "./components/HabitTracker";
 import { TodayTaskBoard } from "./components/TodayTaskBoard";
@@ -136,6 +135,16 @@ export default function App() {
   const [page, setPage] = useState(legacyPlanner ? "Today" : "Calendar");
   const [mascot, setMascot] = useLocal("dayframe-mascot", "bunny");
   const [theme, setTheme] = useLocal("dayframe-theme", "Pastel");
+  const [fontSize, setFontSize] = useLocal("dayframe-font-size", 100);
+  const safeFontSize = Number.isFinite(fontSize)
+    ? Math.max(85, Math.min(125, fontSize))
+    : 100;
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--font-scale",
+      String(safeFontSize / 100),
+    );
+  }, [safeFontSize]);
   const [tasks, setTasks] = useLocal<PersonalTask[]>(
     "dayframe-tasks",
     mockTasks,
@@ -1272,6 +1281,28 @@ export default function App() {
           )}
           {page === "Settings" && (
             <div className="settings-stack">
+              <Section title="Розмір шрифтів">
+                <label className="setting-row">
+                  <span>
+                    Масштаб тексту <strong>{safeFontSize}%</strong>
+                  </span>
+                  <input
+                    aria-label="Розмір шрифтів"
+                    type="range"
+                    min="85"
+                    max="125"
+                    step="5"
+                    value={safeFontSize}
+                    onChange={(e) => setFontSize(Number(e.target.value))}
+                  />
+                </label>
+                <p className="font-size-preview">
+                  Твої плани — у зручному для тебе розмірі.
+                </p>
+                <button className="secondary" onClick={() => setFontSize(100)}>
+                  Стандартний розмір
+                </button>
+              </Section>
               <Section title="Блоки на сьогодні">
                 <p className="section-description">
                   Залиши те, що потрібно саме тобі. Дані прихованих блоків
@@ -1918,7 +1949,6 @@ export default function App() {
       </div>
       <HappyPetals burst={burst} />
       <TouchFeedback />
-      <GlassResponse />
     </div>
   );
 }

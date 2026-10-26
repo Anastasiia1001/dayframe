@@ -2,22 +2,26 @@ import { useId } from "react";
 import type { MascotId } from "../appearance";
 // Atlas is generated as a coherent set; coordinates refer to each 100×100 cell.
 const friends = {
-  axolotl: [0, 0, 35, 73, 48, 7, "#f4c2c6", 59],
-  penguin: [1, 0, 36, 65, 40, 6, "#eee2cf", 55],
-  dragon: [2, 0, 35, 65, 42, 7, "#a6d2b2", 54],
-  otter: [3, 0, 40, 70, 38, 6, "#bd9675", 51],
-  bunny: [0, 1, 36, 65, 42, 6, "#e8dac6", 56],
-  cat: [1, 1, 36, 65, 42, 6, "#eee1cd", 56],
-  fox: [2, 1, 36, 63, 43, 6, "#d69253", 55],
-  bear: [3, 1, 37, 67, 40, 6, "#c99051", 55],
-  frog: [0, 2, 29, 70, 23, 7, "#9ab77a", 39],
-  star: [1, 2, 39, 64, 44, 5, "#f9dba0", 56],
-  "fluffy-cat": [2, 2, 31, 57, 37, 5, "#ede6df", 49],
-  "ginger-cat": [3, 2, 31, 57, 39, 5, "#d39b62", 50],
+  axolotl: [0, 0, 35.4, 72, 47.4, 7, "#f4c2c6", 59, 47.2],
+  penguin: [1, 0, 36.6, 65.5, 40.6, 6.8, "#eee2cf", 55, 38.4],
+  dragon: [2, 0, 34, 64.9, 41.9, 8, "#a6d2b2", 54, 41.3],
+  otter: [3, 0, 39.1, 69.1, 39, 7, "#bd9675", 51, 33.8],
+  bunny: [0, 1, 36, 65.6, 42, 7, "#e8dac6", 56, 36],
+  cat: [1, 1, 36, 61.5, 39.9, 7, "#eee1cd", 56, 42.3],
+  fox: [2, 1, 34.8, 61.7, 41.9, 7.3, "#d69253", 55, 42.4],
+  bear: [3, 1, 38.4, 65.1, 37.6, 6.2, "#c99051", 55, 40.3],
+  frog: [0, 2, 29.1, 68, 20.4, 9, "#9ab77a", 39, 18.1],
+  star: [1, 2, 39.5, 63.1, 44.3, 5.6, "#f9dba0", 56, 43.9],
+  "fluffy-cat": [2, 2, 29.4, 54.4, 34.1, 6.5, "#ede6df", 49, 33.7],
+  "ginger-cat": [3, 2, 33.8, 59.3, 34, 6.8, "#d39b62", 50, 34.9],
 } as const;
 export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
   const id = useId().replace(/:/g, ""),
-    [col, row, left, right, eyeY, radius, fur, mouthY] = friends[kind];
+    [col, row, left, right, eyeY, radius, , mouthY, rightEyeY] = friends[kind];
+  const eyes = [
+    [left, eyeY],
+    [right, rightEyeY],
+  ];
   const art = (
     <image
       href={`${import.meta.env.BASE_URL}assets/mascots/plush-friends.png`}
@@ -36,6 +40,15 @@ export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
       aria-hidden="true"
     >
       <defs>
+        <filter
+          id={id + "lid-feather"}
+          x="-40%"
+          y="-40%"
+          width="180%"
+          height="180%"
+        >
+          <feGaussianBlur stdDeviation=".8" />
+        </filter>
         <clipPath id={id + "cell"}>
           <rect
             x={
@@ -69,23 +82,24 @@ export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
           height="110"
         >
           <rect width="100" height="110" fill="white" />
-          {[left, right].map((x, i) => (
+          {eyes.map(([x, y], i) => (
             <ellipse
               key={i}
               cx={x}
-              cy={eyeY + 5}
-              rx={radius}
-              ry={radius + 1}
+              cy={y + 5}
+              rx={radius + 2.5}
+              ry={radius + 3.5}
+              filter={`url(#${id}lid-feather)`}
               fill="black"
             />
           ))}
         </mask>
-        {[left, right].map((x, i) => (
+        {eyes.map(([x, y], i) => (
           <clipPath id={id + "eye" + i} key={i}>
-            <ellipse cx={x} cy={eyeY + 5} rx={radius} ry={radius + 1} />
+            <ellipse cx={x} cy={y + 5} rx={radius + 4} ry={radius + 5} />
           </clipPath>
         ))}
-        {[left, right].map((x, i) => (
+        {eyes.map(([x, y], i) => (
           <clipPath
             id={id + "shutter" + i}
             key={i}
@@ -93,11 +107,11 @@ export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
           >
             <rect
               className={i ? "mascot-eye-right" : "mascot-eye-left"}
-              x={x - radius - 1}
-              y={eyeY + 5 - radius - 2}
-              width={radius * 2 + 2}
-              height={radius * 2 + 4}
-              style={{ transformOrigin: `${x}px ${eyeY + 5}px` }}
+              x={x - radius - 5}
+              y={y + 5 - radius - 6}
+              width={radius * 2 + 10}
+              height={radius * 2 + 12}
+              style={{ transformOrigin: `${x}px ${y + 5}px` }}
             />
           </clipPath>
         ))}
@@ -113,26 +127,26 @@ export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
       />
       <g className="mascot-body">
         <g clipPath={`url(#${id}cell)`}>
-          <g mask={`url(#${id}face)`}>{art}</g>
-          {[left, right].map((x, i) => (
+          {eyes.map(([x, y], i) => (
             <g key={i}>
-              <ellipse
-                cx={x}
-                cy={eyeY + 5}
-                rx={radius + 0.25}
-                ry={radius + 1.25}
-                fill={fur}
-              />
+              <g className="mascot-lid-texture" clipPath={`url(#${id}eye${i})`}>
+                <g
+                  transform={`translate(0, ${kind === "frog" || kind === "penguin" ? -2 * (radius + 1) : 2 * (radius + 1)})`}
+                >
+                  {art}
+                </g>
+              </g>
               <path
-                d={`M${x - radius + 1} ${eyeY + 5}q${radius - 1} 4 ${2 * radius - 2} 0`}
+                d={`M${x - radius + 1} ${y + 5}q${radius - 1} 4 ${2 * radius - 2} 0`}
                 stroke="#655048"
                 strokeWidth="1.1"
                 strokeLinecap="round"
               />
             </g>
           ))}
+          <g mask={`url(#${id}face)`}>{art}</g>
           <g className="mascot-eyes bunny-eyes">
-            {[left, right].map((x, i) => (
+            {eyes.map(([x, y], i) => (
               <g key={i} clipPath={`url(#${id}shutter${i})`}>
                 <g clipPath={`url(#${id}eye${i})`}>{art}</g>
               </g>

@@ -116,7 +116,7 @@
   gap: 9px;
 }
 .calendar-pocket-tabs button {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .calendar-pocket-tabs small {
   min-width: 16px;
@@ -124,7 +124,7 @@
   border-radius: 50%;
   background: var(--selected);
   color: var(--accent);
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   display: grid;
   place-items: center;
 }
@@ -169,12 +169,12 @@
   border-bottom: 1px solid var(--border);
 }
 .pocket-header h2 {
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale, 1));
   line-height: 1.4;
 }
 .pocket-header small {
   color: var(--muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
 }
 .pocket-header > button {
   width: 34px;
@@ -200,19 +200,19 @@
   width: 27px;
 }
 .pocket-content .task-title strong {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .pocket-empty {
   padding: 15px 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   line-height: 1.8;
 }
 .pocket-notes-label {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: var(--muted);
 }
 .pocket-notes-label textarea {
@@ -220,7 +220,7 @@
   min-height: 220px;
   resize: vertical;
   color: var(--text);
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale, 1));
   line-height: 1.8;
 }
 .mini-month {
@@ -234,7 +234,7 @@
   margin-bottom: 12px;
 }
 .mini-month-heading strong {
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale, 1));
   text-transform: capitalize;
 }
 .mini-month-heading button {
@@ -257,7 +257,7 @@
 .mini-date-grid button {
   border-radius: 12px;
   min-height: 35px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .mini-date-grid button:hover {
   background: var(--selected);
@@ -285,14 +285,14 @@
   gap: 10px;
 }
 .mini-date-footer label {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: var(--muted);
 }
 .mini-date-footer input {
   display: block;
   margin-top: 3px;
   padding: 7px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 @keyframes pocket-open {
   from {
@@ -531,7 +531,7 @@
     min-height: 62px;
     padding: 7px 3px;
     gap: 4px;
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
     position: relative;
   }
   .calendar-pocket-tabs small {
@@ -540,7 +540,7 @@
     right: 3px;
     min-width: 14px;
     min-height: 14px;
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
   }
   .calendar-pocket .pocket-header > button {
     width: 44px;

@@ -21,6 +21,15 @@ export function PugMascot() {
       aria-hidden="true"
     >
       <defs>
+        <filter
+          id={`${id}-lid-feather`}
+          x="-40%"
+          y="-40%"
+          width="180%"
+          height="180%"
+        >
+          <feGaussianBlur stdDeviation=".8" />
+        </filter>
         <mask
           id={`${id}-body`}
           maskUnits="userSpaceOnUse"
@@ -36,10 +45,10 @@ export function PugMascot() {
           <path d={tail} />
         </clipPath>
         <clipPath id={`${id}-left-eye`}>
-          <ellipse cx="31.7" cy="34" rx="8.4" ry="9.4" />
+          <ellipse cx="31.7" cy="34" rx="12.4" ry="13.4" />
         </clipPath>
         <clipPath id={`${id}-right-eye`}>
-          <ellipse cx="68.6" cy="35.2" rx="8.4" ry="9.4" />
+          <ellipse cx="68.6" cy="35.2" rx="12.4" ry="13.4" />
         </clipPath>
         <mask
           id={`${id}-face`}
@@ -50,8 +59,22 @@ export function PugMascot() {
           height="110"
         >
           <rect width="100" height="110" fill="white" />
-          <ellipse cx="31.7" cy="34" rx="8.3" ry="9.3" fill="black" />
-          <ellipse cx="68.6" cy="35.2" rx="8.3" ry="9.3" fill="black" />
+          <ellipse
+            cx="31.7"
+            cy="34"
+            rx="10.8"
+            ry="11.8"
+            fill="black"
+            filter={`url(#${id}-lid-feather)`}
+          />
+          <ellipse
+            cx="68.6"
+            cy="35.2"
+            rx="10.8"
+            ry="11.8"
+            fill="black"
+            filter={`url(#${id}-lid-feather)`}
+          />
         </mask>
         {[
           [31.7, 34],
@@ -64,10 +87,10 @@ export function PugMascot() {
           >
             <rect
               className={i ? "mascot-eye-right" : "mascot-eye-left"}
-              x={x - 9}
-              y={y - 10}
-              width="18"
-              height="20"
+              x={x - 15}
+              y={y - 16}
+              width="30"
+              height="32"
               style={{ transformOrigin: `${x}px ${y}px` }}
             />
           </clipPath>
@@ -87,15 +110,22 @@ export function PugMascot() {
           <g clipPath={`url(#${id}-tail)`}>{art}</g>
         </g>
         <g mask={`url(#${id}-body)`}>
-          <g mask={`url(#${id}-face)`}>{art}</g>
-          <ellipse cx="31.7" cy="34" rx="8.4" ry="9.4" fill="#a48870" />
-          <ellipse cx="68.6" cy="35.2" rx="8.4" ry="9.4" fill="#a48870" />
+          {["left", "right"].map((side) => (
+            <g
+              key={side}
+              className="mascot-lid-texture"
+              clipPath={`url(#${id}-${side}-eye)`}
+            >
+              <g transform="translate(0, 19)">{art}</g>
+            </g>
+          ))}
           <path
             d="M25 35Q31.7 38 38 35M62 36Q68.6 39 75 36"
             stroke="#2e2323"
             strokeWidth=".7"
             strokeLinecap="round"
           />
+          <g mask={`url(#${id}-face)`}>{art}</g>
           <g className="mascot-eyes">
             <g clipPath={`url(#${id}-shutter-0)`}>
               <ellipse cx="31.7" cy="34" rx="8.4" ry="9.4" fill="#473b38" />

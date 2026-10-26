@@ -321,7 +321,7 @@
   max-width: min(390px, 100%);
   padding: 2px 0;
   color: var(--text-secondary, var(--text));
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   line-height: 1.6;
   text-align: right;
 }
@@ -345,11 +345,11 @@
   text-overflow: ellipsis;
   min-width: 0;
   line-height: 18px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
 }
 .studio-timed-event[data-density="compact"] .studio-event-main span {
   flex-shrink: 0;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
 }
 .studio-timed-event[data-density="compact"] .studio-event-main small {
   display: none;
@@ -390,11 +390,11 @@
   border-bottom: 1px solid var(--studio-line);
 }
 .studio-plan-pool > h2 {
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale, 1));
   margin: 5px 0;
 }
 .studio-plan-pool > p {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   line-height: 1.6;
   color: var(--muted);
   margin: 5px 0 12px;
@@ -412,13 +412,13 @@
   gap: 7px;
   cursor: pointer;
   padding: 11px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   font-weight: 600;
   list-style: none;
 }
 .studio-scope-group > summary:before {
   content: "›";
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale, 1));
   line-height: 1;
   transition: rotate 0.18s;
 }
@@ -438,7 +438,7 @@
   padding: 0 5px 6px;
 }
 .studio-scope-list > p {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: var(--muted);
   padding: 0 6px;
 }
@@ -489,7 +489,7 @@
 }
 .manual-assistant-modes button {
   flex: 1;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .manual-assistant-modes button[aria-pressed="true"] {
   background: var(--surface);
@@ -503,7 +503,7 @@
   gap: 8px;
   text-decoration: none;
   min-height: 44px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   border-radius: 11px;
   padding: 10px 14px;
 }
@@ -523,7 +523,7 @@
   padding: 10px 12px;
   background: var(--soft);
   border-radius: 10px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   line-height: 1.6;
   margin: 0;
 }
@@ -536,11 +536,11 @@
     display: none;
   }
   .manual-assistant-modes button {
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
     padding-inline: 5px;
   }
   .companion-phrase {
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
   }
 }
 .studio-event-main :is(span, strong) {
@@ -613,11 +613,11 @@
 }
 .task-reminder-alert small {
   color: var(--muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
 }
 .task-reminder-alert strong {
   display: block;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   line-height: 1.6;
   overflow-wrap: anywhere;
   margin-top: 4px;
