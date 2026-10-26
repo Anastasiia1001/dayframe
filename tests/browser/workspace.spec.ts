@@ -307,6 +307,8 @@ for (const width of [320, 390, 768])
 test("search, calendar filters and keyboard dismissal work", async ({
   page,
 }) => {
+  // November's six-week grid starts on October 26: adjacent dates keep events.
+  await page.clock.install({ time: new Date("2026-10-26T09:00:00+02:00") });
   await demo(page);
   await page.locator(".search-trigger").click();
   await page
@@ -327,7 +329,13 @@ test("search, calendar filters and keyboard dismissal work", async ({
     page.locator(".calendar-event").filter({ hasText: "Outlook" }),
   ).toHaveCount(0);
   await page.getByRole("button", { name: "Наступний період" }).click();
-  await expect(page.locator(".calendar-event")).toHaveCount(0);
+  await expect(
+    page.locator(".calendar-cell:not(.outside-month) .calendar-event"),
+  ).toHaveCount(0);
+  await expect(page.locator(".outside-month .calendar-event")).toHaveCount(2);
+  await expect(
+    page.locator(".calendar-event").filter({ hasText: "Outlook" }),
+  ).toHaveCount(0);
 });
 
 test("switching from demo to live never presents demo events as account data", async ({
