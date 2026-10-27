@@ -847,3 +847,257 @@
     background: var(--surface-solid);
   }
 }
+
+/* A tiny landscape behind the pet, not a weather sticker over its face. */
+:root[data-theme] .product-layout .weather-buddy {
+  --weather-cloud-paint: color-mix(in srgb, var(--surface-solid) 80%, #b7cbdc);
+  --weather-orb-paint: #f4cf83;
+  --weather-ground-paint: color-mix(
+    in srgb,
+    var(--google) 32%,
+    var(--surface-solid)
+  );
+  width: 244px;
+  isolation: isolate;
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--calendar) 16%, var(--surface-solid)),
+    var(--surface-glass-strong)
+  );
+}
+:root[data-theme] .product-layout .weather-buddy[data-night="true"] {
+  --weather-cloud-paint: color-mix(in srgb, var(--surface-solid) 65%, #95abc6);
+  --weather-orb-paint: #ece0bd;
+}
+:root[data-theme] .product-layout .companion-weather-scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+:root[data-theme] .product-layout .companion-weather-scene > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+:root[data-theme] .product-layout .sky-halo {
+  fill: var(--weather-orb-paint);
+  opacity: 0.15;
+}
+:root[data-theme] .product-layout .sky-orb {
+  fill: var(--weather-orb-paint);
+  opacity: 0.8;
+}
+:root[data-theme] .product-layout .sky-stars {
+  stroke: var(--weather-orb-paint);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.7;
+}
+:root[data-theme] .product-layout .companion-sky-cloud {
+  fill: var(--weather-cloud-paint);
+}
+:root[data-theme] .product-layout .cloud-far {
+  opacity: 0.45;
+  animation: companion-cloud-drift 17s ease-in-out infinite alternate;
+}
+:root[data-theme] .product-layout .cloud-near {
+  opacity: 0.65;
+  animation: companion-cloud-drift 23s -7s ease-in-out infinite
+    alternate-reverse;
+}
+:root[data-theme] .product-layout .companion-scene-ground {
+  fill: var(--weather-ground-paint);
+}
+:root[data-theme] .product-layout .ground-back {
+  opacity: 0.45;
+}
+:root[data-theme] .product-layout .ground-front {
+  opacity: 0.65;
+}
+:root[data-theme] .product-layout .companion-sky-fog {
+  stroke: var(--weather-cloud-paint);
+  stroke-width: 4;
+  stroke-linecap: round;
+  opacity: 0.65;
+}
+:root[data-theme] .product-layout .companion-sky-lightning {
+  fill: var(--weather-orb-paint);
+  opacity: 0.8;
+}
+:root[data-theme] .product-layout .companion-precipitation {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+:root[data-theme] .product-layout .companion-precipitation i {
+  position: absolute;
+  top: 32%;
+  display: block;
+  pointer-events: none;
+  animation: companion-rain-fall 1.6s linear infinite;
+}
+:root[data-theme] .product-layout .is-rain i {
+  width: 1px;
+  height: 7px;
+  background: color-mix(in srgb, var(--calendar) 70%, var(--text));
+  opacity: 0.4;
+}
+:root[data-theme] .product-layout .is-snow i {
+  width: 3px;
+  height: 3px;
+  background: var(--weather-cloud-paint);
+  border-radius: 50%;
+  opacity: 0.8;
+  animation-name: companion-snow-fall;
+}
+:root[data-theme] .product-layout .weather-buddy-stage {
+  z-index: 1;
+}
+:root[data-theme] .product-layout .weather-buddy-summary {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
+  height: auto;
+  padding: 4px 12px 4px 15px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--surface-solid) 88%, transparent) 34%
+  );
+  border-radius: 0 17px 17px 0;
+}
+:root[data-theme] .product-layout .weather-buddy-summary small {
+  max-width: 132px;
+}
+:root[data-theme] .product-layout .weather-buddy-summary:hover {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--surface-glass-strong) 34%
+  );
+}
+@keyframes companion-cloud-drift {
+  from {
+    transform: translateX(-5px);
+  }
+  to {
+    transform: translateX(6px);
+  }
+}
+@keyframes companion-rain-fall {
+  from {
+    transform: translate(3px, -12px);
+  }
+  to {
+    transform: translate(-7px, 60px);
+  }
+}
+@keyframes companion-snow-fall {
+  from {
+    transform: translate(0, -12px);
+  }
+  to {
+    transform: translate(11px, 65px);
+  }
+}
+@media (max-width: 759px) {
+  :root[data-theme] .product-layout .weather-buddy {
+    width: clamp(164px, 48vw, 190px);
+  }
+  :root[data-theme] .product-layout .weather-buddy-summary {
+    padding: 3px 8px 3px 8px;
+  }
+  :root[data-theme] .product-layout .weather-buddy-summary small {
+    max-width: 96px;
+  }
+}
+@media (max-width: 359px) {
+  :root[data-theme] .product-layout .studio-period-picker h1 {
+    font-size: 14px;
+  }
+  :root[data-theme] .product-layout .studio-period-picker summary > svg {
+    width: 14px;
+    flex-shrink: 0;
+  }
+}
+:root[data-theme][data-motion="off"]
+  .product-layout
+  :is(.companion-sky-cloud, .companion-precipitation i) {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme]
+    .product-layout
+    :is(.companion-sky-cloud, .companion-precipitation i) {
+    animation: none !important;
+  }
+}
+:root[data-theme]
+  .product-layout
+  .weather-buddy[data-weather]:not([data-weather="unavailable"]) {
+  background: linear-gradient(
+    145deg,
+    var(--weather-window-wash),
+    var(--surface-solid)
+  );
+}
+:root[data-theme]
+  .product-layout
+  .weather-buddy:is([data-weather="rain"], [data-weather="storm"]) {
+  --weather-window-wash: color-mix(in srgb, #97b4cb 70%, var(--surface-solid));
+}
+:root[data-theme] .product-layout .weather-buddy[data-weather="sun"] {
+  --weather-window-wash: color-mix(in srgb, #f3d69a 50%, var(--surface-solid));
+}
+:root[data-theme] .product-layout .weather-buddy[data-weather="snow"] {
+  --weather-window-wash: color-mix(in srgb, #c5e0ed 60%, var(--surface-solid));
+}
+:root[data-theme] .product-layout .weather-buddy[data-night="true"] {
+  --weather-window-wash: color-mix(in srgb, #35486f 50%, var(--surface-solid));
+}
+:root[data-theme] .product-layout .weather-buddy-summary {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--surface-solid) 48%, transparent) 70%
+  );
+}
+:root[data-theme] .product-layout .weather-buddy-summary:hover {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--surface-solid) 62%, transparent) 70%
+  );
+}
+:root[data-theme] .product-layout .cloud-far {
+  opacity: 0.65;
+}
+:root[data-theme] .product-layout .cloud-near {
+  opacity: 0.82;
+}
+:root[data-theme] .product-layout .is-rain i {
+  opacity: 0.6;
+  width: 1.25px;
+  height: 8px;
+}
+:root[data-theme] .product-layout .weather-buddy {
+  --weather-cloud-paint: color-mix(in srgb, var(--surface-solid) 55%, #adc3d5);
+  --weather-cloud-light: color-mix(in srgb, var(--surface-solid) 65%, #ffffff);
+}
+:root[data-theme] .product-layout .weather-buddy[data-night="true"] {
+  --weather-cloud-paint: color-mix(in srgb, var(--surface-solid) 60%, #7f97b7);
+  --weather-cloud-light: color-mix(in srgb, var(--surface-solid) 65%, #d6e2ee);
+}
+:root[data-theme] .product-layout .companion-sky-cloud {
+  stroke: color-mix(in srgb, var(--weather-cloud-light) 65%, transparent);
+  stroke-width: 0.8;
+}
+
+:root[data-theme] .product-layout .weather-buddy {
+  --weather-window-wash: color-mix(in srgb, #b9d5e8 55%, var(--surface-solid));
+}

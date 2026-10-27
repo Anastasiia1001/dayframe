@@ -1,3 +1,4 @@
+import { CompanionWeatherScene } from "./CompanionWeatherScene";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MapPin, RefreshCw } from "lucide-react";
 import { useLocal } from "../useLocal";
@@ -427,12 +428,8 @@ export function WeatherCard({
       data-weather={weather ? kind : "unavailable"}
       data-night={weather ? !weather.isDay : undefined}
     >
-      <div className="weather-buddy-stage">
-        <div className="weather-buddy-sky" aria-hidden="true">
-          {!opened && scene}
-        </div>
-        {companion}
-      </div>
+      {weather && <CompanionWeatherScene kind={kind} isDay={weather.isDay} />}
+      <div className="weather-buddy-stage">{companion}</div>
       <button
         className="weather-buddy-summary"
         aria-label="Відкрити погоду"

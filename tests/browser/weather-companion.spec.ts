@@ -83,3 +83,63 @@ test("Today has one combined weather companion and unavailable weather is never 
   ).toHaveCount(1);
   await expect(page.locator(".today-grid .weather-card")).toHaveCount(0);
 });
+
+test("the whole weather window follows actual conditions, keeps text separate and supports reduced motion", async ({
+  page,
+}) => {
+  let code = 3;
+  await page.route("https://api.open-meteo.com/**", (r) =>
+    r.fulfill({
+      json: {
+        current: {
+          temperature_2m: 10,
+          apparent_temperature: 8,
+          weather_code: code,
+          is_day: 1,
+        },
+      },
+    }),
+  );
+  for (const [weatherCode, kind] of [
+    [3, "cloud"],
+    [61, "rain"],
+    [73, "snow"],
+    [0, "sun"],
+    [95, "storm"],
+    [45, "fog"],
+  ] as const) {
+    code = weatherCode;
+    await page.goto("/");
+    const window = page.getByRole("region", { name: "Погода й помічник" });
+    await expect(window.locator(".companion-weather-scene")).toHaveAttribute(
+      "data-kind",
+      kind,
+    );
+    await expect(window).toContainText("10°");
+    if (kind === "rain" || kind === "snow" || kind === "storm")
+      await expect(window.locator(".companion-precipitation i")).toHaveCount(
+        10,
+      );
+    else
+      await expect(window.locator(".companion-precipitation i")).toHaveCount(0);
+    const pet = await window.locator(".mascot-art").boundingBox(),
+      text = await window.locator(".weather-buddy-summary").boundingBox();
+    expect(pet!.x + pet!.width).toBeLessThanOrEqual(text!.x + 1);
+  }
+  code = 61;
+  await page.reload();
+  await expect(page.locator(".companion-precipitation i")).toHaveCount(10);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator(".companion-precipitation i").first()).toHaveCSS(
+    "animation-name",
+    "none",
+  );
+  for (const width of [320, 390, 768, 1366]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+});
