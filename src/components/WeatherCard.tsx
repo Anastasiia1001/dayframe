@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MapPin, RefreshCw } from "lucide-react";
 import { useLocal } from "../useLocal";
 import {
@@ -9,7 +9,19 @@ import {
 } from "../domain/weather";
 import "../today.css";
 type Place = { name: string; lat: number; lon: number };
-export function WeatherCard() {
+export function WeatherCard({
+  compact = false,
+  companion,
+}: {
+  compact?: boolean;
+  companion?: ReactNode;
+}) {
+  const [opened, setOpened] = useState(false);
+  const weatherDialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (opened) weatherDialog.current?.showModal();
+    else weatherDialog.current?.close();
+  }, [opened]);
   const [place, setPlace] = useLocal<Place>("dayframe-weather-place", {
     name: "Київ",
     lat: 50.45,
@@ -76,7 +88,99 @@ export function WeatherCard() {
   }, [place.lat, place.lon, attempt]);
   useEffect(() => () => searchController.current?.abort(), []);
   const kind = weather ? weatherKind(weather.code) : "cloud";
-  return (
+  const scene = (
+    <div
+      className={`weather-scene weather-${kind} ${weather && !weather.isDay ? "weather-night" : ""}`}
+      aria-hidden="true"
+      data-weather={weather ? kind : "unavailable"}
+    >
+      {weather && (
+        <svg viewBox="0 0 180 110">
+          <defs>
+            <linearGradient id="weather-cloud" x2="0" y2="1">
+              <stop stopColor="#fffef4" />
+              <stop offset="1" stopColor="#c5d4e5" />
+            </linearGradient>
+            <radialGradient id="weather-sun">
+              <stop stopColor="#fff5ba" />
+              <stop offset="1" stopColor="#f2bf66" />
+            </radialGradient>
+          </defs>
+          {(kind === "sun" || kind === "cloud") &&
+            (weather.isDay ? (
+              <g className="weather-sun-shape">
+                <circle cx="112" cy="43" r="26" fill="url(#weather-sun)" />
+                {Array.from({ length: 8 }, (_, i) => (
+                  <path
+                    key={i}
+                    d="M112 7v-5"
+                    stroke="#e9be79"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    transform={`rotate(${i * 45} 112 43)`}
+                  />
+                ))}
+              </g>
+            ) : (
+              <path
+                d="M128 18a28 28 0 1 0 11 43 24 24 0 0 1-11-43"
+                fill="#f8e7ac"
+              />
+            ))}
+          {kind !== "sun" && (
+            <path
+              className="weather-cloud-shape"
+              d="M46 73C22 73 22 44 43 42C44 16 81 12 92 35C116 19 145 38 140 57C160 78 125 85 113 80H49Z"
+              fill="url(#weather-cloud)"
+              stroke="#ffffffaa"
+              strokeWidth="2"
+            />
+          )}
+          {(kind === "rain" || kind === "storm") &&
+            Array.from({ length: 8 }, (_, i) => (
+              <path
+                className="weather-drop"
+                key={i}
+                d={`M${43 + i * 12} 76l-4 9`}
+                stroke="#81b9d7"
+                strokeWidth="3"
+                strokeLinecap="round"
+                style={{ animationDelay: `${i * 0.14}s` }}
+              />
+            ))}
+          {kind === "snow" &&
+            Array.from({ length: 7 }, (_, i) => (
+              <g
+                className="weather-flake"
+                key={i}
+                style={{ animationDelay: `${i * 0.3}s` }}
+              >
+                <path
+                  d={`M${40 + i * 15} 81v10m-4-5h8m-7-3 6 6m0-6-6 6`}
+                  stroke="#8fb5ca"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </g>
+            ))}
+          {kind === "storm" && (
+            <path
+              className="weather-lightning"
+              d="M99 68l-17 24h13l-4 16 24-28h-15l8-12"
+              fill="#f7d17c"
+            />
+          )}
+          {kind === "fog" && (
+            <g stroke="#d2e2df" strokeWidth="5" strokeLinecap="round">
+              <path d="M25 85h125" />
+              <path d="M40 97h104" />
+            </g>
+          )}
+        </svg>
+      )}
+    </div>
+  );
+  const fullCard = (
     <article
       className={`today-card weather-card weather-surface-${weather ? kind : "unavailable"}`}
       data-night={weather ? !weather.isDay : undefined}
@@ -164,96 +268,7 @@ export function WeatherCard() {
         </button>
       </div>
       <div className="weather-main">
-        <div
-          className={`weather-scene weather-${kind} ${weather && !weather.isDay ? "weather-night" : ""}`}
-          aria-hidden="true"
-          data-weather={weather ? kind : "unavailable"}
-        >
-          {weather && (
-            <svg viewBox="0 0 180 110">
-              <defs>
-                <linearGradient id="weather-cloud" x2="0" y2="1">
-                  <stop stopColor="#fffef4" />
-                  <stop offset="1" stopColor="#c5d4e5" />
-                </linearGradient>
-                <radialGradient id="weather-sun">
-                  <stop stopColor="#fff5ba" />
-                  <stop offset="1" stopColor="#f2bf66" />
-                </radialGradient>
-              </defs>
-              {(kind === "sun" || kind === "cloud") &&
-                (weather.isDay ? (
-                  <g className="weather-sun-shape">
-                    <circle cx="112" cy="43" r="26" fill="url(#weather-sun)" />
-                    {Array.from({ length: 8 }, (_, i) => (
-                      <path
-                        key={i}
-                        d="M112 7v-5"
-                        stroke="#e9be79"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        transform={`rotate(${i * 45} 112 43)`}
-                      />
-                    ))}
-                  </g>
-                ) : (
-                  <path
-                    d="M128 18a28 28 0 1 0 11 43 24 24 0 0 1-11-43"
-                    fill="#f8e7ac"
-                  />
-                ))}
-              {kind !== "sun" && (
-                <path
-                  className="weather-cloud-shape"
-                  d="M46 73C22 73 22 44 43 42C44 16 81 12 92 35C116 19 145 38 140 57C160 78 125 85 113 80H49Z"
-                  fill="url(#weather-cloud)"
-                  stroke="#ffffffaa"
-                  strokeWidth="2"
-                />
-              )}
-              {(kind === "rain" || kind === "storm") &&
-                Array.from({ length: 8 }, (_, i) => (
-                  <path
-                    className="weather-drop"
-                    key={i}
-                    d={`M${43 + i * 12} 76l-4 9`}
-                    stroke="#81b9d7"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    style={{ animationDelay: `${i * 0.14}s` }}
-                  />
-                ))}
-              {kind === "snow" &&
-                Array.from({ length: 7 }, (_, i) => (
-                  <g
-                    className="weather-flake"
-                    key={i}
-                    style={{ animationDelay: `${i * 0.3}s` }}
-                  >
-                    <path
-                      d={`M${40 + i * 15} 81v10m-4-5h8m-7-3 6 6m0-6-6 6`}
-                      stroke="#8fb5ca"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                    />
-                  </g>
-                ))}
-              {kind === "storm" && (
-                <path
-                  className="weather-lightning"
-                  d="M99 68l-17 24h13l-4 16 24-28h-15l8-12"
-                  fill="#f7d17c"
-                />
-              )}
-              {kind === "fog" && (
-                <g stroke="#d2e2df" strokeWidth="5" strokeLinecap="round">
-                  <path d="M25 85h125" />
-                  <path d="M40 97h104" />
-                </g>
-              )}
-            </svg>
-          )}
-        </div>
+        {scene}
         <div>
           <strong className="weather-temp">
             {weather ? `${Math.round(weather.temperature)}°` : "—"}
@@ -403,5 +418,66 @@ export function WeatherCard() {
         </div>
       )}
     </article>
+  );
+  if (!compact) return fullCard;
+  return (
+    <section
+      className="weather-buddy"
+      aria-label="Погода й помічник"
+      data-weather={weather ? kind : "unavailable"}
+      data-night={weather ? !weather.isDay : undefined}
+    >
+      <div className="weather-buddy-stage">
+        <div className="weather-buddy-sky" aria-hidden="true">
+          {!opened && scene}
+        </div>
+        {companion}
+      </div>
+      <button
+        className="weather-buddy-summary"
+        aria-label="Відкрити погоду"
+        aria-haspopup="dialog"
+        onClick={() => setOpened(true)}
+      >
+        <strong>{weather ? `${Math.round(weather.temperature)}°` : "—"}</strong>
+        <span>
+          {weather
+            ? weather.isDay
+              ? weatherLabels[kind]
+              : kind === "sun"
+                ? "Ясна ніч"
+                : weatherLabels[kind]
+            : busy
+              ? "Оновлюємо…"
+              : "Немає даних"}
+        </span>
+        <small>
+          {error
+            ? weather
+              ? "Попередні дані"
+              : "Погода недоступна"
+            : place.name}
+        </small>
+      </button>
+      <dialog
+        ref={weatherDialog}
+        className="weather-buddy-dialog"
+        aria-label="Погода і місто"
+        onCancel={() => setOpened(false)}
+        onKeyDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setOpened(false);
+        }}
+      >
+        <button
+          className="weather-buddy-close"
+          aria-label="Закрити погоду"
+          onClick={() => setOpened(false)}
+        >
+          ×
+        </button>
+        {opened && fullCard}
+      </dialog>
+    </section>
   );
 }

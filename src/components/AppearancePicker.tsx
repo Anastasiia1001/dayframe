@@ -2,6 +2,8 @@ import { useRef } from "react";
 import { Palette, X, Check } from "lucide-react";
 import { themes } from "../appearance";
 const curated = [
+  "Autumn",
+  "Halloween",
   "Pastel",
   "Blossom",
   "Lagoon",

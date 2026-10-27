@@ -95,7 +95,7 @@ test("every mascot blinks without changing its mouth, greets with charms and sta
       await art
         .locator(".mascot-body")
         .evaluate((el) => getComputedStyle(el).animationName),
-    ).toBe("soft-breathe");
+    ).toBe("companion-breath");
     await page.getByLabel("Привітатися з помічником").click();
     await expect(page.locator(".calendar-companion .mascot-charm")).toHaveCount(
       4,

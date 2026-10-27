@@ -17,4 +17,5 @@ import './glossy-ui.css';
 import './liquid-glass.css';
 import './product-layout.css';
 import './themed-glass.css';
+import './glass-refinement.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);

@@ -1,3 +1,4 @@
+import { SeasonalOutfit } from "./SeasonalOutfit";
 import { useId } from "react";
 
 /** One consistent textured illustration, articulated with SVG masks rather than recoloured. */
@@ -12,6 +13,8 @@ export function PugMascot() {
       height="102"
     />
   );
+  const leftEar = "M4 12Q17 4 30 4Q30 12 23 17Q19 25 11 35Q4 30 4 12Z";
+  const rightEar = "M96 12Q83 4 70 4Q70 12 77 17Q81 25 89 35Q96 30 96 12Z";
   const tail = "M79 67Q92 61 95 72Q98 80 82 85L78 79Z";
   return (
     <svg
@@ -40,7 +43,15 @@ export function PugMascot() {
         >
           <rect width="100" height="110" fill="white" />
           <path d={tail} fill="black" />
+          <path d={leftEar} fill="black" />
+          <path d={rightEar} fill="black" />
         </mask>
+        <clipPath id={`${id}-ear-left`}>
+          <path d={leftEar} />
+        </clipPath>
+        <clipPath id={`${id}-ear-right`}>
+          <path d={rightEar} />
+        </clipPath>
         <clipPath id={`${id}-tail`}>
           <path d={tail} />
         </clipPath>
@@ -106,36 +117,45 @@ export function PugMascot() {
         opacity=".12"
       />
       <g className="mascot-body">
-        <g className="pug-tail">
-          <g clipPath={`url(#${id}-tail)`}>{art}</g>
-        </g>
-        <g mask={`url(#${id}-body)`}>
-          {["left", "right"].map((side) => (
-            <g
-              key={side}
-              className="mascot-lid-texture"
-              clipPath={`url(#${id}-${side}-eye)`}
-            >
-              <g transform="translate(0, 19)">{art}</g>
-            </g>
-          ))}
-          <path
-            d="M25 35Q31.7 38 38 35M62 36Q68.6 39 75 36"
-            stroke="#2e2323"
-            strokeWidth=".7"
-            strokeLinecap="round"
-          />
-          <g mask={`url(#${id}-face)`}>{art}</g>
-          <g className="mascot-eyes">
-            <g clipPath={`url(#${id}-shutter-0)`}>
-              <ellipse cx="31.7" cy="34" rx="8.4" ry="9.4" fill="#473b38" />
-              <g clipPath={`url(#${id}-left-eye)`}>{art}</g>
-            </g>
-            <g clipPath={`url(#${id}-shutter-1)`}>
-              <ellipse cx="68.6" cy="35.2" rx="8.4" ry="9.4" fill="#473b38" />
-              <g clipPath={`url(#${id}-right-eye)`}>{art}</g>
+        <g className="mascot-idle-pose">
+          <g className="pug-ear-left">
+            <g clipPath={`url(#${id}-ear-left)`}>{art}</g>
+          </g>
+          <g className="pug-ear-right">
+            <g clipPath={`url(#${id}-ear-right)`}>{art}</g>
+          </g>
+          <g className="pug-tail">
+            <g clipPath={`url(#${id}-tail)`}>{art}</g>
+          </g>
+          <g mask={`url(#${id}-body)`}>
+            {["left", "right"].map((side) => (
+              <g
+                key={side}
+                className="mascot-lid-texture"
+                clipPath={`url(#${id}-${side}-eye)`}
+              >
+                <g transform="translate(0, 19)">{art}</g>
+              </g>
+            ))}
+            <path
+              d="M25 35Q31.7 38 38 35M62 36Q68.6 39 75 36"
+              stroke="#2e2323"
+              strokeWidth=".7"
+              strokeLinecap="round"
+            />
+            <g mask={`url(#${id}-face)`}>{art}</g>
+            <g className="mascot-eyes">
+              <g clipPath={`url(#${id}-shutter-0)`}>
+                <ellipse cx="31.7" cy="34" rx="8.4" ry="9.4" fill="#473b38" />
+                <g clipPath={`url(#${id}-left-eye)`}>{art}</g>
+              </g>
+              <g clipPath={`url(#${id}-shutter-1)`}>
+                <ellipse cx="68.6" cy="35.2" rx="8.4" ry="9.4" fill="#473b38" />
+                <g clipPath={`url(#${id}-right-eye)`}>{art}</g>
+              </g>
             </g>
           </g>
+          <SeasonalOutfit kind={"pug"} />
         </g>
       </g>
     </svg>

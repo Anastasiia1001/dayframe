@@ -1,3 +1,4 @@
+import { SeasonalOutfit } from "./SeasonalOutfit";
 import { useId } from "react";
 import type { MascotId } from "../appearance";
 // Atlas is generated as a coherent set; coordinates refer to each 100×100 cell.
@@ -126,32 +127,38 @@ export function PlushMascot({ kind }: { kind: Exclude<MascotId, "pug"> }) {
         opacity=".12"
       />
       <g className="mascot-body">
-        <g clipPath={`url(#${id}cell)`}>
-          {eyes.map(([x, y], i) => (
-            <g key={i}>
-              <g className="mascot-lid-texture" clipPath={`url(#${id}eye${i})`}>
-                <g
-                  transform={`translate(0, ${kind === "frog" || kind === "penguin" ? -2 * (radius + 1) : 2 * (radius + 1)})`}
-                >
-                  {art}
-                </g>
-              </g>
-              <path
-                d={`M${x - radius + 1} ${y + 5}q${radius - 1} 4 ${2 * radius - 2} 0`}
-                stroke="#655048"
-                strokeWidth="1.1"
-                strokeLinecap="round"
-              />
-            </g>
-          ))}
-          <g mask={`url(#${id}face)`}>{art}</g>
-          <g className="mascot-eyes bunny-eyes">
+        <g className="mascot-idle-pose">
+          <g clipPath={`url(#${id}cell)`}>
             {eyes.map(([x, y], i) => (
-              <g key={i} clipPath={`url(#${id}shutter${i})`}>
-                <g clipPath={`url(#${id}eye${i})`}>{art}</g>
+              <g key={i}>
+                <g
+                  className="mascot-lid-texture"
+                  clipPath={`url(#${id}eye${i})`}
+                >
+                  <g
+                    transform={`translate(0, ${kind === "frog" || kind === "penguin" ? -2 * (radius + 1) : 2 * (radius + 1)})`}
+                  >
+                    {art}
+                  </g>
+                </g>
+                <path
+                  d={`M${x - radius + 1} ${y + 5}q${radius - 1} 4 ${2 * radius - 2} 0`}
+                  stroke="#655048"
+                  strokeWidth="1.1"
+                  strokeLinecap="round"
+                />
               </g>
             ))}
+            <g mask={`url(#${id}face)`}>{art}</g>
+            <g className="mascot-eyes bunny-eyes">
+              {eyes.map(([x, y], i) => (
+                <g key={i} clipPath={`url(#${id}shutter${i})`}>
+                  <g clipPath={`url(#${id}eye${i})`}>{art}</g>
+                </g>
+              ))}
+            </g>
           </g>
+          <SeasonalOutfit kind={kind} />
         </g>
       </g>
     </svg>

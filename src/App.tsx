@@ -1,3 +1,4 @@
+import { CalendarCompanion } from "./components/CalendarCompanion";
 import { RestCorner } from "./components/RestCorner";
 import { QuickTaskEditor } from "./components/QuickTaskEditor";
 import { TodayFocus } from "./components/DayContext";
@@ -688,6 +689,7 @@ export default function App() {
                 : "Google та Outlook не підключено"
           }
           showMascot={prefs.cozyMode !== false}
+          showWeather={visible("weather")}
           openDayRequest={openDayRequest}
         />
       );
@@ -968,6 +970,19 @@ export default function App() {
                           : "Теми, помічник і підключення облікових записів."}
               </p>
             </div>
+            {!legacyPlanner && page === "Today" && visible("weather") && (
+              <WeatherCard
+                compact
+                companion={
+                  prefs.cozyMode !== false ? (
+                    <CalendarCompanion
+                      theme={theme}
+                      mascot={safeMascot(mascot)}
+                    />
+                  ) : undefined
+                }
+              />
+            )}
           </div>
           <div className="workspace-toolbar" hidden={page === "Rest"}>
             <span
@@ -1007,6 +1022,7 @@ export default function App() {
           {prefs.cozyMode !== false && page === "Today" && (
             <CozyCompanion
               mascot={safeMascot(mascot)}
+              hideMascot={!legacyPlanner && visible("weather")}
               burst={burst}
               tasks={tasks}
               today={today}
@@ -1225,7 +1241,7 @@ export default function App() {
                 )}
               </div>
               <div className="today-overview-grid">
-                {visible("weather") && <WeatherCard />}
+                {visible("weather") && legacyPlanner && <WeatherCard />}
                 <div className="planner-inspiration-pair">
                   {visible("affirmations") && (
                     <InspirationCard kind="affirmations" />

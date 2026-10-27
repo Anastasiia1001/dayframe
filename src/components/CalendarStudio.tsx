@@ -1,3 +1,4 @@
+import { WeatherCard } from "./WeatherCard";
 import { backupKeyAllowed, restOccurrences } from "../domain/rest";
 import { DayContext } from "./DayContext";
 import { AppearancePicker } from "./AppearancePicker";
@@ -78,6 +79,7 @@ type Props = {
   onRefresh: () => void;
   syncStatus: string;
   showMascot?: boolean;
+  showWeather?: boolean;
   openDayRequest?: number;
 };
 const localEvent = (e: CalendarEvent): e is LocalOccurrence => "taskId" in e;
@@ -1085,9 +1087,18 @@ export function CalendarStudio(p: Props) {
         </details>
         <div className="studio-header-art">
           <AppearancePicker theme={p.theme} onTheme={p.onTheme} />
-          {p.showMascot !== false && (
+          {p.showWeather !== false ? (
+            <WeatherCard
+              compact
+              companion={
+                p.showMascot !== false ? (
+                  <CalendarCompanion theme={p.theme} mascot={p.mascot} />
+                ) : undefined
+              }
+            />
+          ) : p.showMascot !== false ? (
             <CalendarCompanion theme={p.theme} mascot={p.mascot} />
-          )}
+          ) : null}
         </div>
       </header>
       <div className="studio-tools">

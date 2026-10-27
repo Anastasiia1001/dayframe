@@ -19,6 +19,18 @@ export const isPlannerTheme = (theme: string) =>
 export const themes = [
   ...plannerThemes,
   {
+    id: "Autumn",
+    name: "Осінь · Бурштиновий затишок",
+    background: "#f5eadb",
+    accent: "#8b482a",
+  },
+  {
+    id: "Halloween",
+    name: "Хеловін · Гарбузова ніч",
+    background: "#191726",
+    accent: "#f2b477",
+  },
+  {
     id: "NeonAzure",
     name: "Неон · Лазур",
     background: "#080f25",

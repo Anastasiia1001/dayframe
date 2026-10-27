@@ -45,21 +45,6 @@ function Breathing() {
     <section className="rest-breath" aria-label="Спокійне дихання">
       <h2>Можна зробити паузу</h2>
       <p>Дихай у комфортному темпі. Можна просто спостерігати.</p>
-      <label>
-        Тривалість{" "}
-        <select
-          aria-label="Тривалість перепочинку"
-          disabled={started}
-          value={duration}
-          onChange={(e) => setDuration(Number(e.target.value))}
-        >
-          {[1, 2, 3].map((n) => (
-            <option key={n} value={n}>
-              {n} хв
-            </option>
-          ))}
-        </select>
-      </label>
       <div
         className={`breath-orb ${started ? "has-started" : ""}`}
         style={{ animationPlayState: running ? "running" : "paused" }}
@@ -78,19 +63,6 @@ function Breathing() {
                 ? "М’який вдих"
                 : "Спокійний видих"}
       </p>
-      <label className="rest-check">
-        <input
-          type="checkbox"
-          checked={showTime}
-          onChange={(e) => setShowTime(e.target.checked)}
-        />
-        Показувати таймер
-      </label>
-      <div className="breath-clock" aria-hidden={!showTime}>
-        {showTime
-          ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`
-          : ""}
-      </div>
       <div className="rest-actions">
         {!complete && (
           <button
@@ -117,6 +89,36 @@ function Breathing() {
             {complete ? "Ще одна пауза" : "Завершити"}
           </button>
         )}
+      </div>
+      <div className="breath-settings">
+        <label>
+          Тривалість{" "}
+          <select
+            aria-label="Тривалість перепочинку"
+            disabled={started}
+            value={duration}
+            onChange={(e) => setDuration(Number(e.target.value))}
+          >
+            {[1, 2, 3].map((n) => (
+              <option key={n} value={n}>
+                {n} хв
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="rest-check">
+          <input
+            type="checkbox"
+            checked={showTime}
+            onChange={(e) => setShowTime(e.target.checked)}
+          />
+          Показувати таймер
+        </label>
+        <div className="breath-clock" aria-hidden={!showTime}>
+          {showTime
+            ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`
+            : ""}
+        </div>
       </div>
     </section>
   );
@@ -247,7 +249,7 @@ export function RestCorner(p: Props) {
     action?.();
   };
   return (
-    <div className="rest-corner">
+    <div className="rest-corner" data-rest-mode={mode}>
       <header className="rest-header">
         <div>
           <span className="rest-eyebrow">ТВІЙ ТИХИЙ КУТОЧОК</span>
@@ -291,11 +293,17 @@ export function RestCorner(p: Props) {
       {mode === "write" && (
         <section className="rest-writing" aria-label="Особисті думки">
           <h2>Можна написати все, що зараз у голові</h2>
-          <p>
-            Чернетка тимчасова. Лише після натискання «Зберегти» запис
-            залишиться в цьому браузері. Він не синхронізується, не входить у
-            пошук, календарний експорт і загальну резервну копію.
-          </p>
+          <p className="thoughts-hint">Чернетка не зберігається автоматично.</p>
+          <details className="thoughts-privacy">
+            <summary>Як зберігаються записи</summary>
+            <p>
+              Лише після натискання «Зберегти» запис залишиться в цьому
+              браузері. Він не синхронізується, не надсилається зовнішнім
+              сервісам і не входить у пошук, календарний експорт чи загальну
+              резервну копію. Це звичайне локальне сховище браузера, без
+              окремого шифрування.
+            </p>
+          </details>
           {readError && (
             <p role="alert">
               Збережені записи не вдалося прочитати. Їх не змінено; збереження

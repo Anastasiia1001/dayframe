@@ -22,6 +22,7 @@ export function CozyCompanion({
   alerts = [],
   onOpenTask,
   onOpenChat,
+  hideMascot = false,
 }: {
   mascot?: MascotId;
   burst?: number;
@@ -30,6 +31,7 @@ export function CozyCompanion({
   alerts?: TaskReminder[];
   onOpenTask?: (task: PersonalTask) => void;
   onOpenChat?: () => void;
+  hideMascot?: boolean;
 }) {
   const [note, setNote] = useState(0),
     [play, setPlay] = useState(false);
@@ -86,21 +88,23 @@ export function CozyCompanion({
   }, [burst, note]);
   return (
     <div className={`cozy-note ${play ? "companion-celebrating" : ""}`}>
-      <button
-        className={`bunny-button ${play ? "is-playing" : ""}`}
-        aria-label="Трохи підтримки"
-        title={mascots.find((m) => m.id === mascot)?.name}
-        onClick={() => {
-          setNote((n) => n + 1);
-          setPlay(true);
-        }}
-        onAnimationEnd={(e) => {
-          if (e.animationName === "storybook-bounce") setPlay(false);
-        }}
-      >
-        <Mascot key={mascot + ":" + note + ":" + burst} kind={mascot} />
-        {play && <MascotCharms key={`charms:${note}:${burst}`} />}
-      </button>
+      {!hideMascot && (
+        <button
+          className={`bunny-button ${play ? "is-playing" : ""}`}
+          aria-label="Трохи підтримки"
+          title={mascots.find((m) => m.id === mascot)?.name}
+          onClick={() => {
+            setNote((n) => n + 1);
+            setPlay(true);
+          }}
+          onAnimationEnd={(e) => {
+            if (e.animationName === "storybook-bounce") setPlay(false);
+          }}
+        >
+          <Mascot key={mascot + ":" + note + ":" + burst} kind={mascot} />
+          {play && <MascotCharms key={`charms:${note}:${burst}`} />}
+        </button>
+      )}
       <div className="cozy-copy">
         <span className="cozy-label">
           <Sparkles size={12} /> СПРАВИ З ТУРБОТОЮ ПРО СЕБЕ

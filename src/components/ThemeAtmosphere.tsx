@@ -1,5 +1,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 const motifs: Record<string, string> = {
+  Autumn: "leaf",
+  Halloween: "star",
   Default: "flower",
   Blossom: "flower",
   Strawberry: "flower",

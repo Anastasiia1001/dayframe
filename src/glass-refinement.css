@@ -1,0 +1,849 @@
+/* Two seasonal palettes; saved theme identifiers and user category colours stay intact. */
+:root[data-theme="Autumn"] {
+  color-scheme: light;
+  --bg: #f5eadb;
+  --surface: #fffaf1;
+  --soft: #e8dfce;
+  --selected: #eed8bb;
+  --text: #352b24;
+  --muted: #71604e;
+  --border: #cfb99c;
+  --accent: #8b482a;
+  --calendar: #8b482a;
+  --google: #4e6849;
+  --planner-font: "Dayframe Rounded", "Trebuchet MS", sans-serif;
+  --seasonal-knit: #a9512e;
+  --seasonal-knit-light: #e3ac65;
+  --seasonal-thread: #f8dca4;
+  --seasonal-leaf: #c88837;
+  --seasonal-hat: #393044;
+  --seasonal-hat-light: #64516d;
+  --seasonal-hat-rim: #c2a08e;
+}
+:root[data-theme="Halloween"] {
+  color-scheme: dark;
+  --bg: #191726;
+  --surface: #272337;
+  --soft: #393147;
+  --selected: #43394d;
+  --text: #fff1df;
+  --muted: #c7b6c6;
+  --border: #65516b;
+  --accent: #f2b477;
+  --calendar: #edb87f;
+  --google: #add2a3;
+  --planner-font: "Dayframe Rounded", "Trebuchet MS", sans-serif;
+  --seasonal-knit: #a45230;
+  --seasonal-knit-light: #efae62;
+  --seasonal-thread: #ffe0a6;
+  --seasonal-leaf: #cb8239;
+  --seasonal-hat: #2a223a;
+  --seasonal-hat-light: #655078;
+  --seasonal-hat-rim: #b295bf;
+}
+:root[data-theme] .product-layout {
+  --surface-glass: color-mix(in srgb, var(--surface-solid) 57%, transparent);
+  --surface-glass-strong: color-mix(
+    in srgb,
+    var(--surface-solid) 81%,
+    transparent
+  );
+  --surface-glass-dialog: color-mix(
+    in srgb,
+    var(--surface-solid) 93%,
+    transparent
+  );
+  --glass-rim: color-mix(in srgb, var(--surface-solid) 76%, var(--accent) 24%);
+  --glass-glint: color-mix(in srgb, var(--surface-solid) 72%, transparent);
+  --glass-cast: color-mix(in srgb, var(--text) 10%, transparent);
+  --glass-wash: color-mix(in srgb, var(--accent) 24%, transparent);
+  --glass-wash-secondary: color-mix(in srgb, var(--google) 18%, transparent);
+  --shadow-panel: 0 10px 30px var(--glass-cast);
+  background:
+    radial-gradient(ellipse at 3% 22%, var(--glass-wash), transparent 48%),
+    radial-gradient(
+      ellipse at 93% 38%,
+      var(--glass-wash-secondary),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at 60% 100%,
+      color-mix(in srgb, var(--accent) 10%, transparent),
+      transparent 60%
+    ),
+    var(--app-bg);
+  background-attachment: fixed;
+}
+:root:is(
+    [data-theme="Dark"],
+    [data-theme="Moonlight"],
+    [data-theme="NeonAzure"],
+    [data-theme="NeonOcean"],
+    [data-theme="NeonCobalt"],
+    [data-theme="NeonAurora"],
+    [data-theme="Halloween"]
+  )
+  .product-layout {
+  --surface-glass: color-mix(in srgb, var(--surface-solid) 65%, transparent);
+  --surface-glass-strong: color-mix(
+    in srgb,
+    var(--surface-solid) 86%,
+    transparent
+  );
+  --surface-glass-dialog: color-mix(
+    in srgb,
+    var(--surface-solid) 95%,
+    transparent
+  );
+  --glass-rim: color-mix(in srgb, var(--text) 23%, var(--surface-solid));
+  --glass-glint: color-mix(in srgb, var(--text) 18%, transparent);
+  --glass-cast: #00000030;
+  --glass-wash: color-mix(in srgb, var(--accent) 19%, transparent);
+}
+:root[data-theme]
+  .product-layout
+  :is(.sidebar, .topbar, .studio-day-panel, .studio-navigation) {
+  border-color: var(--glass-rim);
+  box-shadow:
+    inset 0 1px 0 var(--glass-glint),
+    inset 1px 0 0 var(--glass-glint),
+    var(--shadow-panel);
+}
+:root[data-theme] .product-layout :is(.studio-week, .studio-month) {
+  box-shadow: inset 0 1px 0 var(--glass-glint);
+}
+:root[data-theme] .product-layout :is(.context-panel-tabs, .studio-modes) {
+  background: var(--surface-glass);
+  border: 1px solid var(--glass-rim);
+  box-shadow: inset 0 1px 0 var(--glass-glint);
+}
+@supports (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  :root[data-theme]
+    .product-layout
+    :is(dialog[class], .studio-more-menu, .search-dialog) {
+    background: var(--surface-glass-dialog);
+  }
+  :root[data-theme] .product-layout .studio-modes {
+    backdrop-filter: blur(12px) saturate(120%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(120%) !important;
+  }
+}
+:root[data-theme] .product-layout button.primary {
+  box-shadow:
+    inset 0 1px 0 var(--glass-glint),
+    0 3px 8px var(--glass-cast);
+}
+:root[data-theme] .product-layout button.primary:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 3px var(--glass-cast);
+}
+
+/* A centred composition, not a white container around three more cards. */
+:root[data-theme] .product-layout .rest-corner {
+  max-width: 920px;
+}
+:root[data-theme] .product-layout .rest-corner[data-rest-mode="home"] {
+  min-height: calc(100dvh - 144px);
+  display: flex;
+  flex-direction: column;
+}
+:root[data-theme] .product-layout .rest-welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 0 72px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+:root[data-theme] .product-layout .rest-welcome > h2 {
+  font-size: 30px;
+  text-align: center;
+}
+:root[data-theme] .product-layout .rest-welcome > p {
+  font-size: 16px;
+  text-align: center;
+  margin: 0 auto;
+}
+:root[data-theme] .product-layout .rest-options {
+  margin-top: 28px;
+  gap: 16px;
+}
+:root[data-theme] .product-layout .rest-options > button {
+  min-height: 184px;
+  justify-content: center;
+  padding: 24px 18px;
+  border-radius: 20px;
+  border-color: var(--glass-rim);
+  background: var(--surface-solid);
+  box-shadow:
+    inset 0 1px 0 var(--glass-glint),
+    inset 1px 0 0 var(--glass-glint),
+    var(--shadow-panel);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease;
+}
+:root[data-theme] .product-layout .rest-options > button > svg {
+  width: 56px;
+  height: 56px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--accent-soft);
+}
+:root[data-theme] .product-layout .rest-options > button strong {
+  font-size: 17px;
+}
+:root[data-theme] .product-layout .rest-options > button span {
+  font-size: 14px;
+}
+:root[data-theme] .product-layout .rest-options > button:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+:root[data-theme] .product-layout .rest-options > button:active {
+  transform: scale(0.98);
+}
+@supports (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  :root[data-theme] .product-layout .rest-options > button {
+    background: var(--surface-glass);
+    backdrop-filter: blur(14px) saturate(115%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(115%) !important;
+  }
+}
+/* The practice owns the focus; secondary options share one compact row below it. */
+:root[data-theme] .product-layout .rest-breath {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 24px 24px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+:root[data-theme] .product-layout .rest-breath > h2 {
+  font-size: 27px;
+}
+:root[data-theme] .product-layout .rest-breath > p {
+  font-size: 15px;
+  margin: 8px auto;
+}
+:root[data-theme] .product-layout .breath-orb {
+  width: 176px;
+  height: 176px;
+  margin: 26px auto 14px;
+  background:
+    radial-gradient(circle at 28% 21%, var(--glass-glint), transparent 46%),
+    radial-gradient(
+      circle at 65% 80%,
+      color-mix(in srgb, var(--google) 30%, var(--surface-solid)),
+      transparent 75%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 32%, var(--surface-solid)),
+      color-mix(in srgb, var(--accent) 10%, var(--surface-solid))
+    );
+  border: 1px solid var(--glass-rim);
+  box-shadow:
+    inset 0 2px 2px var(--glass-glint),
+    inset 0 -12px 22px color-mix(in srgb, var(--accent) 15%, transparent),
+    0 12px 30px var(--glass-cast);
+}
+:root[data-theme] .product-layout .breath-instruction {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 420px;
+  font-size: 18px !important;
+  color: var(--text-primary);
+}
+:root[data-theme] .product-layout .rest-breath .rest-actions {
+  margin: 8px 0 20px;
+}
+:root[data-theme] .product-layout .breath-settings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+:root[data-theme] .product-layout .breath-settings > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  min-height: 44px;
+}
+:root[data-theme] .product-layout .breath-settings select {
+  min-width: 80px;
+  padding: 6px 10px;
+}
+:root[data-theme] .product-layout .breath-clock {
+  height: 44px;
+  min-width: 54px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+}
+:root[data-theme] .product-layout .rest-writing {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px;
+  background: var(--surface-glass-strong);
+}
+:root[data-theme] .product-layout .rest-writing h2 {
+  font-size: 24px;
+  max-width: 32ch;
+}
+:root[data-theme] .product-layout .thoughts-hint {
+  font-size: 15px;
+  margin: 8px 0 12px;
+}
+:root[data-theme] .product-layout .thoughts-privacy {
+  margin: 0 0 16px;
+  max-width: 68ch;
+}
+:root[data-theme] .product-layout .thoughts-privacy summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 44px;
+  color: var(--accent);
+}
+:root[data-theme] .product-layout .thoughts-privacy summary::before {
+  content: "+";
+  font-size: 18px;
+}
+:root[data-theme] .product-layout .thoughts-privacy[open] summary::before {
+  content: "−";
+}
+:root[data-theme] .product-layout .thoughts-privacy p {
+  font-size: 14px;
+  padding: 0 0 12px;
+  margin: 0;
+}
+:root[data-theme] .product-layout .rest-writing textarea {
+  min-height: 310px;
+  max-width: 100%;
+  background: var(--surface-input);
+  font-size: 16px;
+  line-height: 1.8;
+}
+/* Accessories share the character's existing breathing transform, never its face. */
+.seasonal-outfit {
+  display: none;
+  pointer-events: none;
+}
+:root[data-theme="Autumn"] .seasonal-outfit,
+:root[data-theme="Halloween"] .seasonal-outfit {
+  display: inline;
+}
+.seasonal-autumn,
+.seasonal-halloween {
+  display: none;
+}
+:root[data-theme="Autumn"] .seasonal-autumn,
+:root[data-theme="Halloween"] .seasonal-halloween {
+  display: inline;
+}
+@media (max-width: 1000px) {
+  :root[data-theme] .product-layout .rest-corner[data-rest-mode="home"] {
+    min-height: auto;
+  }
+  :root[data-theme] .product-layout .rest-welcome {
+    padding: 32px 0;
+  }
+  :root[data-theme] .product-layout .rest-options > button {
+    min-height: 132px;
+  }
+}
+@media (max-width: 759px) {
+  :root[data-theme] .product-layout .rest-welcome {
+    padding: 16px 0 24px;
+  }
+  :root[data-theme] .product-layout .rest-welcome > h2 {
+    font-size: 25px;
+  }
+  :root[data-theme] .product-layout .rest-welcome > p {
+    font-size: 15px;
+  }
+  :root[data-theme] .product-layout .rest-options {
+    gap: 12px;
+    margin-top: 24px;
+  }
+  :root[data-theme] .product-layout .rest-options > button {
+    min-height: 124px;
+    padding: 16px;
+    gap: 8px;
+  }
+  :root[data-theme] .product-layout .rest-options > button > svg {
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+    border-radius: 12px;
+  }
+  :root[data-theme] .product-layout .rest-breath {
+    padding: 8px 8px 24px;
+  }
+  :root[data-theme] .product-layout .rest-breath > h2 {
+    font-size: 23px;
+  }
+  :root[data-theme] .product-layout .breath-orb {
+    width: 156px;
+    height: 156px;
+    margin-block: 24px 12px;
+  }
+  :root[data-theme] .product-layout .breath-settings {
+    gap: 4px 14px;
+  }
+  :root[data-theme] .product-layout .rest-writing {
+    padding: 20px;
+  }
+  :root[data-theme] .product-layout .rest-writing textarea {
+    min-height: 280px;
+  }
+}
+/* Dense mode also covers the new lightweight groups and standalone action cards. */
+:root[data-theme][data-transparency="reduced"]
+  .product-layout
+  :is(
+    .studio-modes,
+    .context-panel-tabs,
+    .rest-options > button,
+    .rest-writing
+  ) {
+  background: var(--surface-solid) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme]
+    .product-layout
+    :is(
+      .studio-modes,
+      .context-panel-tabs,
+      .rest-options > button,
+      .rest-writing
+    ) {
+    background: var(--surface-solid) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .product-layout .rest-options > button {
+    transition: none;
+  }
+  :root[data-theme] .product-layout .rest-options > button:hover {
+    transform: none;
+  }
+}
+:root[data-theme][data-motion="off"]
+  .product-layout
+  .rest-options
+  > button:hover {
+  transform: none;
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  :root[data-theme]
+    .product-layout
+    :is(.studio-modes, .context-panel-tabs, .rest-writing) {
+    background: var(--surface-solid);
+  }
+}
+
+:root[data-theme] .product-layout {
+  --glass-highlight: var(--glass-glint);
+}
+:root[data-theme] .product-layout .sidebar .nav-label {
+  color: var(--text-secondary);
+}
+:root[data-theme][data-transparency="reduced"] .product-layout .rest-welcome {
+  background: transparent !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme] .product-layout .rest-welcome {
+    background: transparent !important;
+  }
+}
+
+/* One compact weather scene and a visibly larger companion in the existing header. */
+:root[data-theme] .product-layout .calendar-studio {
+  gap: 4px;
+}
+:root[data-theme] .product-layout .studio-header {
+  height: 68px;
+  min-height: 68px;
+}
+:root[data-theme] .product-layout .weather-buddy {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex: 0 0 auto;
+  width: 188px;
+  height: 68px;
+  color: var(--text);
+  border-radius: 18px;
+  background: linear-gradient(
+    125deg,
+    var(--surface-glass),
+    color-mix(in srgb, var(--accent-soft) 65%, transparent)
+  );
+  border: 1px solid var(--glass-rim);
+  box-shadow: inset 0 1px 0 var(--glass-glint);
+}
+:root[data-theme] .product-layout .weather-buddy-stage {
+  position: relative;
+  width: 84px;
+  height: 76px;
+  flex: 0 0 84px;
+  display: grid;
+  place-items: center;
+}
+:root[data-theme] .product-layout .weather-buddy-sky {
+  position: absolute;
+  width: 78px;
+  height: 54px;
+  top: 0;
+  right: -8px;
+  pointer-events: none;
+  opacity: 0.75;
+}
+:root[data-theme] .product-layout .weather-buddy .weather-scene {
+  width: 78px;
+  height: 54px;
+  min-height: 0;
+  margin: 0;
+}
+:root[data-theme] .product-layout .weather-buddy .weather-scene > svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+:root[data-theme]
+  .product-layout
+  .weather-buddy
+  :is(.calendar-companion, .theme-mascot-vignette, .mascot-art) {
+  width: 76px;
+  height: 76px;
+  min-height: 76px;
+  flex-basis: 76px;
+}
+:root[data-theme] .product-layout .weather-buddy .calendar-companion {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+}
+:root[data-theme] .product-layout .weather-buddy-summary {
+  flex: 1;
+  min-width: 0;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--text);
+  padding: 4px 8px 4px 0;
+  border-radius: 14px;
+  text-align: left;
+}
+:root[data-theme] .product-layout .weather-buddy-summary strong {
+  font-size: 24px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme] .product-layout .weather-buddy-summary span {
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+:root[data-theme] .product-layout .weather-buddy-summary small {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+}
+:root[data-theme] .product-layout .weather-buddy-dialog {
+  width: min(700px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  padding: 16px;
+  box-sizing: border-box;
+  color: var(--text);
+}
+:root[data-theme] .product-layout .weather-buddy-close {
+  display: flex;
+  margin-left: auto;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  font-size: 26px;
+  border: 0;
+  color: var(--text);
+  background: transparent;
+}
+:root[data-theme] .product-layout .weather-buddy-dialog .weather-card {
+  margin: 0;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+:root[data-theme] .product-layout .weather-buddy-dialog .weather-atmosphere {
+  border-radius: inherit;
+}
+:root[data-theme] .product-layout .page-today .page-heading {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+:root[data-theme] .product-layout .page-today .page-heading > .weather-buddy {
+  flex-shrink: 0;
+}
+:root[data-theme] .product-layout .weather-buddy-stage .companion-reply {
+  display: none;
+}
+
+/* Body breathing and slow attention are separate, so both eyes remain aligned. */
+:root[data-theme] .product-layout .mascot-art .mascot-body {
+  transform-origin: 50px 103px;
+  animation: companion-breath 4.8s ease-in-out infinite;
+}
+:root[data-theme] .product-layout .mascot-art .mascot-idle-pose {
+  transform-origin: 50px 88px;
+  animation: companion-attention 15s -3s ease-in-out infinite;
+}
+:root[data-theme] .product-layout .pug-ear-left {
+  transform-origin: 26px 12px;
+  animation: companion-ear-left 11s -2s ease-in-out infinite;
+}
+:root[data-theme] .product-layout .pug-ear-right {
+  transform-origin: 74px 12px;
+  animation: companion-ear-right 13s -4s ease-in-out infinite;
+}
+:root[data-theme]
+  .product-layout
+  .calendar-companion.is-greeting
+  .mascot-idle-pose {
+  animation: companion-hello 2.2s ease-in-out both;
+}
+@keyframes companion-breath {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: translateY(-0.6px) scale(1.022, 1.038);
+  }
+  68% {
+    transform: translateY(-0.2px) scale(1.009, 1.015);
+  }
+}
+@keyframes companion-attention {
+  0%,
+  40%,
+  72%,
+  100% {
+    transform: rotate(0);
+  }
+  48%,
+  57% {
+    transform: rotate(-2deg);
+  }
+  63% {
+    transform: rotate(0.8deg);
+  }
+}
+@keyframes companion-ear-left {
+  0%,
+  62%,
+  82%,
+  100% {
+    transform: rotate(0);
+  }
+  68% {
+    transform: rotate(-4deg);
+  }
+  73% {
+    transform: rotate(2deg);
+  }
+  77% {
+    transform: rotate(-1deg);
+  }
+}
+@keyframes companion-ear-right {
+  0%,
+  70%,
+  91%,
+  100% {
+    transform: rotate(0);
+  }
+  76% {
+    transform: rotate(4deg);
+  }
+  82% {
+    transform: rotate(-2deg);
+  }
+  86% {
+    transform: rotate(1deg);
+  }
+}
+@keyframes companion-hello {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-4deg);
+  }
+  52% {
+    transform: rotate(2deg);
+  }
+  78% {
+    transform: rotate(-1deg);
+  }
+}
+:root[data-theme][data-transparency="reduced"] .product-layout .weather-buddy {
+  background: var(--surface-solid) !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme] .product-layout .weather-buddy {
+    background: var(--surface-solid) !important;
+  }
+}
+@media (max-width: 759px) {
+  :root[data-theme] .product-layout .studio-header {
+    height: 64px;
+    min-height: 64px;
+  }
+  :root[data-theme] .product-layout .weather-buddy {
+    width: 150px;
+    height: 60px;
+    border-radius: 16px;
+  }
+  :root[data-theme] .product-layout .weather-buddy-stage {
+    width: 68px;
+    height: 68px;
+    flex-basis: 68px;
+  }
+  :root[data-theme]
+    .product-layout
+    .weather-buddy
+    :is(.calendar-companion, .theme-mascot-vignette, .mascot-art) {
+    width: 64px;
+    height: 68px;
+    min-height: 64px;
+    flex-basis: 64px;
+  }
+  :root[data-theme] .product-layout .weather-buddy-summary {
+    height: 58px;
+  }
+  :root[data-theme] .product-layout .weather-buddy-summary strong {
+    font-size: 22px;
+  }
+  :root[data-theme] .product-layout .weather-buddy-summary small {
+    max-width: 70px;
+    font-size: 11px;
+  }
+  :root[data-theme] .product-layout .weather-buddy-sky {
+    width: 66px;
+    right: -3px;
+  }
+  :root[data-theme] .product-layout .studio-period-picker {
+    min-width: 0;
+    flex: 1;
+  }
+  :root[data-theme] .product-layout .studio-period-picker h1 {
+    white-space: normal;
+    overflow-wrap: normal;
+    font-size: 16px;
+  }
+  :root[data-theme]
+    .product-layout
+    .page-today
+    .page-heading
+    > div:first-child {
+    min-width: 0;
+  }
+  :root[data-theme] .product-layout .page-today .page-heading h1 {
+    font-size: 27px;
+  }
+  :root[data-theme] .product-layout .page-today .page-heading p {
+    display: none;
+  }
+  :root[data-theme] .product-layout .weather-buddy-dialog {
+    padding: 12px;
+  }
+}
+:root[data-theme][data-motion="off"]
+  .product-layout
+  .mascot-art
+  :is(.mascot-body, .mascot-idle-pose, .pug-ear-left, .pug-ear-right) {
+  animation: none !important;
+  transform: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme]
+    .product-layout
+    .mascot-art
+    :is(.mascot-body, .mascot-idle-pose, .pug-ear-left, .pug-ear-right) {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+:root[data-theme] .product-layout .weather-buddy-summary small {
+  line-height: 1.1;
+}
+:root[data-theme] .product-layout .weather-buddy-dialog .weather-scene {
+  width: 180px;
+  height: 110px;
+}
+@media (max-width: 759px) {
+  :root[data-theme] .product-layout .weather-buddy-summary {
+    height: 60px;
+    padding: 2px 6px 2px 0;
+  }
+  :root[data-theme] .product-layout .weather-buddy-summary span {
+    line-height: 1.1;
+  }
+  :root[data-theme] .product-layout .weather-buddy-dialog .weather-scene {
+    width: 120px;
+    height: 90px;
+  }
+}
+:root[data-theme] .product-layout .weather-buddy-summary small {
+  font-size: 12px;
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  :root[data-theme] .product-layout .weather-buddy {
+    background: var(--surface-solid);
+  }
+}

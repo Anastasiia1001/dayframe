@@ -88,6 +88,9 @@ test("Today shows sport, editable daily priorities, real weather and period navi
   await page
     .getByRole("checkbox", { name: "Виконано: Важлива справа", exact: true })
     .check();
+  await page
+    .getByRole("button", { name: "Відкрити погоду", exact: true })
+    .click();
   await expect(page.getByRole("article", { name: "Погода" })).toContainText(
     "Сніг",
   );
@@ -95,6 +98,9 @@ test("Today shows sport, editable daily priorities, real weather and period navi
     "data-weather",
     "snow",
   );
+  await page
+    .getByRole("button", { name: "Закрити погоду", exact: true })
+    .click();
   const periods = page.getByRole("navigation", { name: "Період огляду" });
   for (const name of ["Тиждень", "Місяць", "Квартал", "Рік"]) {
     await periods.getByRole("button", { name, exact: true }).click();
@@ -183,6 +189,9 @@ test("weather location changes from search and errors do not show invented weath
   await page
     .locator(".sidebar")
     .getByRole("button", { name: "Сьогодні", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Відкрити погоду", exact: true })
     .click();
   const card = page.getByRole("article", { name: "Погода" });
   await card.getByRole("button", { name: "Київ", exact: true }).click();
