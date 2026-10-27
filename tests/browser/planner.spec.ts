@@ -1,3 +1,4 @@
+import {chooseTheme} from "./helpers/product";
 import { test, expect, type Page } from "@playwright/test";
 async function openCalendar(page: Page) {
   await page.addInitScript(() => localStorage.setItem("dayframe-data-mode", JSON.stringify("demo")));
@@ -8,7 +9,7 @@ async function openCalendar(page: Page) {
 for (const theme of ["Pastel", "CutePlanner", "Vintage", "Parchment"]) {
   test(`${theme} styles every calendar mode, task editor and saved preference`, async ({page}) => {
     await openCalendar(page);
-    await page.getByLabel("Оформлення планера", {exact:true}).selectOption(theme);
+    await chooseTheme(page,theme);
     await expect(page.locator("html")).toHaveAttribute("data-planner",theme);
     await expect(page.locator(".calendar-companion .theme-mascot-vignette")).toHaveAttribute("data-decoration",theme);
     expect(await page.locator(".calendar-companion .theme-mascot-vignette").evaluate(e => getComputedStyle(e).pointerEvents)).toBe("none");
@@ -45,7 +46,7 @@ for (const width of [320,390,768]) {
     await page.setViewportSize({width,height:900});
     await openCalendar(page);
     for (const theme of ["Pastel","CutePlanner","Vintage","Parchment"]) {
-      await page.getByLabel("Оформлення планера", {exact:true}).selectOption(theme);
+      await chooseTheme(page,theme);
       await page.getByRole("button",{name:"Місяць",exact:true}).click();
       if (width <= 600) {
         await page.locator(".calendar-cell:not(.outside-month)").nth(5).locator(".month-day").click();

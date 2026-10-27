@@ -45,6 +45,7 @@ export function parseBackup(value: unknown): {
         (t.plannerRank === undefined ||
           (typeof t.plannerRank === "number" &&
             Number.isFinite(t.plannerRank))) &&
+        (t.focusDates === undefined || (Array.isArray(t.focusDates) && t.focusDates.every(date))) &&
         typeof t.disabled === "boolean" &&
         (!t.scheduledStart || time(t.scheduledStart)) &&
         (t.scheduledDuration === undefined ||

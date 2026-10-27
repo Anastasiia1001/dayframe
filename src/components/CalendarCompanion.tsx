@@ -46,6 +46,8 @@ export function CalendarCompanion({
         ref={button}
         className={`calendar-companion ${playing ? "is-greeting" : ""}`}
         aria-label="Привітатися з помічником"
+        title={greetings[greeting]}
+        aria-description={greetings[greeting]}
         onClick={() => {
           setPlaying(true);
           setInteraction((value) => value + 1);

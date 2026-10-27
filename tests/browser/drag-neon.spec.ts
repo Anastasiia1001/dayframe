@@ -1,3 +1,5 @@
+import { openPlanTray } from "./helpers/product";
+import { chooseTheme } from "./helpers/product";
 import { test, expect } from "@playwright/test";
 const today = () =>
   new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Kyiv" }).format(
@@ -81,6 +83,7 @@ test("real pointer drags untimed and backlog tasks into hours and moves an event
       ),
     )
     .toBe(targetDate);
+  await openPlanTray(page);
   await drag(
     page,
     page.getByLabel("Перетягнути Ідея без дати", { exact: true }),
@@ -180,7 +183,7 @@ test("touch drags an untimed task into the mobile schedule", async ({
       ),
     )
     .toBe("09:00");
-  await page.getByLabel("Показати або сховати навігацію календаря").click();
+  await openPlanTray(page);
   const handle = page.getByLabel("Перетягнути Ідея без дати", { exact: true });
   await handle.scrollIntoViewIfNeeded();
   const source = await handle.boundingBox(),
@@ -231,9 +234,7 @@ test("five neon themes and four new mascots are selectable, readable and persist
     "NeonAurora",
     "NeonIce",
   ]) {
-    await page
-      .getByLabel("Оформлення планера", { exact: true })
-      .selectOption(theme);
+    await chooseTheme(page, theme);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     await page.setViewportSize({ width: 390, height: 844 });
     await expect

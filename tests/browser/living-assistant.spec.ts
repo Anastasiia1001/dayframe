@@ -1,3 +1,4 @@
+import { more, openPlanTray } from "./helpers/product";
 import { test, expect } from "@playwright/test";
 import { mascots } from "../../src/appearance";
 const date = new Intl.DateTimeFormat("sv-SE", {
@@ -110,11 +111,7 @@ test("every mascot blinks without changing its mouth, greets with charms and sta
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByLabel("Привітатися з помічником").click();
-  const reply = await page.locator(".companion-reply").boundingBox(),
-    pet = await page.locator(".calendar-companion").boundingBox(),
-    tools = await page.locator(".studio-tools").boundingBox();
-  expect(reply!.y).toBeGreaterThanOrEqual(pet!.y + pet!.height - 1);
-  expect(reply!.y + reply!.height).toBeLessThanOrEqual(tools!.y);
+  await expect(page.locator(".calendar-companion")).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -131,6 +128,7 @@ test("right-hand scope blocks schedule plans and clone yearly templates without 
   page,
 }) => {
   await page.goto("/");
+  await openPlanTray(page, "Квартал");
   const pool = page.getByRole("region", { name: "Плани для календаря" });
   for (const name of ["Рік", "Квартал", "Місяць", "Тиждень"])
     await expect(pool.locator("summary").filter({ hasText: name })).toHaveCount(
@@ -156,6 +154,7 @@ test("right-hand scope blocks schedule plans and clone yearly templates without 
       ),
     )
     .toBe("10:00");
+  await pool.locator("summary").filter({ hasText: "Рік" }).click();
   const year = pool.getByLabel("Перетягнути План: year", { exact: true });
   await year.scrollIntoViewIfNeeded();
   const c = await year.boundingBox(),
@@ -182,6 +181,7 @@ test("right-hand scope blocks schedule plans and clone yearly templates without 
         ).isTemplate,
     ),
   ).toBeTruthy();
+  await pool.locator("summary").filter({ hasText: "Місяць" }).click();
   await pool
     .getByRole("button", { name: "Додати план: Місяць", exact: true })
     .click();
@@ -195,6 +195,7 @@ test("manual helper prepares actual Google and ChatGPT links and persists a conf
   page,
 }) => {
   await page.goto("/");
+  await more(page);
   await page.getByLabel("Відкрити ручного помічника").click();
   const dialog = page.getByRole("dialog", { name: "Ручний помічник" });
   await dialog.getByLabel("Запит помічнику").fill("Unity вода шейдер");
@@ -271,20 +272,14 @@ test("reminders remain available outside the calendar and do not repeat after di
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
-test("companion phrase stays visible and changes only every five minutes", async ({
+test("companion phrase stays accessible without consuming a header row", async ({
   page,
 }) => {
-  await page.clock.install();
   await page.goto("/");
-  const phrase = page.locator(".companion-phrase");
-  await expect(phrase).toHaveText("Я поруч. Одна справа за раз!");
-  await page.getByLabel("Привітатися з помічником").click();
-  await page.clock.fastForward(290000);
-  await expect(phrase).toHaveText("Я поруч. Одна справа за раз!");
-  await page.clock.fastForward(10000);
-  await expect(phrase).toHaveText("Маленький крок — теж перемога.");
-  await expect(phrase).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  await expect(phrase).toHaveCSS("box-shadow", "none");
+  await expect(
+    page.locator(".studio-header .calendar-companion"),
+  ).toBeVisible();
+  await expect(page.locator(".studio-header")).not.toContainText("Потягнись");
 });
 
 test("pug greets with its tail while the seated paw stays planted", async ({

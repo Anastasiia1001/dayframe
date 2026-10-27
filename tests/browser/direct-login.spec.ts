@@ -1,3 +1,4 @@
+import { more } from "./helpers/product";
 import { test, expect } from "@playwright/test";
 const today = new Intl.DateTimeFormat("sv-SE", {
   timeZone: "Europe/Kyiv",
@@ -77,9 +78,9 @@ test("direct Google login loads primary calendar into Dayframe, refreshes and ke
     page.locator(".studio-all-day:not(.studio-untimed)"),
   ).toContainText("Реальна подія Google");
   updated = true;
+  await more(page);
   await page
-    .locator(".workspace-toolbar")
-    .getByRole("button", { name: "Оновити", exact: true })
+    .getByRole("button", { name: "Оновити календарі", exact: true })
     .click();
   await expect(
     page.locator(".studio-all-day:not(.studio-untimed)"),
@@ -183,7 +184,13 @@ test("assigned Jira deadlines appear in the calendar and undated tasks can be pl
   ).toContainText("ART-17");
   await page
     .locator(".sidebar")
-    .getByRole("button", { name: "Робота", exact: true })
+    .getByRole("button", { name: "Налаштування", exact: true })
+    .click();
+  await page
+    .getByRole("button", {
+      name: "Повідомлення Slack і записи Jira",
+      exact: true,
+    })
     .click();
   const card = page
     .locator(".jira-plans article")
@@ -196,9 +203,7 @@ test("assigned Jira deadlines appear in the calendar and undated tasks can be pl
   await expect(dialog.getByLabel("Назва", { exact: true })).toHaveValue(
     "ART-18 · Ідея без дедлайну",
   );
-  await dialog
-    .getByRole("button", { name: "Зберегти завдання", exact: true })
-    .click();
+  await dialog.getByRole("button", { name: "Додати", exact: true }).click();
   await expect(
     card.getByRole("button", { name: "У планах", exact: true }),
   ).toBeDisabled();

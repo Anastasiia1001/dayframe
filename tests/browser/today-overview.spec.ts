@@ -43,6 +43,28 @@ test("Today shows sport, editable daily priorities, real weather and period navi
       }),
     );
   });
+  await page.addInitScript(() => {
+    const date = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Europe/Kyiv",
+    }).format(new Date());
+    if (!localStorage.getItem("dayframe-tasks"))
+      localStorage.setItem(
+        "dayframe-tasks",
+        JSON.stringify([
+          {
+            id: "daily-focus",
+            title: "Важлива справа",
+            date,
+            category: "Day",
+            recurrence: "once",
+            priority: "Normal",
+            notes: "",
+            completed: false,
+            disabled: false,
+          },
+        ]),
+      );
+  });
   await page.goto("/");
   await page
     .locator(".sidebar")
@@ -58,9 +80,14 @@ test("Today shows sport, editable daily priorities, real weather and period navi
     page.getByRole("button", { name: "Прогулянка 30 хв", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await page
-    .getByLabel("Пріоритет дня 1", { exact: true })
-    .fill("Важлива справа");
-  await page.getByLabel("Виконано пріоритет 1", { exact: true }).check();
+    .getByRole("button", { name: "Обрати головні справи", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Головне: Важлива справа", exact: true })
+    .click();
+  await page
+    .getByRole("checkbox", { name: "Виконано: Важлива справа", exact: true })
+    .check();
   await expect(page.getByRole("article", { name: "Погода" })).toContainText(
     "Сніг",
   );
@@ -79,17 +106,17 @@ test("Today shows sport, editable daily priorities, real weather and period navi
     ).toHaveAttribute("aria-pressed", "true");
   }
   await periods.getByRole("button", { name: "Сьогодні", exact: true }).click();
-  await expect(page.getByLabel("Пріоритет дня 1", { exact: true })).toHaveValue(
-    "Важлива справа",
-  );
+  await expect(
+    page.getByRole("button", { name: "Головне: Важлива справа", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
   await page.reload();
   await page
     .locator(".sidebar")
     .getByRole("button", { name: "Сьогодні", exact: true })
     .click();
-  await expect(page.getByLabel("Пріоритет дня 1", { exact: true })).toHaveValue(
-    "Важлива справа",
-  );
+  await expect(
+    page.getByRole("button", { name: "Головне: Важлива справа", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
 });
 test("inspiration rotates at the chosen frequency, supports manual mode and persists preferences on mobile", async ({
   page,
@@ -102,7 +129,9 @@ test("inspiration rotates at the chosen frequency, supports manual mode and pers
     .getByRole("button", { name: "Сьогодні", exact: true })
     .click();
   const card = page.getByRole("article", { name: "Цікавинки", exact: true });
-  await expect(page.getByRole("article",{name:"Афірмації",exact:true})).toBeVisible();
+  await expect(
+    page.getByRole("article", { name: "Афірмації", exact: true }),
+  ).toBeVisible();
   await card
     .getByLabel("Частота зміни цікавинок", { exact: true })
     .selectOption("1");
@@ -115,9 +144,7 @@ test("inspiration rotates at the chosen frequency, supports manual mode and pers
   const manual = await card.locator(".inspiration-text").innerText();
   await page.clock.fastForward(120001);
   await expect(card.locator(".inspiration-text")).toHaveText(manual);
-  await card
-    .getByRole("button", { name: "Наступна цікавинка" })
-    .click();
+  await card.getByRole("button", { name: "Наступна цікавинка" }).click();
   await expect(card.locator(".inspiration-text")).not.toHaveText(manual);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),

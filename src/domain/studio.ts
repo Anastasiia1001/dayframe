@@ -11,6 +11,7 @@ export const initialSections: Section[] = [
   { id: "work", name: "Робота", color: "#795875", visible: true },
   { id: "creative", name: "Творчість", color: "#527d6b", visible: true },
   { id: "personal", name: "Особисте", color: "#af653e", visible: true },
+  { id: "sport", name: "Спорт", color: "#527e8a", visible: true },
   { id: "ideas", name: "Ідеї та «колись»", color: "#627790", visible: true },
 ];
 export const timeString = (m: number) =>

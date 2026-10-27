@@ -227,7 +227,7 @@ test("mascot reminds about an actual task and snoozes it for fifteen minutes", a
   ).toBeVisible();
 });
 
-test("month rail changes the real calendar month without breaking the selected theme", async ({
+test("date popover selects a month without a permanent rail", async ({
   page,
 }) => {
   await page.goto("/");
@@ -235,14 +235,13 @@ test("month rail changes the real calendar month without breaking the selected t
     .locator(".sidebar")
     .getByRole("button", { name: "Календар", exact: true })
     .click();
-  const rail = page.getByRole("navigation", { name: /Місяці планера/ });
-  const january = rail.getByRole("button", { name: /Перейти: січень/ });
-  await january.click();
-  await expect(january).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".planner-month-rail")).toHaveCount(0);
+  await page.getByLabel("Обрати період календаря").click();
+  const year = new Date().getFullYear();
+  await page.getByLabel("Місяць і рік календаря").fill(`${year}-01`);
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Місяць", exact: true }).click();
   await expect(page.locator(".studio-month-grid")).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Місяць", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
 });
 
 test("touch dragging moves a plan into Today on a phone", async ({

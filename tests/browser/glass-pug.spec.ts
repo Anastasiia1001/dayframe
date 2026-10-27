@@ -1,3 +1,4 @@
+import {chooseTheme} from "./helpers/product";
 import { test, expect } from "@playwright/test";
 test("pug mascot keeps its palette in dark themes and has layered idles", async ({
   page,
@@ -24,9 +25,7 @@ test("pug mascot keeps its palette in dark themes and has layered idles", async 
     ]),
   );
   for (const theme of ["Dark", "Moonlight"]) {
-    await page
-      .getByLabel("Оформлення планера", { exact: true })
-      .selectOption(theme);
+    await chooseTheme(page,theme);
     expect(
       await pug.evaluate((el) =>
         [...el.querySelectorAll("[fill],[stroke]")].map((e) => [

@@ -1,3 +1,5 @@
+import { QuickTaskEditor } from "./components/QuickTaskEditor";
+import { TodayFocus } from "./components/DayContext";
 import { TaskChecklist } from "./components/TaskChecklist";
 import { HabitTracker } from "./components/HabitTracker";
 import { TodayTaskBoard } from "./components/TodayTaskBoard";
@@ -125,11 +127,24 @@ export default function App() {
       .join("")
       .toUpperCase() || "♡";
   const [burst, setBurst] = useState(0);
+  const [motion, setMotion] = useLocal("dayframe-motion", true);
+  useEffect(() => {
+    document.documentElement.dataset.motion = motion ? "on" : "off";
+  }, [motion]);
   const [ambient, setAmbient] = useLocal("dayframe-ambient", true);
   const [legacyPlanner, setLegacyPlanner] = useLocal(
     "dayframe-classic-planner",
     false,
   );
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocal(
+    "dayframe-sidebar-collapsed",
+    false,
+  );
+  const visibleNav = legacyPlanner
+    ? nav
+    : nav.filter(([name]) => ["Today", "Calendar", "Personal"].includes(name));
+  const pageName = (name: string) =>
+    !legacyPlanner && name === "Personal" ? "Плани" : uk(name);
   const [openAIKey, setOpenAIKey] = useState("");
   const [overviewPeriod, setOverviewPeriod] = useState<OverviewPeriod>("day");
   const [page, setPage] = useState(legacyPlanner ? "Today" : "Calendar");
@@ -147,7 +162,7 @@ export default function App() {
   }, [safeFontSize]);
   const [tasks, setTasks] = useLocal<PersonalTask[]>(
     "dayframe-tasks",
-    mockTasks,
+    legacyPlanner ? mockTasks : [],
   );
   useEffect(() => {
     setTasks((current) => reopenDueTasks(current, today));
@@ -160,6 +175,7 @@ export default function App() {
     body: string;
     source: string;
   } | null>(null);
+  const [openDayRequest, setOpenDayRequest] = useState(0);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifications, setNotifications] = useState(false);
@@ -174,7 +190,7 @@ export default function App() {
   ]);
   const [calendarView, setCalendarView] = useLocal(
     "dayframe-calendar-view",
-    "Week",
+    innerWidth < 760 ? "Day" : "Week",
   );
   const [calendarDate, setCalendarDate] = useState(
     () => new Date(today + "T12:00:00"),
@@ -547,6 +563,28 @@ export default function App() {
         source: "Personal",
       })),
   ];
+  const dayNotes = () => {
+    try {
+      return Object.entries(
+        JSON.parse(
+          localStorage.getItem("dayframe-daily-plans") || "{}",
+        ) as Record<string, { notes?: string }>,
+      )
+        .filter(
+          ([date, value]) =>
+            /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+            typeof value?.notes === "string" &&
+            value.notes,
+        )
+        .map(([date, value]) => ({
+          id: date,
+          title: `Нотатки · ${new Date(date + "T12:00:00").toLocaleDateString("uk-UA")}`,
+          body: value.notes!,
+        }));
+    } catch {
+      return [];
+    }
+  };
   const searchGroups = [
     {
       source: "Calendar",
@@ -574,6 +612,7 @@ export default function App() {
           body: `${uk(x.category)} · ${uk(x.recurrence)} · ${x.notes}`,
         })),
     },
+    { source: "DayNotes", items: searchOpen ? dayNotes() : [] },
   ].map((g) => ({
     ...g,
     items: g.items.filter((x) =>
@@ -583,7 +622,7 @@ export default function App() {
   const hasCalendar =
     workspace.mode === "demo" ||
     !!workspace.status?.providers.some((p) => p.id !== "slack" && p.connected);
-  function calendar() {
+  function calendar(plansMode = false) {
     if (!legacyPlanner)
       return (
         <CalendarStudio
@@ -603,6 +642,23 @@ export default function App() {
             setCalendarView("Day");
           }}
           loading={workspace.loading}
+          plansMode={plansMode}
+          onPlans={() => setPage("Personal")}
+          onCalendar={() => setPage("Calendar")}
+          onRefresh={() => void workspace.refresh()}
+          syncStatus={
+            workspace.mode === "demo"
+              ? "Демонстраційні дані"
+              : hasCalendar
+                ? workspace.loading
+                  ? "Оновлюємо календарі…"
+                  : workspace.updated
+                    ? `Календарі оновлено о ${workspace.updated.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" })}`
+                    : "Підключені календарі"
+                : "Google та Outlook не підключено"
+          }
+          showMascot={prefs.cozyMode !== false}
+          openDayRequest={openDayRequest}
         />
       );
     return (
@@ -639,8 +695,14 @@ export default function App() {
     );
   }
   return (
-    <div className="app planner-prism">
-      {ambient && !isPlannerTheme(theme) && <ThemeAtmosphere theme={theme} />}
+    <div
+      className={`app planner-prism ${!legacyPlanner ? "product-layout" : ""} ${sidebarCollapsed ? "nav-collapsed" : ""}`}
+    >
+      {ambient &&
+        !isPlannerTheme(theme) &&
+        (legacyPlanner || !["Calendar", "Personal"].includes(page)) && (
+          <ThemeAtmosphere theme={theme} />
+        )}
       <aside className="sidebar">
         <a
           className="brand"
@@ -669,7 +731,7 @@ export default function App() {
         </div>
         <div className="nav-label">ТВІЙ ПРОСТІР</div>
         <nav>
-          {nav.map(([name, Icon]) => (
+          {visibleNav.map(([name, Icon]) => (
             <button
               key={uk(name)}
               className={page === name ? "selected" : ""}
@@ -684,7 +746,7 @@ export default function App() {
                 aria-hidden="true"
               />
               <Icon size={18} />
-              {uk(name)}
+              <span className="nav-text">{pageName(name)}</span>
               {name === "Today" && attention.length > 0 && (
                 <span className="nav-count">{attention.length}</span>
               )}
@@ -776,20 +838,40 @@ export default function App() {
       <div className={`main-shell page-${page.toLowerCase()}`}>
         <header className="topbar">
           <div className="breadcrumb">
-            <PanelLeftClose size={17} />
+            <button
+              className="global-nav-toggle"
+              aria-label="Згорнути або розгорнути навігацію"
+              aria-expanded={!sidebarCollapsed}
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              <PanelLeftClose size={17} />
+            </button>
             <span className="crumb-divider" />
             Твій простір <ChevronRight size={13} />
-            <strong>{uk(page)}</strong>
+            <strong>{pageName(page)}</strong>
           </div>
           <div className="top-actions">
             <button
               className="search-trigger"
+              aria-label={
+                legacyPlanner ? undefined : "Пошук справ, подій і нотаток"
+              }
               onClick={() => setSearchOpen(true)}
             >
               <Search size={16} />
               <span>Знайти щось…</span>
               <kbd>⌘ K</kbd>
             </button>
+            {!legacyPlanner && (
+              <button
+                className="primary global-add"
+                onClick={() => addTask()}
+                aria-label="Швидко додати справу"
+              >
+                <Plus size={16} />
+                <span>Додати</span>
+              </button>
+            )}
             <span className="top-divider" />
             <button
               className="notification-trigger"
@@ -859,14 +941,16 @@ export default function App() {
                 : "Власні дані"}
             </span>
             <span className="sync-time">
-              {workspace.updated
-                ? "Оновлено о " +
-                  workspace.updated.toLocaleTimeString(locale, {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  })
-                : "Очікуємо підключення"}
+              {!hasCalendar && workspace.mode !== "demo"
+                ? "Збереження на цьому пристрої"
+                : workspace.updated
+                  ? "Синхронізовано о " +
+                    workspace.updated.toLocaleTimeString(locale, {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })
+                  : "Google та Outlook не підключено"}
             </span>
             <button
               className="secondary"
@@ -910,6 +994,12 @@ export default function App() {
               <div className="workspace-alert" key={e} role="status">
                 <CircleHelp size={18} />
                 <p>{e}</p>
+                <button
+                  onClick={() => void workspace.refresh()}
+                  disabled={workspace.loading}
+                >
+                  Повторити
+                </button>
                 <button onClick={() => setPage("Settings")}>
                   Підключення <ArrowRight size={15} />
                 </button>
@@ -982,7 +1072,18 @@ export default function App() {
                   ))}
               </nav>
               <div className="today-overview-grid">
-                {visible("plan") && (
+                {visible("plan") && !legacyPlanner && (
+                  <TodayFocus
+                    date={today}
+                    today={today}
+                    tasks={tasks}
+                    events={events}
+                    onTasks={setTasks}
+                    onEdit={setModal}
+                    onAdd={() => addTask()}
+                  />
+                )}
+                {visible("plan") && legacyPlanner && (
                   <TodayPlan
                     date={today}
                     onCalendar={() => {
@@ -1126,7 +1227,8 @@ export default function App() {
           )}
           {page === "Calendar" && calendar()}
           {page === "Fitness" && <FitnessTracker />}
-          {page === "Personal" && (
+          {page === "Personal" && !legacyPlanner && calendar(true)}
+          {page === "Personal" && legacyPlanner && (
             <PersonalBoard
               tasks={tasks}
               today={today}
@@ -1281,6 +1383,24 @@ export default function App() {
           )}
           {page === "Settings" && (
             <div className="settings-stack">
+              <Section title="Спокійний інтерфейс">
+                <label className="setting-row">
+                  <div>
+                    <strong>Анімації інтерфейсу</strong>
+                    <small>
+                      Можна вимкнути рух помічника, погоди й декору.
+                      Налаштування ОС також враховуються.
+                    </small>
+                  </div>
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    aria-label="Анімації інтерфейсу"
+                    checked={motion}
+                    onChange={(e) => setMotion(e.target.checked)}
+                  />
+                </label>
+              </Section>
               <Section title="Розмір шрифтів">
                 <label className="setting-row">
                   <span>
@@ -1404,6 +1524,25 @@ export default function App() {
                   Помічника можна приховати нижче.
                 </p>
               </Section>
+              {!legacyPlanner && (
+                <Section title="Джерела й додаткові можливості">
+                  <button className="secondary" onClick={() => setPage("Work")}>
+                    Повідомлення Slack і записи Jira
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => setPage("Fitness")}
+                  >
+                    Трекер спорту і кроків
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => setLegacyPlanner(true)}
+                  >
+                    Відкрити попередню версію планера
+                  </button>
+                </Section>
+              )}
               <IntegrationSettings workspace={workspace} />
               <Section title="Dayframe на твоєму Mac">
                 <div className="mac-install">
@@ -1440,8 +1579,8 @@ export default function App() {
                   <input
                     type="checkbox"
                     aria-label="Анімований фон"
-                    disabled={isPlannerTheme(theme)}
-                    checked={ambient && !isPlannerTheme(theme)}
+                    disabled={isPlannerTheme(theme) || !motion}
+                    checked={ambient && !isPlannerTheme(theme) && motion}
                     onChange={(e) => setAmbient(e.target.checked)}
                   />
                 </label>
@@ -1507,7 +1646,7 @@ export default function App() {
         </main>
       </div>
       <nav className="mobile-nav">
-        {nav.map(([n, I]) => (
+        {visibleNav.map(([n, I]) => (
           <button
             className={page === n ? "active" : ""}
             key={n}
@@ -1517,7 +1656,7 @@ export default function App() {
             }}
           >
             <I size={20} />
-            <span>{uk(n)}</span>
+            <span>{pageName(n)}</span>
           </button>
         ))}
         <button
@@ -1614,19 +1753,30 @@ export default function App() {
                 (g) =>
                   g.items.length > 0 && (
                     <div key={uk(g.source)}>
-                      <div className="eyebrow">{uk(g.source)}</div>
+                      <div className="eyebrow">
+                        {g.source === "DayNotes"
+                          ? "Нотатки дня"
+                          : !legacyPlanner && g.source === "Personal"
+                            ? "Справи"
+                            : uk(g.source)}
+                      </div>
                       {g.items.slice(0, 8).map((i) => (
                         <button
                           key={i.id}
                           onClick={() => {
                             setSearchOpen(false);
-                            g.source === "Personal"
-                              ? setModal(tasks.find((t) => t.id === i.id)!)
-                              : g.source === "Calendar"
-                                ? setEventDetail(
-                                    events.find((e) => e.id === i.id) || null,
-                                  )
-                                : openMock(i.title, i.body, g.source);
+                            g.source === "DayNotes"
+                              ? (setCalendarDate(new Date(i.id + "T12:00:00")),
+                                setCalendarView("Day"),
+                                setPage("Calendar"),
+                                setOpenDayRequest((n) => n + 1))
+                              : g.source === "Personal"
+                                ? setModal(tasks.find((t) => t.id === i.id)!)
+                                : g.source === "Calendar"
+                                  ? setEventDetail(
+                                      events.find((e) => e.id === i.id) || null,
+                                    )
+                                  : openMock(i.title, i.body, g.source);
                           }}
                         >
                           <Source name={g.source} />
@@ -1648,12 +1798,47 @@ export default function App() {
               )}
             </div>
             <div className="search-foot">
-              Пошук серед усіх доступних джерел <kbd>Esc — закрити</kbd>
+              {legacyPlanner
+                ? "Пошук серед усіх доступних джерел"
+                : "Усі справи й нотатки · події підключених календарів у поточному періоді"}{" "}
+              <kbd>Esc — закрити</kbd>
             </div>
           </section>
         </div>
       )}
-      {modal && (
+      {modal && !legacyPlanner && (
+        <QuickTaskEditor
+          task={modal}
+          onChange={setModal}
+          onClose={() => setModal(null)}
+          onSave={() => {
+            const next = tasks.some((t) => t.id === modal.id)
+              ? tasks.map((t) =>
+                  t.id === modal.id
+                    ? { ...modal, title: modal.title.trim() }
+                    : t,
+                )
+              : [...tasks, { ...modal, title: modal.title.trim() }];
+            try {
+              localStorage.setItem("dayframe-tasks", JSON.stringify(next));
+            } catch {
+              return "Не вдалося зберегти справу. Перевір вільне місце або зроби резервну копію. Редактор залишається відкритим.";
+            }
+            setTasks(next);
+            setModal(null);
+            setToast("Справу збережено на цьому пристрої");
+          }}
+          onDelete={
+            tasks.some((t) => t.id === modal.id)
+              ? () => {
+                  setTasks((all) => all.filter((t) => t.id !== modal.id));
+                  setModal(null);
+                }
+              : undefined
+          }
+        />
+      )}
+      {modal && legacyPlanner && (
         <div className="overlay" onClick={() => setModal(null)}>
           <form
             onInvalidCapture={(e) => {

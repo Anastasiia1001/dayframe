@@ -1,3 +1,4 @@
+import { more } from "./helpers/product";
 import { test, expect } from "@playwright/test";
 const note = {
   title: "Матеріал для шейдера",
@@ -13,6 +14,8 @@ test("Keep preview creates missing sections, preserves checklists, schedules cho
   page,
 }) => {
   await page.goto("/");
+  await more(page);
+  await more(page);
   await page
     .getByRole("button", { name: "Імпорт Google Keep", exact: true })
     .click();
@@ -20,13 +23,11 @@ test("Keep preview creates missing sections, preserves checklists, schedules cho
     name: "Google Keep → Dayframe",
     exact: true,
   });
-  await dialog
-    .getByLabel("Файли експорту Keep")
-    .setInputFiles({
-      name: "note.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(JSON.stringify(note)),
-    });
+  await dialog.getByLabel("Файли експорту Keep").setInputFiles({
+    name: "note.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(note)),
+  });
   await expect(dialog).toContainText("Нові ідеї");
   await expect(
     dialog.getByLabel(`Дата: ${note.title}`, { exact: true }),
@@ -53,16 +54,15 @@ test("Keep preview creates missing sections, preserves checklists, schedules cho
     result.sections.find((s: any) => s.id === imported.sectionId).name,
   ).toBe("Нові ідеї");
   await page.reload();
+  await more(page);
   await page
     .getByRole("button", { name: "Імпорт Google Keep", exact: true })
     .click();
-  await dialog
-    .getByLabel("Файли експорту Keep")
-    .setInputFiles({
-      name: "note.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(JSON.stringify(note)),
-    });
+  await dialog.getByLabel("Файли експорту Keep").setInputFiles({
+    name: "note.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(note)),
+  });
   await expect(dialog).toContainText("Уже імпортовано");
   await expect(
     dialog.getByRole("button", { name: "Перенести вибрані (0)", exact: true }),
@@ -73,6 +73,8 @@ test("Keep import cancels without writes and mobile preview stays within viewpor
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
+  await more(page);
+  await more(page);
   await page
     .getByRole("button", { name: "Імпорт Google Keep", exact: true })
     .click();
@@ -80,13 +82,11 @@ test("Keep import cancels without writes and mobile preview stays within viewpor
     name: "Google Keep → Dayframe",
     exact: true,
   });
-  await dialog
-    .getByLabel("Файли експорту Keep")
-    .setInputFiles({
-      name: "note.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(JSON.stringify(note)),
-    });
+  await dialog.getByLabel("Файли експорту Keep").setInputFiles({
+    name: "note.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(note)),
+  });
   const before = await page.evaluate(() =>
     localStorage.getItem("dayframe-tasks"),
   );

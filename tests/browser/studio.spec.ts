@@ -1,3 +1,5 @@
+import { filters, more, openPlanTray, advanced } from "./helpers/product";
+import { chooseTheme } from "./helpers/product";
 import { test, expect } from "@playwright/test";
 const seed = {
   id: "reference",
@@ -29,6 +31,7 @@ test("create edit overlap resize move delete and undo a scheduled task, preservi
   await expect(page.locator(".studio-day-head>button")).toHaveCount(7);
   await page.getByRole("button", { name: "Додати", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Редактор запису" });
+  await dialog.getByText("Додати фразою", { exact: true }).click();
   await dialog
     .getByLabel("Швидке введення фразою")
     .fill("Завтра о 15:00 перевірити префаби, година");
@@ -42,11 +45,18 @@ test("create edit overlap resize move delete and undo a scheduled task, preservi
   );
   await page.locator(".studio-event-main").click();
   await dialog.getByLabel("Назва", { exact: true }).fill("Перевірити шейдери");
+  await advanced(dialog);
   await dialog.getByLabel("Дедлайн", { exact: true }).fill("2026-12-02");
   await dialog.getByRole("button", { name: "Зберегти", exact: true }).click();
   const event = page.locator(".studio-timed-event");
   // Leave room below the event for the full drag, rather than scrolling it only to the viewport edge.
-  await event.evaluate((el) => el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" }));
+  await event.evaluate((el) =>
+    el.scrollIntoView({
+      block: "center",
+      inline: "nearest",
+      behavior: "instant",
+    }),
+  );
   await event.scrollIntoViewIfNeeded();
   const box = await event.boundingBox();
   if (!box) throw Error();
@@ -64,13 +74,23 @@ test("create edit overlap resize move delete and undo a scheduled task, preservi
       ),
     )
     .toBe("16:00");
-  await page.locator(".studio-resize").evaluate((el) => el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" }));
+  await page
+    .locator(".studio-resize")
+    .evaluate((el) =>
+      el.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: "instant",
+      }),
+    );
   await page.locator(".studio-resize").scrollIntoViewIfNeeded();
   const handle = await page.locator(".studio-resize").boundingBox();
   if (!handle) throw Error();
-  await page.mouse.move(handle.x + 15, handle.y + 3);
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + 3);
   await page.mouse.down();
-  await page.mouse.move(handle.x + 15, handle.y + 63, { steps: 8 });
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + 63, {
+    steps: 8,
+  });
   await page.mouse.up();
   await expect
     .poll(() =>
@@ -93,7 +113,7 @@ test("backlog drag schedules work without changing the separate deadline; catego
   page,
 }) => {
   await page.goto("/");
-  const task = page.locator(".studio-navigation .studio-task-row");
+  const task = page.locator(".studio-day-panel .studio-task-row");
   const day = page.locator(".studio-time-day").nth(2);
   const box = await day.boundingBox();
   if (!box) throw Error();
@@ -111,9 +131,11 @@ test("backlog drag schedules work without changing the separate deadline; catego
       ),
     )
     .toBe("2026-12-01");
+  await filters(page);
   await page.getByLabel("Показати розділ Творчість", { exact: true }).uncheck();
   await expect(page.locator(".studio-event-main")).toHaveCount(0);
   await page.getByLabel("Показати розділ Творчість", { exact: true }).check();
+  await page.getByLabel("Згорнути навігацію", { exact: true }).click();
   await page.getByLabel("Показати або сховати панель дня").click();
   await page
     .getByLabel("Нотатки дня", { exact: true })
@@ -122,8 +144,11 @@ test("backlog drag schedules work without changing the separate deadline; catego
   await expect(page.getByLabel("Нотатки дня", { exact: true })).toHaveValue(
     "Ідея: прозоре скло для Unity",
   );
-  await page.getByLabel("Пошук у календарі").fill("прозоре скло");
-  await expect(page.locator(".studio-results")).toContainText(
+  await page.locator(".search-trigger").click();
+  await page
+    .getByPlaceholder("Пошук серед подій, повідомлень і завдань…")
+    .fill("прозоре скло");
+  await expect(page.locator(".search-results")).toContainText(
     "Ідея: прозоре скло для Unity",
   );
 });
@@ -136,6 +161,7 @@ test("recurring occurrence can be edited separately and overlapping events get d
   await d.getByLabel("Назва", { exact: true }).fill("Фокус Unity");
   await d.getByLabel("Тип запису").selectOption("event");
   await d.getByLabel("Початок події").fill("10:00");
+  await advanced(d);
   await d.getByLabel("Повторення запису").selectOption("daily");
   await d.getByRole("button", { name: "Зберегти", exact: true }).click();
   await expect
@@ -186,7 +212,7 @@ test("mobile day, keyboard creation, offline persistence and backup export work"
     "Мобільна справа",
   );
   await page.getByLabel("Згорнути панель дня").click();
-  await page.getByLabel("Показати або сховати навігацію календаря").click();
+  await more(page);
   const download = page.waitForEvent("download");
   await page
     .getByRole("button", { name: "Резервна копія", exact: true })
@@ -213,14 +239,20 @@ test("range selection, bulk planning and backup merge remain editable and revers
   await expect(d.getByLabel("Тривалість події")).toHaveValue("90");
   await d.getByLabel("Назва", { exact: true }).fill("Тривалий фокус");
   await d.getByRole("button", { name: "Зберегти", exact: true }).click();
+  await openPlanTray(page);
+  await more(page);
+  await page
+    .getByRole("button", { name: "Вибрати кілька справ", exact: true })
+    .click();
+  await page.locator(".studio-more>summary").click();
   await page.getByLabel(`Вибрати ${seed.title}`, { exact: true }).check();
   await page.getByLabel("Дата перенесення вибраних справ").fill("2026-12-01");
   await page.getByRole("button", { name: "Перенести", exact: true }).click();
-  await expect(page.locator(".studio-navigation .studio-task-row")).toHaveCount(
+  await expect(page.locator(".studio-day-panel .studio-task-row")).toHaveCount(
     0,
   );
   await page.getByRole("button", { name: "Скасувати дію" }).click();
-  await expect(page.locator(".studio-navigation .studio-task-row")).toHaveCount(
+  await expect(page.locator(".studio-day-panel .studio-task-row")).toHaveCount(
     1,
   );
   const incoming = {
@@ -233,12 +265,12 @@ test("range selection, bulk planning and backup merge remain editable and revers
     version: 1,
     data: { "dayframe-tasks": [incoming, incoming] },
   });
-  await page.locator(".studio-backup input[type=file]").setInputFiles({
+  await page.locator(".studio-more-menu>input[type=file]").setInputFiles({
     name: "backup.json",
     mimeType: "application/json",
     buffer: Buffer.from(payload),
   });
-  await expect(page.locator(".studio-navigation")).toContainText(
+  await expect(page.locator(".studio-day-panel")).toContainText(
     "Ідея із резервної копії",
   );
   await expect
@@ -251,7 +283,7 @@ test("range selection, bulk planning and backup merge remain editable and revers
       ),
     )
     .toBe(1);
-  await page.locator(".studio-backup input[type=file]").setInputFiles({
+  await page.locator(".studio-more-menu>input[type=file]").setInputFiles({
     name: "bad.json",
     mimeType: "application/json",
     buffer: Buffer.from('{"format":"bad"}'),
@@ -335,21 +367,26 @@ test("sections and rich event details persist including checklist, reference cov
   page,
 }) => {
   await page.goto("/");
+  await filters(page);
   await page.getByLabel("Редагувати розділи").click();
   await page
     .getByLabel("Назва розділу Творчість", { exact: true })
     .fill("Фото та мистецтво");
   await page.getByLabel("Колір розділу Фото та мистецтво").fill("#426957");
   await page.getByLabel("Редагувати розділи").click();
+  await page.getByLabel("Згорнути навігацію", { exact: true }).click();
   await page.getByRole("button", { name: "Додати", exact: true }).click();
   const d = page.getByRole("dialog", { name: "Редактор запису" });
   await d.getByLabel("Назва", { exact: true }).fill("Маленький творчий проєкт");
   await d.getByLabel("Розділ", { exact: true }).selectOption("creative");
   await d.getByLabel("Тип запису").selectOption("event");
+  await advanced(d);
   await d.getByLabel("Нотатки запису").fill("Перевірити палітру");
   await d.getByLabel("Новий пункт чекліста").fill("Зібрати референси");
   await d.getByRole("button", { name: "Додати пункт", exact: true }).click();
-  await d.locator("summary").click();
+  await d
+    .getByText("Посилання, вкладення та нагадування", { exact: true })
+    .click();
   await d.getByLabel("Посилання запису").fill("https://example.com/reference");
   await d.getByLabel("Нагадування запису").selectOption("15");
   await d.getByLabel("Додати вкладення").setInputFiles({
@@ -363,12 +400,16 @@ test("sections and rich event details persist including checklist, reference cov
   await d.getByRole("button", { name: "На обкладинку", exact: true }).click();
   await d.getByRole("button", { name: "Зберегти", exact: true }).click();
   await page.reload();
+  await filters(page);
   await expect(page.locator(".studio-navigation")).toContainText(
     "Фото та мистецтво",
   );
   await expect(page.locator(".studio-event-main img")).toHaveCount(1);
+  await page.getByLabel("Згорнути навігацію", { exact: true }).click();
   await page.locator(".studio-event-main").click();
-  await d.locator("summary").click();
+  await d
+    .getByText("Посилання, вкладення та нагадування", { exact: true })
+    .click();
   await expect(d.getByLabel("Нагадування запису")).toHaveValue("15");
   await expect(d.getByLabel("Нотатки запису")).toHaveValue(
     "Перевірити палітру",
@@ -398,9 +439,7 @@ test("studio stays within mobile bounds across illustrated and dark themes", asy
 }) => {
   await page.goto("/");
   for (const theme of ["Pastel", "Vintage", "Dark", "Moonlight"]) {
-    await page
-      .getByLabel("Оформлення планера", { exact: true })
-      .selectOption(theme);
+    await chooseTheme(page, theme);
     for (const width of [320, 390]) {
       await page.setViewportSize({ width, height: 844 });
       await expect

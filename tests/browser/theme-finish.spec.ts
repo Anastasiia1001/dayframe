@@ -1,3 +1,4 @@
+import {chooseTheme} from "./helpers/product";
 import { test, expect } from "@playwright/test";
 import { themes } from "../../src/appearance";
 test("all saved themes get tactile frames textures motion and readable dark sheets", async ({
@@ -10,9 +11,7 @@ test("all saved themes get tactile frames textures motion and readable dark shee
     .click();
   await page.getByRole("button", { name: "День", exact: true }).click();
   for (const theme of themes) {
-    await page
-      .getByLabel("Оформлення планера", { exact: true })
-      .selectOption(theme.id);
+    await chooseTheme(page,theme.id);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme.id);
     const finish = await page.locator(".schedule-sheet").evaluate((el) => {
       const s = getComputedStyle(el);

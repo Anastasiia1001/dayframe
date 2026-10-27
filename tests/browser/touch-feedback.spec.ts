@@ -1,3 +1,4 @@
+import {chooseTheme} from "./helpers/product";
 import { test, expect } from "@playwright/test";
 test("touch feedback matches every theme, is bounded, and never intercepts controls", async ({
   page,
@@ -14,9 +15,7 @@ test("touch feedback matches every theme, is bounded, and never intercepts contr
     ["Blue", "star"],
     ["Blossom", "star"],
   ]) {
-    await page
-      .getByLabel("Оформлення планера", { exact: true })
-      .selectOption(theme);
+    await chooseTheme(page,theme);
     const button = page.getByRole("button", {
       name: "Наступний період",
       exact: true,

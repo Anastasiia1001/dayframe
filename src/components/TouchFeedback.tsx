@@ -48,7 +48,7 @@ export function TouchFeedback() {
       pressed = null;
     };
     const addPulse = (target: HTMLElement, x: number, y: number) => {
-      if (reduced.matches) return;
+      if (reduced.matches || document.documentElement.dataset.motion === "off") return;
       const strong = target.matches("input[type=checkbox]")
         ? !(target as HTMLInputElement).checked
         : /^Виконати/.test(target.getAttribute("aria-label") || "");

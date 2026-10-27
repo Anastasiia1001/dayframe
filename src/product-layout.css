@@ -1,0 +1,1499 @@
+/* Product layout: one navigation, a generous calendar, quiet content surfaces. */
+:root[data-theme="Pastel"] .product-layout {
+  --bg: #f7f4ef;
+  --surface: #fffdfa;
+  --soft: #eee8f0;
+  --text: #302c33;
+  --muted: #6e6571;
+  --accent: #765776;
+  --selected: #ede3ee;
+  --border: #ded6dc;
+  --google: #496b55;
+  --calendar: #765776;
+}
+:root[data-theme] .product-layout {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --radius-control: 11px;
+  --radius-card: 16px;
+  --radius-dialog: 20px;
+  color: var(--text);
+}
+:root[data-theme] .product-layout {
+  background: var(--bg);
+}
+:root[data-theme]
+  .product-layout
+  :is(
+    .sidebar,
+    .topbar,
+    .card,
+    .today-card,
+    .habit-sheet,
+    .today-board-column,
+    .fitness-card,
+    .studio-navigation,
+    .studio-day-panel,
+    .studio-week,
+    .studio-month,
+    .studio-modes,
+    .overview-periods,
+    .planner-shortcuts,
+    .search-trigger,
+    button,
+    input,
+    select,
+    textarea
+  ) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+:root[data-theme]
+  .product-layout
+  :is(
+    .card,
+    .today-card,
+    .habit-sheet,
+    .today-board-column,
+    .fitness-card,
+    .studio-navigation,
+    .studio-day-panel,
+    .studio-week,
+    .studio-month
+  ) {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: none;
+}
+:root[data-theme] .product-layout :is(button, input, select, textarea) {
+  font-family: var(--planner-font);
+}
+:root[data-theme]
+  .product-layout
+  :is(
+    button.secondary,
+    .studio-tools > button,
+    .studio-date-tools button,
+    .studio-more > summary,
+    .global-nav-toggle
+  ) {
+  border-radius: var(--radius-control);
+  background: transparent;
+  box-shadow: none;
+  color: var(--text);
+  border: 1px solid transparent;
+}
+:root[data-theme]
+  .product-layout
+  :is(
+    button.secondary,
+    .studio-tools > button,
+    .studio-date-tools button,
+    .studio-more > summary
+  ):hover {
+  background: var(--soft);
+  border-color: var(--border);
+  box-shadow: none;
+}
+:root[data-theme]
+  .product-layout
+  :is(button.primary, .studio-tools > button.primary) {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: transparent;
+  border-radius: var(--radius-control);
+  box-shadow: none;
+}
+:root[data-theme] .product-layout :is(button, input, select) {
+  min-height: 40px;
+}
+:root[data-theme]
+  .product-layout
+  :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  box-shadow: none;
+  font-size: calc(14px * var(--font-scale, 1));
+}
+:root[data-theme]
+  .product-layout
+  :is(input[type="checkbox"], input[type="radio"]) {
+  min-height: 0;
+  accent-color: var(--accent);
+}
+:root[data-theme]
+  .product-layout
+  :is(button, input, select, textarea, summary, a):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+:root[data-theme] .product-layout .sidebar {
+  width: 216px;
+  border-radius: 0;
+  background: var(--surface);
+  border-width: 0 1px 0 0;
+  box-shadow: none;
+  padding: 20px 14px;
+}
+:root[data-theme] .product-layout .main-shell {
+  margin-left: 216px;
+  min-width: 0;
+}
+:root[data-theme] .product-layout .topbar {
+  height: 52px;
+  min-height: 52px;
+  padding: 0 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+}
+:root[data-theme] .product-layout .topbar .breadcrumb {
+  gap: 10px;
+}
+:root[data-theme] .product-layout .global-nav-toggle {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  min-height: 32px;
+}
+:root[data-theme] .product-layout main {
+  padding: 20px 24px 40px;
+  max-width: 1680px;
+  margin: auto;
+}
+:root[data-theme] .product-layout .sidebar .clay-nav-icon {
+  display: none;
+}
+:root[data-theme] .product-layout .sidebar nav button {
+  min-height: 44px;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+}
+:root[data-theme] .product-layout .sidebar .brand {
+  font-size: calc(24px * var(--font-scale, 1));
+  margin-bottom: 12px;
+}
+:root[data-theme] .product-layout .sidebar .workspace {
+  margin: 12px 0 24px;
+  padding: 8px;
+  border: 0;
+}
+:root[data-theme] .product-layout .sidebar .workspace-avatar {
+  border-radius: 10px;
+}
+:root[data-theme] .product-layout .sidebar .quiet-note {
+  display: none;
+}
+:root[data-theme] .product-layout .sidebar-bottom {
+  margin-top: auto;
+}
+:root[data-theme] .product-layout .sidebar .connections button {
+  min-height: 36px;
+}
+:root[data-theme] .product-layout .sidebar .nav-label {
+  padding-bottom: 8px;
+}
+:root[data-theme] .product-layout .sidebar-divider {
+  margin: 16px 0;
+}
+:root[data-theme] .product-layout.nav-collapsed .sidebar {
+  width: 72px;
+  padding-inline: 10px;
+}
+:root[data-theme] .product-layout.nav-collapsed .main-shell {
+  margin-left: 72px;
+}
+:root[data-theme]
+  .product-layout.nav-collapsed
+  .sidebar
+  :is(
+    .brand-word,
+    .workspace > div,
+    .workspace-chevron,
+    .nav-text,
+    .nav-label,
+    .quiet-note,
+    .profile > span:not(.profile-avatar)
+  ) {
+  display: none;
+}
+:root[data-theme]
+  .product-layout.nav-collapsed
+  .sidebar
+  :is(nav button, .sidebar-bottom > button, .connections button) {
+  font-size: 0;
+  justify-content: center;
+  padding-inline: 0;
+}
+:root[data-theme]
+  .product-layout.nav-collapsed
+  .sidebar
+  :is(nav button svg, .sidebar-bottom > button svg) {
+  flex: 0 0 20px;
+}
+:root[data-theme] .product-layout.nav-collapsed .sidebar .source {
+  font-size: calc(12px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout.nav-collapsed .brand {
+  justify-content: center;
+}
+:root[data-theme] .product-layout.nav-collapsed .workspace {
+  justify-content: center;
+}
+:root[data-theme] .product-layout.nav-collapsed .connections i {
+  display: none;
+}
+:root[data-theme] .product-layout .global-add {
+  gap: 6px;
+}
+:root[data-theme] .product-layout .page-calendar > .topbar .global-add,
+:root[data-theme] .product-layout .page-personal > .topbar .global-add {
+  display: none;
+}
+/* The calendar owns the viewport. No decorative rows above the working area. */
+:root[data-theme] .product-layout .page-calendar > .topbar ~ main,
+:root[data-theme] .product-layout .page-personal > .topbar ~ main {
+  padding-top: 16px;
+}
+:root[data-theme] .product-layout .page-calendar main > .page-heading,
+:root[data-theme] .product-layout .page-calendar main > .workspace-toolbar,
+:root[data-theme] .product-layout .page-personal main > .page-heading,
+:root[data-theme] .product-layout .page-personal main > .workspace-toolbar {
+  display: none;
+}
+:root[data-theme] .product-layout .page-calendar main {
+  height: calc(100dvh - 52px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+:root[data-theme] .product-layout .calendar-studio {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+  font-size: calc(14px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .studio-header {
+  min-height: 48px;
+  height: 48px;
+  gap: 12px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+:root[data-theme] .product-layout .studio-header h1 {
+  font-family: var(--planner-font);
+  font-size: calc(24px * var(--font-scale, 1));
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+  margin: 0;
+}
+:root[data-theme] .product-layout .studio-header-art {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+:root[data-theme] .product-layout .studio-header .calendar-companion {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+:root[data-theme] .product-layout .studio-header .theme-mascot-vignette {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-theme] .product-layout .studio-header .mascot-art {
+  width: 48px;
+  height: 48px;
+}
+:root[data-theme] .product-layout .studio-header .companion-reply {
+  display: none;
+}
+:root[data-theme] .product-layout .studio-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-height: 48px;
+  padding: 0;
+  gap: 8px;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  flex: 0 0 auto;
+}
+:root[data-theme] .product-layout .studio-date-tools {
+  display: flex;
+  gap: 4px;
+}
+:root[data-theme] .product-layout .studio-tools > .primary {
+  margin-left: auto;
+  min-width: 104px;
+}
+:root[data-theme] .product-layout .studio-modes {
+  width: auto;
+  max-width: none;
+  gap: 2px;
+  padding: 3px;
+  background: var(--soft);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: none;
+}
+:root[data-theme] .product-layout .studio-modes button {
+  padding: 6px 14px;
+  border-radius: 9px;
+  min-height: 32px;
+  background: transparent;
+  font-size: calc(13px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .studio-modes button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--text);
+  border: 0;
+  box-shadow: 0 1px 3px #00000012;
+}
+:root[data-theme] .product-layout .studio-status {
+  margin: 0;
+  padding: 0;
+  min-height: 20px;
+  font-size: calc(12px * var(--font-scale, 1));
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+:root[data-theme] .product-layout .studio-workspace,
+:root[data-theme] .product-layout .calendar-studio.has-left .studio-workspace {
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+  gap: 16px;
+}
+:root[data-theme]
+  .product-layout
+  .calendar-studio.has-right:not(.panels-overlay)
+  .studio-workspace {
+  grid-template-columns: minmax(0, 1fr) 296px;
+}
+:root[data-theme] .product-layout .studio-center {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+:root[data-theme] .product-layout .studio-week {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+:root[data-theme] .product-layout .studio-day-head {
+  min-height: 60px;
+  background: var(--surface);
+  flex: 0 0 auto;
+}
+:root[data-theme] .product-layout .studio-day-head strong {
+  font-size: calc(20px * var(--font-scale, 1));
+  width: 30px;
+  height: 30px;
+  background: transparent;
+}
+:root[data-theme] .product-layout .studio-day-head .today strong {
+  background: var(--soft);
+  color: var(--text);
+  box-shadow: none;
+}
+:root[data-theme] .product-layout .studio-day-head .selected {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+:root[data-theme] .product-layout .studio-day-head button small {
+  font-size: calc(12px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .studio-time-scroll {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 120px;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+:root[data-theme] .product-layout .studio-hours span {
+  font-size: calc(12px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .studio-time-day {
+  background-size: 100% 60px;
+}
+:root[data-theme] .product-layout .studio-slot {
+  border-top-color: color-mix(in srgb, var(--text) 12%, transparent);
+}
+:root[data-theme] .product-layout .studio-slot:nth-child(even) {
+  border-top-color: color-mix(in srgb, var(--text) 6%, transparent);
+}
+:root[data-theme] .product-layout .studio-now {
+  height: 1px;
+  background: var(--accent);
+}
+:root[data-theme] .product-layout .studio-all-day {
+  max-height: none;
+  height: auto;
+  flex: 0 0 auto;
+}
+:root[data-theme] .product-layout .studio-all-day > div {
+  max-height: none;
+  overflow: visible;
+}
+:root[data-theme]
+  .product-layout
+  .studio-all-day:not(.studio-untimed):not(:has(button)) {
+  display: none;
+}
+:root[data-theme] .product-layout .studio-all-day:not(:has(button)) {
+  display: none;
+}
+:root[data-theme] .product-layout .studio-untimed button {
+  font-size: calc(12px * var(--font-scale, 1));
+  min-height: 26px;
+  line-height: 1.4;
+  border-radius: 6px;
+}
+:root[data-theme] .product-layout .studio-grid-hint {
+  padding: 8px 12px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+:root[data-theme] .product-layout .studio-timed-event {
+  border-radius: 7px;
+  border-left-width: 3px;
+  box-shadow: none;
+}
+:root[data-theme] .product-layout .studio-event-main strong {
+  font-size: calc(13px * var(--font-scale, 1));
+  font-weight: 650;
+  line-height: 1.35;
+}
+:root[data-theme]
+  .product-layout
+  .studio-timed-event[data-density="compact"]
+  .studio-event-main
+  strong {
+  font-size: calc(12px * var(--font-scale, 1));
+  line-height: 18px;
+}
+:root[data-theme] .product-layout .studio-event-main small {
+  font-size: calc(11px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .studio-day-panel {
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  padding: 16px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+:root[data-theme] .product-layout .studio-panel-top > .studio-eyebrow {
+  display: none;
+}
+:root[data-theme] .product-layout .studio-day-panel > .studio-panel-top {
+  justify-content: flex-end;
+  margin: 0;
+}
+:root[data-theme] .product-layout .studio-navigation {
+  position: fixed;
+  top: 112px;
+  left: 240px;
+  bottom: 24px;
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  z-index: 81;
+  overflow: auto;
+  padding: 16px;
+  box-shadow: 0 16px 40px #00000024;
+}
+:root[data-theme] .product-layout.nav-collapsed .studio-navigation {
+  left: 88px;
+}
+:root[data-theme] .product-layout .studio-panel-backdrop {
+  display: block;
+  position: fixed;
+  inset: 52px 0 0;
+  z-index: 80;
+  background: #00000024;
+  border: 0;
+  border-radius: 0;
+}
+:root[data-theme] .product-layout .panels-overlay .studio-day-panel {
+  position: fixed;
+  top: 68px;
+  bottom: 16px;
+  right: 16px;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  height: auto;
+  z-index: 81;
+  box-shadow: 0 16px 40px #00000024;
+}
+:root[data-theme] .product-layout .studio-month {
+  padding: 0;
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+}
+:root[data-theme] .product-layout .studio-month-grid > div {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  min-height: 115px;
+  padding: 8px;
+}
+:root[data-theme] .product-layout .studio-month-grid > div.selected {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+:root[data-theme] .product-layout .studio-month-grid > div.today {
+  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
+}
+:root[data-theme] .product-layout .studio-month-date {
+  font-size: calc(14px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .studio-month-event {
+  font-size: calc(12px * var(--font-scale, 1));
+  line-height: 1.4;
+  border-radius: 6px;
+}
+:root[data-theme] .product-layout .studio-month-more {
+  font-size: calc(12px * var(--font-scale, 1));
+  color: var(--accent);
+  min-height: 28px;
+}
+:root[data-theme] .product-layout .studio-month-add {
+  float: right;
+  min-height: 26px;
+}
+:root[data-theme] .product-layout .studio-more,
+:root[data-theme] .product-layout .studio-period-picker {
+  position: relative;
+}
+:root[data-theme] .product-layout .studio-more > summary,
+:root[data-theme] .product-layout .studio-period-picker > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+  min-height: 40px;
+}
+:root[data-theme] .product-layout summary::-webkit-details-marker {
+  display: none;
+}
+:root[data-theme] .product-layout .studio-more > summary {
+  padding: 8px;
+}
+:root[data-theme] .product-layout .studio-more-menu,
+:root[data-theme] .product-layout .studio-date-popover {
+  position: absolute;
+  z-index: 75;
+  top: calc(100% + 8px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 36px #00000024;
+  padding: 12px;
+}
+:root[data-theme] .product-layout .studio-more-menu {
+  right: 0;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+:root[data-theme] .product-layout .studio-more-menu > button,
+:root[data-theme] .product-layout .studio-more-menu > button > span {
+  text-align: left;
+  justify-content: flex-start;
+}
+:root[data-theme] .product-layout .studio-date-popover {
+  left: 0;
+  width: 300px;
+}
+:root[data-theme] .product-layout .studio-date-popover label {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+:root[data-theme] .product-layout .studio-date-popover .studio-mini {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+:root[data-theme] .product-layout .studio-date-popover .studio-mini button {
+  min-height: 34px;
+  padding: 3px;
+}
+/* Context uses references to real tasks: completion, focus and edit are distinct. */
+:root[data-theme] .product-layout .day-context h2 {
+  font-size: calc(18px * var(--font-scale, 1));
+  line-height: 1.35;
+  margin: 0 0 16px;
+}
+:root[data-theme] .product-layout .day-context h3 {
+  font-size: calc(14px * var(--font-scale, 1));
+  margin: 20px 0 8px;
+}
+:root[data-theme] .product-layout .day-context h3 small {
+  font-size: calc(12px * var(--font-scale, 1));
+  color: var(--muted);
+  font-weight: 500;
+}
+:root[data-theme] .product-layout .context-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+:root[data-theme] .product-layout .context-next {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: var(--soft);
+  border-radius: 12px;
+}
+:root[data-theme] .product-layout .context-next > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+:root[data-theme] .product-layout .context-next small,
+:root[data-theme] .product-layout .context-next span {
+  font-size: calc(12px * var(--font-scale, 1));
+  color: var(--muted);
+}
+:root[data-theme] .product-layout .context-next strong {
+  font-size: calc(13px * var(--font-scale, 1));
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+:root[data-theme] .product-layout .context-task {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+:root[data-theme] .product-layout .context-task input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+:root[data-theme] .product-layout .context-task-title {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  flex: 1;
+  text-align: left;
+  justify-content: stretch;
+}
+:root[data-theme] .product-layout .context-task-title strong {
+  font-size: calc(13px * var(--font-scale, 1));
+  font-weight: 550;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+:root[data-theme] .product-layout .context-task-title small {
+  font-size: calc(12px * var(--font-scale, 1));
+  color: var(--muted);
+}
+:root[data-theme] .product-layout .context-star[aria-pressed="true"] {
+  color: var(--accent);
+}
+:root[data-theme]
+  .product-layout
+  .context-task.is-complete
+  .context-task-title
+  strong {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+:root[data-theme] .product-layout .context-notes {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  font-size: calc(13px * var(--font-scale, 1));
+  font-weight: 600;
+}
+:root[data-theme] .product-layout .context-notes textarea {
+  resize: vertical;
+  line-height: 1.6;
+  padding: 10px;
+  width: 100%;
+}
+:root[data-theme] .product-layout .context-empty {
+  font-size: calc(13px * var(--font-scale, 1));
+  color: var(--muted);
+  line-height: 1.55;
+}
+:root[data-theme] .product-layout .day-context details {
+  margin-top: 16px;
+}
+:root[data-theme] .product-layout .day-context summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  cursor: pointer;
+  font-size: calc(13px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .context-events button {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 8px;
+}
+:root[data-theme] .product-layout .context-events time {
+  font-size: calc(12px * var(--font-scale, 1));
+  color: var(--muted);
+  white-space: nowrap;
+}
+:root[data-theme] .product-layout .today-focus {
+  padding: 20px;
+}
+:root[data-theme] .product-layout .legacy-priorities {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: calc(12px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .cozy-note {
+  padding: 8px 12px;
+  margin: 0 0 16px;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+  min-height: 52px;
+}
+:root[data-theme] .product-layout .cozy-note .bunny-button {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  min-height: 48px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+:root[data-theme] .product-layout .cozy-note .mascot-art {
+  width: 48px;
+  height: 48px;
+}
+:root[data-theme] .product-layout .cozy-note .cozy-label,
+:root[data-theme] .product-layout .cozy-note .cozy-foot {
+  display: none;
+}
+:root[data-theme] .product-layout .cozy-note .cozy-copy p {
+  font-size: calc(13px * var(--font-scale, 1));
+  line-height: 1.5;
+}
+:root[data-theme] .product-layout .focused-dashboard {
+  gap: 16px;
+}
+:root[data-theme] .product-layout .today-overview-grid {
+  gap: 16px;
+}
+:root[data-theme] .product-layout .planner-shortcuts {
+  display: none;
+}
+:root[data-theme] .product-layout .page-today .page-heading {
+  margin-bottom: 16px;
+}
+:root[data-theme] .product-layout .page-today .workspace-toolbar {
+  margin-bottom: 12px;
+}
+:root[data-theme] .product-layout .page-today .overview-periods {
+  margin-bottom: 16px;
+}
+/* Plans are one page with naturally expanding groups, no inner scrollers. */
+:root[data-theme] .product-layout .plans-mode .studio-workspace {
+  display: block;
+}
+:root[data-theme] .product-layout .plans-mode .studio-modes,
+:root[data-theme] .product-layout .plans-mode .studio-date-tools,
+:root[data-theme] .product-layout .plans-mode .studio-panel-toggle {
+  display: none;
+}
+:root[data-theme] .product-layout .plans-mode .studio-center {
+  display: block;
+  max-width: 1040px;
+}
+:root[data-theme] .product-layout .studio-plan-pool {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+:root[data-theme] .product-layout .studio-plan-pool > h2 {
+  font-size: calc(18px * var(--font-scale, 1));
+  margin: 12px 0 8px;
+}
+:root[data-theme] .product-layout .studio-plan-pool > p {
+  max-width: 680px;
+  font-size: calc(13px * var(--font-scale, 1));
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+:root[data-theme] .product-layout .studio-scope-group {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 14px;
+  margin: 12px 0;
+  overflow: visible;
+}
+:root[data-theme] .product-layout .studio-scope-group > summary {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  min-height: 48px;
+  font-weight: 650;
+}
+:root[data-theme] .product-layout .studio-scope-list {
+  max-height: none;
+  overflow: visible;
+  padding: 0 16px 16px;
+}
+:root[data-theme] .product-layout .studio-task-row {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  margin: 0;
+  padding: 8px 0;
+  gap: 8px;
+}
+:root[data-theme] .product-layout .studio-task-title strong {
+  font-size: calc(14px * var(--font-scale, 1));
+  font-weight: 600;
+  line-height: 1.45;
+}
+:root[data-theme] .product-layout .studio-task-title small {
+  font-size: calc(12px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout .studio-task-row > button:last-child {
+  flex: 0 0 36px;
+}
+:root[data-theme] .product-layout .template-library {
+  margin: 24px 0;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+:root[data-theme] .product-layout .template-library summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+:root[data-theme] .product-layout .template-library article {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+/* Native dialogs retain focus and Escape behavior; the footer stays within reach. */
+.studio-editor {
+  max-width: 620px;
+  width: calc(100vw - 32px);
+  max-height: 90dvh;
+  border-radius: 20px;
+}
+.studio-editor form {
+  padding: 24px;
+}
+.studio-editor > form > header {
+  margin-bottom: 16px;
+}
+.studio-editor .studio-quick {
+  padding: 12px 0;
+  margin: 0;
+}
+.studio-editor .studio-editor-grid {
+  gap: 12px;
+}
+.studio-editor .studio-advanced > summary,
+.studio-editor .quick-phrase > summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-weight: 650;
+}
+.studio-editor footer {
+  position: sticky;
+  bottom: -24px;
+  z-index: 2;
+  background: var(--surface);
+  padding: 16px 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+.studio-editor input,
+.studio-editor select,
+.studio-editor textarea {
+  font-size: calc(14px * var(--font-scale, 1));
+  min-height: 40px;
+}
+.studio-editor input[type="checkbox"] {
+  min-height: 0;
+}
+.appearance-dialog {
+  max-width: 720px;
+  width: calc(100vw - 32px);
+  max-height: 85dvh;
+  overflow: auto;
+  padding: 24px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 24px 70px #00000030;
+}
+.appearance-dialog::backdrop {
+  background: #00000045;
+}
+.appearance-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.appearance-dialog h2 {
+  margin: 4px 0;
+}
+.appearance-dialog button {
+  color: inherit;
+}
+.appearance-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.appearance-gallery button {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.appearance-gallery button[aria-pressed="true"] {
+  outline: 2px solid var(--accent);
+}
+.appearance-sample {
+  height: 76px;
+  border-radius: 8px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 6px;
+}
+.appearance-sample i {
+  border-radius: 4px;
+  background: #ffffff70;
+}
+.appearance-sample i:first-child {
+  grid-row: span 2;
+}
+.appearance-gallery strong {
+  font-size: calc(13px * var(--font-scale, 1));
+}
+.appearance-gallery svg {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+}
+.mobile-week-strip {
+  display: flex;
+  gap: 4px;
+}
+.mobile-week-strip button {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+.mobile-week-strip button[aria-pressed="true"] {
+  background: var(--soft);
+  color: var(--accent);
+  border-radius: 10px;
+}
+.mobile-week-strip small {
+  font-size: calc(11px * var(--font-scale, 1));
+}
+@media (max-width: 1179px) {
+  :root[data-theme] .product-layout .studio-navigation {
+    left: 232px;
+  }
+  :root[data-theme] .product-layout .studio-more-menu {
+    right: -40px;
+  }
+  :root[data-theme] .product-layout .studio-header h1 {
+    font-size: calc(21px * var(--font-scale, 1));
+  }
+}
+@media (max-width: 759px) {
+  :root[data-theme] .product-layout .sidebar {
+    display: none;
+  }
+  :root[data-theme] .product-layout .main-shell,
+  :root[data-theme] .product-layout.nav-collapsed .main-shell {
+    margin-left: 0;
+  }
+  :root[data-theme] .product-layout .topbar {
+    padding: 0 16px;
+  }
+  :root[data-theme] .product-layout .global-nav-toggle,
+  :root[data-theme] .product-layout .breadcrumb {
+    display: none;
+  }
+  :root[data-theme] .product-layout .top-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  :root[data-theme] .product-layout main {
+    padding: 12px 16px 84px;
+  }
+  :root[data-theme] .product-layout .page-calendar main {
+    height: calc(100dvh - 116px);
+    padding: 12px 12px 8px;
+  }
+  :root[data-theme] .product-layout .studio-tools {
+    flex-wrap: wrap;
+    gap: 4px;
+    min-height: 44px;
+  }
+  :root[data-theme] .product-layout .studio-tools > .primary {
+    min-width: 84px;
+    padding-inline: 10px;
+  }
+  :root[data-theme] .product-layout .studio-modes button {
+    padding: 6px 10px;
+    min-height: 36px;
+  }
+  :root[data-theme] .product-layout .studio-header {
+    height: auto;
+    min-height: 44px;
+  }
+  :root[data-theme] .product-layout .studio-header h1 {
+    font-size: calc(18px * var(--font-scale, 1));
+  }
+  :root[data-theme] .product-layout .studio-header .calendar-companion,
+  :root[data-theme] .product-layout .studio-header .theme-mascot-vignette,
+  :root[data-theme] .product-layout .studio-header .mascot-art {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    flex-basis: 40px;
+  }
+  :root[data-theme] .product-layout .studio-header-art {
+    gap: 0;
+  }
+  :root[data-theme] .product-layout .studio-header-art > button {
+    min-width: 36px;
+    min-height: 40px;
+  }
+  :root[data-theme] .product-layout .studio-date-tools button {
+    padding: 4px;
+    min-height: 40px;
+  }
+  :root[data-theme] .product-layout .studio-date-tools button:nth-child(2) {
+    font-size: calc(12px * var(--font-scale, 1));
+  }
+  :root[data-theme] .product-layout .studio-tools > button,
+  :root[data-theme] .product-layout .studio-more > summary {
+    min-height: 44px;
+    min-width: 40px;
+  }
+  :root[data-theme] .product-layout .studio-search-proxy {
+    display: none;
+  }
+  :root[data-theme] .product-layout .studio-status {
+    font-size: calc(11px * var(--font-scale, 1));
+  }
+  :root[data-theme] .product-layout .studio-day-head {
+    min-height: 52px;
+  }
+  :root[data-theme] .product-layout .studio-navigation,
+  :root[data-theme] .product-layout.nav-collapsed .studio-navigation {
+    left: 16px;
+    top: 68px;
+    bottom: 80px;
+  }
+  :root[data-theme] .product-layout .panels-overlay .studio-day-panel {
+    bottom: 80px;
+  }
+  :root[data-theme] .product-layout .studio-week {
+    min-height: 0;
+  }
+  :root[data-theme] .product-layout .studio-time-scroll {
+    min-height: 100px;
+  }
+  :root[data-theme] .product-layout .studio-task-row button,
+  :root[data-theme] .product-layout .context-task button {
+    min-height: 44px;
+  }
+  :root[data-theme] .product-layout .studio-month-grid > div {
+    padding: 4px;
+    min-height: 100px;
+  }
+  :root[data-theme] .product-layout .studio-month-event {
+    font-size: calc(11px * var(--font-scale, 1));
+  }
+  :root[data-theme] .product-layout .mobile-nav {
+    height: 64px;
+    display: flex;
+    padding: 4px 8px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    box-shadow: none;
+    backdrop-filter: none !important;
+  }
+  :root[data-theme] .product-layout .mobile-nav button {
+    flex: 1;
+    min-height: 52px;
+    min-width: 44px;
+  }
+  :root[data-theme] .product-layout .mobile-nav span {
+    font-size: calc(11px * var(--font-scale, 1));
+  }
+  :root[data-theme] .product-layout .studio-more-menu {
+    right: -36px;
+    max-width: calc(100vw - 32px);
+  }
+  :root[data-theme] .product-layout .studio-date-popover {
+    width: 280px;
+  }
+  .appearance-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .appearance-dialog {
+    padding: 16px;
+  }
+  .studio-editor {
+    width: 100%;
+    max-width: none;
+    max-height: 94dvh;
+    margin: auto 0 0;
+    border-radius: 20px 20px 0 0;
+  }
+  .studio-editor form {
+    padding: 20px 16px;
+  }
+  .studio-editor footer {
+    bottom: -20px;
+  }
+  .studio-editor footer button {
+    min-height: 44px;
+  }
+  .studio-editor .studio-editor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  :root[data-theme] .product-layout .cozy-note {
+    align-items: flex-start;
+  }
+  :root[data-theme] .product-layout .cozy-note .cozy-motto {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .product-layout * {
+    scroll-behavior: auto !important;
+  }
+}
+:root[data-theme]
+  .product-layout
+  :is(
+    .studio-slot,
+    .studio-event-main,
+    .studio-resize,
+    .studio-month-event,
+    .studio-month-date,
+    .studio-month-add,
+    .studio-day-head button,
+    .studio-mini button
+  ) {
+  min-height: 0;
+}
+:root[data-theme] .product-layout .studio-event-main {
+  height: 100%;
+  padding: 3px 14px 3px 5px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+:root[data-theme] .product-layout .studio-timed-event .studio-resize {
+  width: 12px;
+  min-width: 12px;
+  right: 0;
+  border-radius: 0;
+  opacity: 0.55;
+  padding: 0;
+}
+:root[data-theme]
+  .product-layout
+  .studio-timed-event[data-density="compact"]
+  .studio-event-main {
+  padding: 2px 13px 2px 4px !important;
+  gap: 0;
+}
+:root[data-theme]
+  .product-layout
+  .studio-timed-event[data-density="compact"]
+  .studio-event-main
+  > span {
+  display: none;
+}
+:root[data-theme]
+  .product-layout
+  .studio-timed-event[data-density="compact"]
+  .studio-event-main
+  strong {
+  font-size: calc(12px * var(--font-scale, 1));
+  line-height: 17px;
+}
+:root[data-theme] .product-layout .studio-navigation .studio-mini {
+  margin-bottom: 16px;
+}
+.quick-task-editor {
+  width: 520px;
+  max-width: calc(100vw - 32px);
+  max-height: 90dvh;
+  margin: auto;
+  padding: 24px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 24px 70px #00000030;
+}
+.quick-task-editor::backdrop {
+  background: #00000040;
+}
+.quick-task-editor header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.quick-task-editor h2 {
+  font-size: calc(21px * var(--font-scale, 1));
+  margin: 0;
+}
+.quick-task-editor label {
+  display: grid;
+  gap: 8px;
+  font-size: calc(13px * var(--font-scale, 1));
+  margin-bottom: 16px;
+}
+.quick-task-editor :is(input:not([type="checkbox"]), select, textarea) {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 10px;
+  min-height: 42px;
+}
+.quick-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.quick-task-editor .quick-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quick-task-editor input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+.quick-advanced summary {
+  cursor: pointer;
+  min-height: 44px;
+  color: var(--accent);
+  font-size: calc(14px * var(--font-scale, 1));
+}
+.quick-task-editor footer {
+  position: sticky;
+  bottom: -24px;
+  background: var(--surface);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 0 0;
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.quick-task-editor footer button {
+  min-height: 42px;
+  border-radius: 11px;
+}
+.quick-task-editor :is(input, select, textarea, button, summary):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (max-width: 759px) {
+  .quick-task-editor {
+    width: 100%;
+    max-width: 100%;
+    max-height: 94dvh;
+    margin: auto 0 0;
+    padding: 20px 16px;
+    border-radius: 20px 20px 0 0;
+  }
+  .quick-task-editor footer {
+    bottom: -20px;
+  }
+  .quick-task-editor footer button {
+    min-height: 44px;
+  }
+}
+:root[data-theme] .product-layout .context-panel-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--soft);
+  border-radius: 10px;
+  padding: 3px;
+  margin: 0 0 16px;
+}
+:root[data-theme] .product-layout .context-panel-tabs button {
+  flex: 1;
+  min-height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+}
+:root[data-theme]
+  .product-layout
+  .context-panel-tabs
+  button[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--text);
+}
+:root[data-theme] .product-layout .studio-day-panel .studio-plan-pool > h2 {
+  font-size: calc(16px * var(--font-scale, 1));
+}
+:root[data-theme]
+  .product-layout
+  .studio-day-panel
+  .studio-scope-group
+  > summary {
+  padding: 12px;
+}
+:root[data-theme] .product-layout .studio-day-panel .studio-scope-list {
+  padding: 0 12px 12px;
+}
+:root[data-theme] .product-layout .studio-day-panel .studio-task-row {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+:root[data-theme] .product-layout .studio-day-panel .studio-task-title {
+  flex: 1;
+}
+:root[data-theme]
+  .product-layout
+  .studio-day-panel
+  .studio-task-row
+  button[aria-label^="Запланувати"]
+  span {
+  display: none;
+}
+:root[data-theme] .product-layout .manual-jira-copy {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+:root[data-theme] .product-layout .manual-jira-copy label {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+:root[data-theme] .product-layout .manual-jira-copy summary {
+  min-height: 40px;
+  cursor: pointer;
+}
+@media (max-width: 759px) {
+  :root[data-theme] .product-layout .calendar-plans-toggle span {
+    display: none;
+  }
+}
+:root[data-theme][data-motion="off"] :is(.app, dialog) *,
+:root[data-theme][data-motion="off"] :is(.app, dialog) *::before,
+:root[data-theme][data-motion="off"] :is(.app, dialog) *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+:root[data-theme][data-motion="off"]
+  .mascot-art
+  rect:is(.mascot-eye-left, .mascot-eye-right) {
+  animation: none !important;
+}
+/* Contain screen-reader-only table headings inside their own scroll surface. */
+.habit-table-scroll {
+  position: relative;
+}
+@media (max-width: 759px) {
+  .topbar .global-nav-toggle {
+    display: none;
+  }
+  :root[data-theme]
+    .product-layout
+    .topbar
+    :is(.search-trigger, .notification-trigger, .mini-avatar) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  :root[data-theme] .product-layout .topbar .search-trigger {
+    width: 44px;
+    flex: 0 0 44px;
+  }
+  :root[data-theme] .product-layout .search-trigger :is(span, kbd) {
+    display: none;
+  }
+}
+@media (max-width: 360px) {
+  :root[data-theme] .product-layout .global-add {
+    width: 44px;
+    min-width: 44px;
+    padding: 8px;
+  }
+  :root[data-theme] .product-layout .global-add span {
+    display: none;
+  }
+}
