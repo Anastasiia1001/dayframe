@@ -1,3 +1,4 @@
+import { RestCorner } from "./components/RestCorner";
 import { QuickTaskEditor } from "./components/QuickTaskEditor";
 import { TodayFocus } from "./components/DayContext";
 import { TaskChecklist } from "./components/TaskChecklist";
@@ -42,6 +43,8 @@ import { Source, Section } from "./components/Primitives";
 import { useLocal } from "./useLocal";
 import { useEffect, useState } from "react";
 import {
+  Wind,
+  ChevronDown,
   Dumbbell,
   Sun,
   CalendarDays,
@@ -142,12 +145,39 @@ export default function App() {
   );
   const visibleNav = legacyPlanner
     ? nav
-    : nav.filter(([name]) => ["Today", "Calendar", "Personal"].includes(name));
+    : [
+        ...nav.filter(([name]) =>
+          ["Today", "Calendar", "Personal"].includes(name),
+        ),
+        ["Rest", Wind] as const,
+      ];
   const pageName = (name: string) =>
-    !legacyPlanner && name === "Personal" ? "Плани" : uk(name);
+    name === "Rest"
+      ? "Перепочинок"
+      : !legacyPlanner && name === "Personal"
+        ? "Плани"
+        : uk(name);
   const [openAIKey, setOpenAIKey] = useState("");
   const [overviewPeriod, setOverviewPeriod] = useState<OverviewPeriod>("day");
-  const [page, setPage] = useState(legacyPlanner ? "Today" : "Calendar");
+  const [page, setPageState] = useState(legacyPlanner ? "Today" : "Calendar");
+  const setPage = (next: string) => {
+    if (next === page) return;
+    const event = new CustomEvent("dayframe-before-navigate", {
+      cancelable: true,
+      detail: { resume: () => setPageState(next) },
+    });
+    if (window.dispatchEvent(event)) setPageState(next);
+  };
+  const [sourcesOpen, setSourcesOpen] = useLocal("dayframe-sources-open", true);
+  const [reduceTransparency, setReduceTransparency] = useLocal(
+    "dayframe-reduce-transparency",
+    false,
+  );
+  useEffect(() => {
+    document.documentElement.dataset.transparency = reduceTransparency
+      ? "reduced"
+      : "normal";
+  }, [reduceTransparency]);
   const [mascot, setMascot] = useLocal("dayframe-mascot", "bunny");
   const [theme, setTheme] = useLocal("dayframe-theme", "Pastel");
   const [fontSize, setFontSize] = useLocal("dayframe-font-size", 100);
@@ -700,7 +730,7 @@ export default function App() {
     >
       {ambient &&
         !isPlannerTheme(theme) &&
-        (legacyPlanner || !["Calendar", "Personal"].includes(page)) && (
+        (legacyPlanner || !["Calendar", "Personal", "Rest"].includes(page)) && (
           <ThemeAtmosphere theme={theme} />
         )}
       <aside className="sidebar">
@@ -735,6 +765,8 @@ export default function App() {
             <button
               key={uk(name)}
               className={page === name ? "selected" : ""}
+              aria-current={page === name ? "page" : undefined}
+              aria-label={pageName(name)}
               onClick={() => {
                 setPage(name);
                 if (name === "Today") setOverviewPeriod("day");
@@ -754,7 +786,12 @@ export default function App() {
           ))}
         </nav>
         <div className="sidebar-divider" />
-        <div className="nav-label">
+        <button
+          className="nav-label sources-toggle"
+          aria-label="Джерела"
+          aria-expanded={sourcesOpen}
+          onClick={() => setSourcesOpen(!sourcesOpen)}
+        >
           ТВОЇ ДЖЕРЕЛА{" "}
           <span>
             {workspace.mode === "demo"
@@ -762,8 +799,9 @@ export default function App() {
               : workspace.status?.providers.filter((p) => p.connected).length ||
                 0}
           </span>
-        </div>
-        <div className="connections">
+          <ChevronDown size={14} />
+        </button>
+        <div className="connections" hidden={!sourcesOpen}>
           {["Outlook", "Google", "Slack", "Jira"]
             .filter(
               (s) =>
@@ -891,7 +929,7 @@ export default function App() {
           </div>
         </header>
         <main>
-          <div className="page-heading">
+          <div className="page-heading" hidden={page === "Rest"}>
             <div>
               {page === "Today" && (
                 <div className="date-eyebrow">
@@ -931,7 +969,7 @@ export default function App() {
               </p>
             </div>
           </div>
-          <div className="workspace-toolbar">
+          <div className="workspace-toolbar" hidden={page === "Rest"}>
             <span
               className={`mode-badge ${workspace.mode === "demo" ? "demo" : ""}`}
             >
@@ -1227,6 +1265,21 @@ export default function App() {
           )}
           {page === "Calendar" && calendar()}
           {page === "Fitness" && <FitnessTracker />}
+          {page === "Rest" && (
+            <RestCorner
+              today={today}
+              tasks={tasks}
+              onExit={() => setPage("Calendar")}
+              onCommit={(next) => {
+                try {
+                  localStorage.setItem("dayframe-tasks", JSON.stringify(next));
+                  setTasks(next);
+                } catch {
+                  return "Не вдалося зберегти зміни. Нічого не застосовано; повтори спробу.";
+                }
+              }}
+            />
+          )}
           {page === "Personal" && !legacyPlanner && calendar(true)}
           {page === "Personal" && legacyPlanner && (
             <PersonalBoard
@@ -1384,6 +1437,22 @@ export default function App() {
           {page === "Settings" && (
             <div className="settings-stack">
               <Section title="Спокійний інтерфейс">
+                <label className="setting-row">
+                  <div>
+                    <strong>Зменшити прозорість</strong>
+                    <small>
+                      Щільні поверхні без розмиття. Системне налаштування також
+                      враховується.
+                    </small>
+                  </div>
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    aria-label="Зменшити прозорість"
+                    checked={reduceTransparency}
+                    onChange={(e) => setReduceTransparency(e.target.checked)}
+                  />
+                </label>
                 <label className="setting-row">
                   <div>
                     <strong>Анімації інтерфейсу</strong>

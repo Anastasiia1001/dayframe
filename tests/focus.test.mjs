@@ -60,3 +60,16 @@ test("focus dates coexist and toggling a date does not remove other dates or cre
   assert.deepEqual(next[0].checklist, tasks[0].checklist);
   assert.equal(tasks[0].focusDates.length, 1);
 });
+test("recurring priorities anchored before today still count toward the daily limit", () => {
+  const tasks = [
+    task("series", {
+      date: "2026-10-20",
+      recurrence: "weekly",
+      focusDates: [date],
+    }),
+    task("a", { focusDates: [date] }),
+    task("b", { focusDates: [date] }),
+    task("c"),
+  ];
+  assert.equal(chooseFocus(tasks, "c", date), tasks);
+});

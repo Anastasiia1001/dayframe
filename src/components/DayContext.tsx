@@ -1,3 +1,4 @@
+import { restOccurrences } from "../domain/rest";
 import { dayAvailability } from "../domain/dayAvailability";
 import { nextOccurrence } from "../recurrence";
 import { useDailyPlan } from "../dailyPlans";
@@ -30,8 +31,17 @@ export function DayContext(p: {
         : p.tasks,
     [p.tasks, p.visibleIds],
   );
+  const occurrenceIds = useMemo(
+    () => new Set(restOccurrences(visibleTasks, p.date).map((r) => r.task.id)),
+    [visibleTasks, p.date],
+  );
   const day = visibleTasks.filter(
-      (t) => !t.disabled && !t.isTemplate && !t.inBacklog && t.date === p.date,
+      (t) =>
+        !t.disabled &&
+        !t.isTemplate &&
+        !t.inBacklog &&
+        (occurrenceIds.has(t.id) ||
+          (t.completed && (t.date === p.date || t.completedOn === p.date))),
     ),
     active = day.filter((t) => !t.completed),
     focused = day.filter((t) => focusedOn(t, p.date)),
@@ -136,7 +146,10 @@ export function DayContext(p: {
       <div className="context-heading">
         <h3>
           Головне на {p.date === p.today ? "сьогодні" : "день"}{" "}
-          <small>
+          <small
+            className="context-focus-count"
+            aria-label="Виконано головних справ"
+          >
             {focused.filter((t) => t.completed).length}/{focused.length || 3}
           </small>
         </h3>
@@ -156,12 +169,6 @@ export function DayContext(p: {
       {(choosing || (!p.compact && !focused.length)) && (
         <div className="context-candidates">
           {active.filter((t) => !focusedOn(t, p.date)).map(row)}
-          {!active.length && (
-            <button className="studio-text-action" onClick={p.onAdd}>
-              <Plus size={14} />
-              Додати першу справу
-            </button>
-          )}
         </div>
       )}
       {notice && <p role="status">{notice}</p>}
@@ -176,7 +183,7 @@ export function DayContext(p: {
             active.filter((t) => !focusedOn(t, p.date)).map(row)}
           <button className="studio-text-action" onClick={p.onAdd}>
             <Plus size={14} />
-            Додати справу
+            {active.length ? "Додати справу" : "Додати першу справу"}
           </button>
         </>
       )}

@@ -1,0 +1,872 @@
+/* Shared material system. Palette values remain owned by the selected theme. */
+:root[data-theme] .product-layout {
+  --app-bg: var(--bg);
+  --surface-solid: var(--surface);
+  --surface-glass: color-mix(in srgb, var(--surface-solid) 72%, transparent);
+  --surface-glass-strong: color-mix(
+    in srgb,
+    var(--surface-solid) 90%,
+    transparent
+  );
+  --surface-input: color-mix(in srgb, var(--surface-solid) 92%, var(--soft));
+  --text-primary: var(--text);
+  --text-secondary: color-mix(in srgb, var(--muted) 85%, var(--text));
+  --accent-hover: color-mix(in srgb, var(--accent) 86%, var(--text));
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, var(--surface-solid));
+  --border-subtle: color-mix(in srgb, var(--border) 78%, transparent);
+  --glass-highlight: color-mix(in srgb, var(--surface-solid) 85%, transparent);
+  --shadow-panel: 0 8px 28px color-mix(in srgb, var(--text) 7%, transparent);
+  --focus-ring: var(--accent);
+  --radius-card: 22px;
+  --radius-control: 13px;
+  --radius-dialog: 22px;
+  background:
+    radial-gradient(
+      ellipse at 7% 16%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at 95% 72%,
+      color-mix(in srgb, var(--soft) 85%, transparent),
+      transparent 60%
+    ),
+    var(--app-bg);
+  background-attachment: fixed;
+}
+:root:is(
+    [data-theme="Dark"],
+    [data-theme="Moonlight"],
+    [data-theme="NeonAzure"],
+    [data-theme="NeonOcean"],
+    [data-theme="NeonCobalt"],
+    [data-theme="NeonAurora"]
+  )
+  .product-layout {
+  --surface-glass: color-mix(in srgb, var(--surface-solid) 80%, transparent);
+  --surface-glass-strong: color-mix(
+    in srgb,
+    var(--surface-solid) 94%,
+    transparent
+  );
+  --glass-highlight: color-mix(in srgb, var(--text) 17%, transparent);
+  --shadow-panel: 0 10px 32px #00000025;
+}
+:root[data-theme] .product-layout::before,
+:root[data-theme] .product-layout::after {
+  display: none;
+}
+:root[data-theme] .product-layout .main-shell,
+:root[data-theme] .product-layout main {
+  background: transparent;
+}
+:root[data-theme] .product-layout [hidden] {
+  display: none !important;
+}
+:root[data-theme]
+  .product-layout
+  :is(
+    .sidebar,
+    .topbar,
+    .studio-day-panel,
+    .studio-navigation,
+    .studio-more-menu,
+    .appearance-dialog,
+    .quick-task-editor,
+    .studio-editor,
+    .rest-dialog,
+    .search-dialog
+  ) {
+  background: var(--surface-solid);
+  border-color: var(--border-subtle);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--shadow-panel);
+}
+@supports (
+  (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))
+) {
+  :root[data-theme] .product-layout :is(.sidebar, .topbar) {
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px) saturate(115%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(115%) !important;
+  }
+  :root[data-theme]
+    .product-layout
+    :is(
+      .studio-day-panel,
+      .studio-navigation,
+      .studio-more-menu,
+      .appearance-dialog,
+      .quick-task-editor,
+      .studio-editor,
+      .rest-dialog,
+      .search-dialog
+    ) {
+    background: var(--surface-glass-strong);
+    backdrop-filter: blur(16px) saturate(110%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(110%) !important;
+  }
+  /* Flat translucency on content cards: no nested backdrop layers. */
+  :root[data-theme]
+    .product-layout
+    :is(
+      .today-card,
+      .card,
+      .habit-sheet,
+      .today-board-column,
+      .fitness-card,
+      .rest-welcome,
+      .rest-breath,
+      .rest-writing,
+      .rest-lighten
+    ) {
+    background: var(--surface-glass-strong);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
+  }
+}
+:root[data-theme] .product-layout :is(.studio-week, .studio-month) {
+  background: color-mix(in srgb, var(--surface-solid) 97%, var(--bg));
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+:root[data-theme]
+  .product-layout
+  :is(.studio-timed-event, .studio-untimed button, .context-next) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+:root[data-theme] .product-layout .studio-timed-event {
+  background: color-mix(
+    in srgb,
+    var(--section-color, var(--accent)) 16%,
+    var(--surface-solid)
+  );
+}
+:root[data-theme] .product-layout .studio-timed-event:hover {
+  border-color: var(--accent);
+}
+:root[data-theme]
+  .product-layout
+  :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  background: var(--surface-input);
+  border-color: var(--border-subtle);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--text) 4%, transparent);
+}
+:root[data-theme] .product-layout button.primary:hover {
+  background: var(--accent-hover);
+}
+:root[data-theme]
+  .product-layout
+  :is(button, input, select, textarea, summary, a):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+:root[data-theme] .product-layout .sidebar nav button > svg {
+  display: block;
+  filter: none;
+  flex: 0 0 20px;
+}
+:root[data-theme] .product-layout .sidebar nav button.selected {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 650;
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+:root[data-theme] .product-layout .sources-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  min-height: 40px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+:root[data-theme] .product-layout .sources-toggle span {
+  margin-left: auto;
+}
+:root[data-theme] .product-layout .connections button {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+:root[data-theme] .product-layout .sidebar nav {
+  margin-bottom: 16px;
+}
+:root[data-theme] .product-layout .context-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+:root[data-theme] .product-layout .context-panel-header .studio-panel-top {
+  order: 2;
+  margin: 0;
+  padding: 0;
+}
+:root[data-theme] .product-layout .context-panel-header .context-panel-tabs {
+  margin: 0;
+  flex: 1;
+}
+:root[data-theme] .product-layout .studio-day-panel {
+  padding-top: 12px;
+}
+:root[data-theme] .product-layout .context-heading h3 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+}
+:root[data-theme] .product-layout .context-focus-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  background: var(--accent-soft);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 650;
+}
+:root[data-theme] .product-layout .context-next {
+  background: var(--accent-soft);
+  border: 0;
+  border-radius: 14px;
+}
+:root[data-theme] .product-layout .studio-status {
+  gap: 12px;
+  position: relative;
+  min-height: 24px;
+}
+:root[data-theme] .product-layout .studio-data-status {
+  margin: 0;
+}
+:root[data-theme] .product-layout .studio-data-status summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+:root[data-theme] .product-layout .studio-data-status[open] {
+  z-index: 70;
+}
+:root[data-theme] .product-layout .studio-data-status[open]::before {
+  content: "";
+  position: absolute;
+  inset: 24px auto auto 0;
+  width: min(430px, 90vw);
+  height: 154px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-panel);
+  z-index: -1;
+}
+:root[data-theme] .product-layout .studio-data-status p {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  margin: 0;
+  padding: 12px 16px;
+  width: min(430px, 90vw);
+  box-sizing: border-box;
+  font-size: 13px;
+  color: var(--text);
+}
+:root[data-theme] .product-layout .studio-data-status p + p {
+  top: 65px;
+}
+:root[data-theme] .product-layout :is(.quick-task-editor, .studio-editor) {
+  padding: 20px;
+}
+:root[data-theme]
+  .product-layout
+  :is(.quick-task-editor, .studio-editor)
+  label {
+  margin-block: 4px;
+}
+:root[data-theme] .product-layout :is(.quick-task-editor, .studio-editor) form {
+  gap: 12px;
+}
+:root[data-theme]
+  .product-layout
+  :is(
+    .quick-task-editor,
+    .studio-editor,
+    .appearance-dialog,
+    .rest-dialog,
+    .search-dialog
+  )::backdrop {
+  background: #00000035;
+  backdrop-filter: none;
+}
+
+/* The quiet corner: one chosen activity at a time, no animated page background. */
+:root[data-theme] .product-layout .page-rest > .topbar .global-add {
+  display: none;
+}
+:root[data-theme] .product-layout .page-rest .page-heading,
+:root[data-theme] .product-layout .page-rest .workspace-toolbar {
+  display: none;
+}
+:root[data-theme] .product-layout .rest-corner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-bottom: 32px;
+  color: var(--text-primary);
+}
+:root[data-theme] .product-layout .rest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+:root[data-theme] .product-layout .rest-header h1 {
+  font-size: 30px;
+  margin: 6px 0 0;
+}
+:root[data-theme] .product-layout .rest-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+:root[data-theme] .product-layout .rest-back {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 0;
+  padding: 8px 0;
+  margin-bottom: 16px;
+}
+:root[data-theme]
+  .product-layout
+  :is(.rest-welcome, .rest-breath, .rest-writing, .rest-lighten) {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 32px;
+  background: var(--surface-glass-strong);
+}
+:root[data-theme] .product-layout .rest-corner h2 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 12px;
+}
+:root[data-theme] .product-layout .rest-corner p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.65;
+  max-width: 75ch;
+}
+:root[data-theme] .product-layout .rest-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+:root[data-theme] .product-layout .rest-options > button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 16px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-input);
+  border-radius: 16px;
+  padding: 24px;
+  color: var(--text);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+  transition:
+    transform 0.16s,
+    border-color 0.16s;
+}
+:root[data-theme] .product-layout .rest-options > button:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+:root[data-theme] .product-layout .rest-options svg {
+  color: var(--accent);
+}
+:root[data-theme] .product-layout .rest-options strong {
+  font-size: 16px;
+}
+:root[data-theme] .product-layout .rest-options span {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+:root[data-theme] .product-layout .rest-breath {
+  text-align: center;
+}
+:root[data-theme] .product-layout .rest-breath p {
+  margin-inline: auto;
+}
+:root[data-theme] .product-layout .rest-breath > label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+:root[data-theme] .product-layout .rest-breath select {
+  width: auto;
+  min-width: 100px;
+}
+:root[data-theme] .product-layout .breath-orb {
+  width: 152px;
+  height: 152px;
+  border-radius: 50%;
+  margin: 54px auto;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  background: radial-gradient(
+    circle at 32% 25%,
+    var(--surface-solid),
+    var(--accent-soft)
+  );
+  border: 1px solid var(--glass-highlight);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    0 12px 32px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+:root[data-theme] .product-layout .breath-orb.has-started {
+  animation: quiet-breath 8s ease-in-out infinite;
+}
+@keyframes quiet-breath {
+  0%,
+  100% {
+    transform: scale(0.88);
+    opacity: 0.82;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+:root[data-theme] .product-layout .breath-instruction {
+  min-height: 48px;
+  font-size: 18px;
+  color: var(--text);
+}
+:root[data-theme] .product-layout .breath-clock {
+  height: 36px;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+:root[data-theme] .product-layout .rest-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+:root[data-theme] .product-layout .rest-breath .rest-actions {
+  justify-content: center;
+}
+:root[data-theme] .product-layout .rest-corner button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+:root[data-theme] .product-layout .rest-actions button {
+  padding: 10px 16px;
+  border-radius: var(--radius-control);
+}
+:root[data-theme] .product-layout .rest-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+:root[data-theme] .product-layout .rest-check input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+:root[data-theme] .product-layout .rest-writing textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 270px;
+  resize: vertical;
+  padding: 16px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+:root[data-theme] .product-layout .rest-save-status {
+  min-height: 24px;
+}
+:root[data-theme] .product-layout .rest-saved {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 16px;
+  margin-top: 20px;
+}
+:root[data-theme] .product-layout .rest-saved article {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 12px;
+  padding: 8px 0;
+}
+:root[data-theme] .product-layout .rest-saved article > button:first-child {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  text-align: left;
+  padding: 8px;
+}
+:root[data-theme] .product-layout .rest-saved time {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+:root[data-theme] .product-layout .rest-saved article span {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 14px;
+}
+:root[data-theme] .product-layout .rest-dialog {
+  max-width: 520px;
+  width: calc(100vw - 32px);
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 22px;
+  color: var(--text);
+}
+:root[data-theme] .product-layout .rest-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 24px 0;
+}
+:root[data-theme] .product-layout .rest-task-list article {
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 16px 0;
+}
+:root[data-theme] .product-layout .rest-task-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+:root[data-theme] .product-layout .rest-task-name strong {
+  font-size: 15px;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+:root[data-theme] .product-layout .rest-task-name small {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+:root[data-theme] .product-layout .rest-task-options {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 8px 0 0 44px;
+}
+:root[data-theme] .product-layout .rest-task-options label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 155px;
+  max-width: 300px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+:root[data-theme] .product-layout .rest-task-options select,
+:root[data-theme] .product-layout .rest-task-options input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  color: var(--text);
+  padding: 8px;
+}
+:root[data-theme] .product-layout .rest-focus-label {
+  display: block;
+  margin: 8px 0 0 44px;
+  font-size: 13px;
+  color: var(--accent);
+}
+:root[data-theme] .product-layout .rest-block-option {
+  border-block: 1px solid var(--border-subtle);
+  padding: 16px 0;
+  margin: 16px 0 24px;
+}
+:root[data-theme] .product-layout .rest-block-option .rest-actions label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+:root[data-theme] .product-layout .rest-preview {
+  padding: 20px;
+  margin-top: 24px;
+  border: 1px solid var(--accent);
+  background: var(--surface-input);
+  border-radius: 16px;
+}
+:root[data-theme] .product-layout .rest-preview li {
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+:root[data-theme] .product-layout .rest-undo {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  font-size: 14px;
+}
+:root[data-theme] .product-layout .rest-corner [role="alert"] {
+  color: var(--text);
+  border-left: 3px solid var(--accent);
+  padding: 8px 12px;
+}
+:root[data-theme] .product-layout .rest-corner .context-star {
+  flex: 0 0 44px;
+  justify-content: center;
+}
+:root[data-theme] .product-layout.nav-collapsed .sources-toggle {
+  font-size: 0;
+  justify-content: center;
+}
+@media (max-width: 1000px) {
+  :root[data-theme] .product-layout .rest-options {
+    grid-template-columns: 1fr;
+  }
+  :root[data-theme] .product-layout .rest-options > button {
+    gap: 8px;
+    padding: 20px;
+  }
+}
+@media (max-width: 759px) {
+  :root[data-theme] .product-layout .rest-header {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  :root[data-theme] .product-layout .rest-header h1 {
+    font-size: 25px;
+  }
+  :root[data-theme] .product-layout .rest-header > button {
+    width: 44px;
+    height: 44px;
+    overflow: hidden;
+    font-size: 0;
+    padding: 12px;
+    flex: 0 0 44px;
+  }
+  :root[data-theme] .product-layout .rest-header > button svg {
+    flex: 0 0 18px;
+  }
+  :root[data-theme]
+    .product-layout
+    :is(.rest-welcome, .rest-breath, .rest-writing, .rest-lighten) {
+    padding: 20px;
+  }
+  :root[data-theme] .product-layout .rest-corner h2 {
+    font-size: 21px;
+  }
+  :root[data-theme] .product-layout .rest-task-options {
+    margin-left: 0;
+  }
+  :root[data-theme] .product-layout .rest-actions button {
+    max-width: 100%;
+  }
+  :root[data-theme] .product-layout .mobile-nav button {
+    min-width: 0;
+    flex: 1;
+    padding-inline: 2px;
+  }
+  :root[data-theme] .product-layout .mobile-nav button span {
+    font-size: 10px;
+  }
+  :root[data-theme] .product-layout .studio-data-status summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  :root[data-theme] .product-layout .context-panel-header button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+/* Explicit setting takes precedence without altering the user's selected palette. */
+:root[data-theme][data-transparency="reduced"]
+  .product-layout
+  :is(
+    .sidebar,
+    .topbar,
+    .studio-day-panel,
+    .studio-navigation,
+    .studio-more-menu,
+    .appearance-dialog,
+    .quick-task-editor,
+    .studio-editor,
+    .rest-dialog,
+    .card,
+    .today-card,
+    .habit-sheet,
+    .fitness-card,
+    .today-board-column,
+    .rest-welcome,
+    .rest-breath,
+    .rest-writing,
+    .rest-lighten
+  ) {
+  background: var(--surface-solid) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme]
+    .product-layout
+    :is(
+      .sidebar,
+      .topbar,
+      .studio-day-panel,
+      .studio-navigation,
+      .studio-more-menu,
+      .appearance-dialog,
+      .quick-task-editor,
+      .studio-editor,
+      .rest-dialog,
+      .card,
+      .today-card,
+      .habit-sheet,
+      .fitness-card,
+      .today-board-column,
+      .rest-welcome,
+      .rest-breath,
+      .rest-writing,
+      .rest-lighten
+    ) {
+    background: var(--surface-solid) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  :root[data-theme]
+    .product-layout
+    :is(.rest-welcome, .rest-breath, .rest-writing, .rest-lighten) {
+    background: var(--surface-solid);
+  }
+}
+:root[data-theme][data-motion="off"] .product-layout .breath-orb {
+  animation: none !important;
+  transform: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .product-layout .breath-orb {
+    animation: none !important;
+    transform: none !important;
+  }
+  :root[data-theme] .product-layout .rest-options > button {
+    transition: none;
+  }
+}
+
+:root[data-theme] .product-layout .studio-event-main small {
+  color: var(--text-primary);
+}
+:root[data-theme] .product-layout .rest-check {
+  min-height: 44px;
+}
+
+:root[data-theme]
+  .product-layout
+  :is(
+    .context-next small,
+    .context-next span,
+    .context-empty,
+    .context-task small,
+    .studio-status
+  ) {
+  color: var(--text-secondary);
+}
+:root[data-theme] .product-layout :is(input, textarea)::placeholder {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+:root[data-theme][data-transparency="reduced"]
+  .app:not(.product-layout)
+  :is(
+    .sidebar,
+    .topbar,
+    .card,
+    .studio-day-panel,
+    .studio-navigation,
+    dialog,
+    .rest-welcome,
+    .rest-breath,
+    .rest-writing,
+    .rest-lighten
+  ) {
+  background: var(--surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Floating windows get one material layer; their scrims only dim the page. */
+:root[data-theme] .product-layout .overlay {
+  background: #00000035;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+:root[data-theme] .product-layout dialog[class] {
+  background: var(--surface-solid);
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-dialog);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--shadow-panel);
+}
+:root[data-theme] .product-layout dialog::backdrop {
+  background: #00000035;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+@supports (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  :root[data-theme] .product-layout dialog[class] {
+    background: var(--surface-glass-strong);
+    backdrop-filter: blur(16px) saturate(110%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(110%) !important;
+  }
+}
+:root[data-theme][data-transparency="reduced"]
+  .product-layout
+  :is(dialog, .search-dialog) {
+  background: var(--surface-solid) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme] .product-layout :is(dialog, .search-dialog) {
+    background: var(--surface-solid) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}

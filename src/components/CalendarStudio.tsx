@@ -1,3 +1,4 @@
+import { backupKeyAllowed, restOccurrences } from "../domain/rest";
 import { DayContext } from "./DayContext";
 import { AppearancePicker } from "./AppearancePicker";
 import { chooseFocus, focusedOn } from "../domain/focus";
@@ -269,6 +270,9 @@ export function CalendarStudio(p: Props) {
               !t.completed &&
               !t.inBacklog &&
               t.date === day &&
+              !t.seriesExceptions?.[day]?.cancelled &&
+              (!t.seriesExceptions?.[day]?.date ||
+                t.seriesExceptions[day].date === day) &&
               !t.scheduledStart &&
               !t.allDay,
           ),
@@ -744,8 +748,7 @@ export function CalendarStudio(p: Props) {
       const data: Record<string, unknown> = {};
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i)!;
-        if (k.startsWith("dayframe-") && !/token|secret|session/i.test(k))
-          data[k] = JSON.parse(localStorage.getItem(k)!);
+        if (backupKeyAllowed(k)) data[k] = JSON.parse(localStorage.getItem(k)!);
       }
       data["dayframe-tasks"] = p.tasks;
       data["dayframe-sections"] = sections;
@@ -1264,9 +1267,17 @@ export function CalendarStudio(p: Props) {
         ) : !online ? (
           "Без інтернету · зміни зберігаються на цьому пристрої"
         ) : (
-          "Збережено на цьому пристрої · Europe/Kyiv"
+          "Збережено на пристрої"
         )}
-        <span className="studio-sync-status">{p.syncStatus}</span>
+        <details className="studio-data-status">
+          <summary>Дані й підключення</summary>
+          <p>{p.syncStatus}</p>
+          <p>
+            Europe/Kyiv · Записи зберігаються в цьому браузері. Резервна копія
+            доступна в меню «Ще». Особисті записи «Перепочинку» до неї не
+            входять.
+          </p>
+        </details>
         {undo && (
           <button
             onClick={() => {
@@ -1784,7 +1795,7 @@ export function CalendarStudio(p: Props) {
               {!events.length && (
                 <p className="studio-grid-hint">
                   Вільний простір для планів. Натисни час або виділи проміжок;
-                  справи зліва можна перетягнути в сітку.
+                  для перенесення справ відкрий «Плани» праворуч.
                 </p>
               )}
               <div className="studio-time-scroll" ref={scroll}>
@@ -1970,35 +1981,37 @@ export function CalendarStudio(p: Props) {
             role={overlay ? "dialog" : undefined}
             aria-modal={overlay ? true : undefined}
           >
-            <div className="studio-panel-top">
-              <span className="studio-eyebrow">ПЛАНИ ТА ДЕНЬ</span>
-              <button
-                aria-label="Згорнути панель дня"
-                onClick={() => setRight(false)}
+            <header className="context-panel-header">
+              <div className="studio-panel-top">
+                <span className="studio-eyebrow">ПЛАНИ ТА ДЕНЬ</span>
+                <button
+                  aria-label="Згорнути панель дня"
+                  onClick={() => setRight(false)}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <div
+                className="context-panel-tabs"
+                role="tablist"
+                aria-label="Вміст бічної панелі"
               >
-                <X size={16} />
-              </button>
-            </div>
-            <div
-              className="context-panel-tabs"
-              role="tablist"
-              aria-label="Вміст бічної панелі"
-            >
-              <button
-                role="tab"
-                aria-selected={!planTray}
-                onClick={() => setPlanTray(false)}
-              >
-                День
-              </button>
-              <button
-                role="tab"
-                aria-selected={planTray}
-                onClick={() => setPlanTray(true)}
-              >
-                Плани
-              </button>
-            </div>
+                <button
+                  role="tab"
+                  aria-selected={!planTray}
+                  onClick={() => setPlanTray(false)}
+                >
+                  День
+                </button>
+                <button
+                  role="tab"
+                  aria-selected={planTray}
+                  onClick={() => setPlanTray(true)}
+                >
+                  Плани
+                </button>
+              </div>
+            </header>
             {planTray ? (
               renderPlanGroups()
             ) : (
@@ -2060,7 +2073,14 @@ export function CalendarStudio(p: Props) {
                   visibleIds={categoryTaskIds}
                   events={externalEvents}
                   onTasks={save}
-                  onEdit={open}
+                  onEdit={(task) =>
+                    open(
+                      task,
+                      task.recurrence !== "once"
+                        ? restOccurrences([task], key)[0]?.occurrence
+                        : undefined,
+                    )
+                  }
                   onEvent={openEvent}
                   onAdd={() => create()}
                   notes={plan.notes}

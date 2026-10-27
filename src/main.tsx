@@ -16,4 +16,5 @@ import './prism-ui.css';
 import './glossy-ui.css';
 import './liquid-glass.css';
 import './product-layout.css';
+import './themed-glass.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
