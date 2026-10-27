@@ -1497,3 +1497,8 @@
     display: none;
   }
 }
+
+/* Primary actions keep their contrasting label even inside legacy toolbars. */
+:root[data-theme] .product-layout button.primary {
+  color: var(--surface) !important;
+}
