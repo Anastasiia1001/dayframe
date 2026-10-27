@@ -34,6 +34,31 @@ test("all saved themes get tactile frames textures motion and readable dark shee
     expect(finish.radius).toBeGreaterThanOrEqual(18);
     expect(finish.border).toBeGreaterThanOrEqual(1);
     expect(finish.texture).toContain("gradient");
+    const contrast = await page
+      .locator(".sidebar nav button:not(.selected)")
+      .first()
+      .evaluate((el) => {
+        const style = getComputedStyle(el),
+          canvas = document.createElement("canvas");
+        canvas.width = canvas.height = 1;
+        const ctx = canvas.getContext("2d")!;
+        const luminance = (color: string) => {
+          ctx.clearRect(0, 0, 1, 1);
+          ctx.fillStyle = color;
+          ctx.fillRect(0, 0, 1, 1);
+          const rgb = [...ctx.getImageData(0, 0, 1, 1).data]
+            .slice(0, 3)
+            .map((v) => {
+              const c = v / 255;
+              return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+            });
+          return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+        };
+        const fg = luminance(style.color),
+          bg = luminance(style.getPropertyValue("--bg"));
+        return (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
+      });
+    expect(contrast).toBeGreaterThanOrEqual(4.5);
     const decor = page.locator(
       ".planner-hero-art,.planner-decoration,.theme-mascot-vignette > svg",
     );
