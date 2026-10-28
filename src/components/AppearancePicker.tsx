@@ -1,3 +1,4 @@
+import { ThemePreview } from "./ThemePreview";
 import { useRef } from "react";
 import { Palette, X, Check } from "lucide-react";
 import { themes } from "../appearance";
@@ -31,14 +32,7 @@ export function AppearancePicker({
             dialog.current?.close();
           }}
         >
-          <span
-            className="appearance-sample"
-            style={{ background: t.background }}
-          >
-            <i style={{ background: t.accent }} />
-            <i />
-            <i />
-          </span>
+          <ThemePreview id={t.id} />
           <strong>{t.name}</strong>
           {theme === t.id && <Check size={15} />}
         </button>

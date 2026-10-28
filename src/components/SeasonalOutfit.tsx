@@ -15,10 +15,20 @@ const neck: Record<MascotId, number> = {
   "fluffy-cat": 60,
   "ginger-cat": 65,
 };
+const hats: Record<MascotId, [number, number, number, number]> = {
+  pug: [54, 16, .94, -9], bunny: [54, 24, .88, 8],
+  cat: [51, 18, .9, -8], fox: [51, 18, .88, -9],
+  bear: [52, 20, .92, 6], frog: [50, 12, .68, -7],
+  star: [53, 23, .76, 8], axolotl: [53, 25, .9, -7],
+  penguin: [51, 18, .9, 7], dragon: [53, 20, .82, -9],
+  otter: [52, 19, .9, 7], "fluffy-cat": [49, 18, .88, -8],
+  "ginger-cat": [49, 19, .9, 8],
+};
 /** Accessories live inside the existing character SVG: no recolouring or facial overlays. */
 export function SeasonalOutfit({ kind }: { kind: MascotId }) {
   const id = useId().replace(/:/g, ""),
-    y = neck[kind];
+    y = neck[kind],
+    [hatX, hatY, hatScale, hatTilt] = hats[kind];
   return (
     <g className="seasonal-outfit" aria-hidden="true" pointerEvents="none">
       <defs>
@@ -26,9 +36,20 @@ export function SeasonalOutfit({ kind }: { kind: MascotId }) {
           <stop stopColor="var(--seasonal-knit-light)" />
           <stop offset="1" stopColor="var(--seasonal-knit)" />
         </linearGradient>
-        <linearGradient id={`${id}-hat`} x1="0" x2="1">
-          <stop stopColor="var(--seasonal-hat-light)" />
-          <stop offset="1" stopColor="var(--seasonal-hat)" />
+        <linearGradient id={`${id}-hat`} x1="0" y1="0" x2="1" y2=".7">
+          <stop stopColor="#8d79a6" />
+          <stop offset=".35" stopColor="#574364" />
+          <stop offset=".78" stopColor="#30283f" />
+          <stop offset="1" stopColor="#211b30" />
+        </linearGradient>
+        <linearGradient id={`${id}-brim`} x1="0" y1="0" x2="0" y2="1">
+          <stop stopColor="#88729c" />
+          <stop offset=".5" stopColor="#4c3b5f" />
+          <stop offset="1" stopColor="#292137" />
+        </linearGradient>
+        <linearGradient id={`${id}-ribbon`} x1="0" x2="0" y2="1">
+          <stop stopColor="#f5c48a" />
+          <stop offset="1" stopColor="#b97843" />
         </linearGradient>
       </defs>
       <g className="seasonal-scarf" transform={`translate(0 ${y})`}>
@@ -71,31 +92,19 @@ export function SeasonalOutfit({ kind }: { kind: MascotId }) {
       </g>
       <g
         className="seasonal-halloween"
-        transform={`translate(${kind === "frog" ? 91 : 80} ${kind === "frog" ? 8 : 12}) scale(${kind === "frog" ? 0.55 : 0.8}) rotate(17)`}
+        transform={`translate(${hatX} ${hatY}) rotate(${hatTilt}) scale(${hatScale})`}
       >
-        <path
-          d="M-10 10L0-8Q1-15 10-14L5-7L13 10Z"
-          fill={`url(#${id}-hat)`}
-          stroke="var(--seasonal-hat-rim)"
-          strokeWidth=".8"
-        />
-        <path d="M-5 3L10 3L12 8L-8 8Z" fill="var(--seasonal-knit-light)" />
-        <rect
-          x="0"
-          y="3"
-          width="4"
-          height="4"
-          rx=".7"
-          fill="none"
-          stroke="var(--seasonal-hat)"
-          strokeWidth="1.1"
-        />
-        <path
-          d="M-14 11Q1 5 16 11Q18 16 1 16Q-16 16-14 11Z"
-          fill={`url(#${id}-hat)`}
-          stroke="var(--seasonal-hat-rim)"
-          strokeWidth=".8"
-        />
+        {/* A soft brim rests on the crown; the bent felt tip has no hard outline. */}
+        <ellipse cx="0" cy="3.5" rx="17" ry="3.8" fill="#201629" opacity=".22" />
+        <path d="M-20 0Q-11-6 0-5Q13-5 20 1Q22 6 5 7Q-15 8-20 3Q-22 2-20 0Z"
+          fill={`url(#${id}-brim)`} />
+        <path d="M-12 0Q-8-10-6-17Q-4-26 4-25Q12-25 15-19Q10-20 6-17Q7-10 12 0Q1 5-12 0Z"
+          fill={`url(#${id}-hat)`} />
+        <path d="M-9-4Q0 0 10-4L12 0Q1 5-12 0Z" fill={`url(#${id}-ribbon)`} />
+        <path d="M-5-17Q-4-22 2-23" stroke="#bc9ed1" strokeWidth="1.1" strokeLinecap="round" opacity=".55" />
+        <path d="M-18 1Q-8 5 3 5" stroke="#a48bb8" strokeWidth=".8" strokeLinecap="round" opacity=".55" />
+        <rect x="-1" y="-3.3" width="5.2" height="5" rx="1.2" fill="#f4cf8c" />
+        <rect x=".3" y="-2.1" width="2.6" height="2.6" rx=".45" fill="#75503f" />
       </g>
     </g>
   );

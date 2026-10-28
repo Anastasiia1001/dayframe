@@ -1,3 +1,4 @@
+import { ThemePreview } from "./components/ThemePreview";
 import { CalendarCompanion } from "./components/CalendarCompanion";
 import { RestCorner } from "./components/RestCorner";
 import { QuickTaskEditor } from "./components/QuickTaskEditor";
@@ -1559,17 +1560,7 @@ export default function App() {
                       onClick={() => setTheme(t.id)}
                       aria-pressed={theme === t.id}
                     >
-                      <span
-                        className="theme-preview"
-                        aria-hidden="true"
-                        style={{
-                          background: t.background,
-                        }}
-                      >
-                        <i style={{ background: t.accent }} />
-                        <span />
-                        <span />
-                      </span>
+                      <ThemePreview id={t.id} />
                       <b>{t.name}</b>
                       {theme === t.id && <Check size={14} />}
                     </button>

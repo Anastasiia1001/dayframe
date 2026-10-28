@@ -1204,3 +1204,30 @@
 @media(max-width: 1100px) {
   :root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout :is(.studio-header, .page-heading) { background-image: none; }
 }
+
+/* Equal canvas sizes for all themes; illustration colours belong to each preview. */
+.theme-art {
+  display: block;
+  width: 100%;
+  height: 116px;
+  border-radius: 18px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: inset 0 1px 0 #ffffff45;
+  pointer-events: none;
+}
+.theme-art > img, .appearance-gallery .theme-art > svg, .theme-art > svg {
+  position: static;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+}
+.appearance-gallery .theme-art { height: 104px; }
+.appearance-gallery button { align-content: start; border-radius: 22px; }
+.appearance-gallery button > strong { line-height: 1.4; }
+@media(max-width: 600px) {
+  .appearance-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .appearance-gallery .theme-art { height: 92px; }
+}
