@@ -1101,3 +1101,106 @@
 :root[data-theme] .product-layout .weather-buddy {
   --weather-window-wash: color-mix(in srgb, #b9d5e8 55%, var(--surface-solid));
 }
+
+/* Seasonal scenes are original SVG artwork, kept outside editable calendar cells. */
+:root[data-theme="Autumn"] {
+  --season-scene: url('/assets/seasonal/autumn.svg');
+  --season-edge: #b66c38;
+  --season-halo: #ce8a3a22;
+}
+:root[data-theme="Halloween"] {
+  --season-scene: url('/assets/seasonal/halloween.svg');
+  --season-edge: #d79358;
+  --season-halo: #9952c42b;
+}
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout {
+  background-image: var(--season-scene), radial-gradient(ellipse at 0 15%, var(--season-halo), transparent 60%), radial-gradient(ellipse at 95% 85%, var(--season-halo), transparent 65%);
+  background-color: var(--bg);
+  background-size: 900px 270px, 100% 100%, 100% 100%;
+  background-position: right bottom, center, center;
+  background-repeat: no-repeat;
+}
+/* Room for a small scene beside each section title, never over the content. */
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .settings-stack > .card > .section-head {
+  background-image: var(--season-scene);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 210px 63px;
+  min-height: 74px;
+  padding-right: 180px;
+  border-bottom: 1px solid color-mix(in srgb, var(--season-edge) 24%, transparent);
+  margin-bottom: 20px;
+}
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .mascot-choice {
+  background: radial-gradient(ellipse at 50% 35%, var(--season-halo), transparent 65%), linear-gradient(145deg, color-mix(in srgb, var(--surface) 72%, transparent), color-mix(in srgb, var(--bg) 55%, transparent));
+  border-color: color-mix(in srgb, var(--season-edge) 40%, var(--border));
+  border-radius: 28px 28px 20px 20px;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 12%, transparent), 0 8px 24px #0000000a;
+  position: relative;
+  isolation: isolate;
+}
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .mascot-choice::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--season-scene) right 10px top 8px / 190px 57px no-repeat;
+  opacity: .65;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: inherit;
+}
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .mascot-choice.chosen {
+  background: radial-gradient(ellipse at 50% 35%, var(--season-halo), transparent 70%), color-mix(in srgb, var(--selected) 80%, transparent);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent), 0 8px 28px var(--season-halo);
+}
+/* Each theme has its own miniature artwork even when another theme is active. */
+[data-theme-id="Autumn"] { --preview-scene: url('/assets/seasonal/autumn.svg'); --preview-sky: #f4e4cb; }
+[data-theme-id="Halloween"] { --preview-scene: url('/assets/seasonal/halloween.svg'); --preview-sky: #28213e; }
+:is([data-theme-id="Autumn"], [data-theme-id="Halloween"]) :is(.theme-preview, .appearance-sample) {
+  width: 100%;
+  height: 108px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--preview-scene) center / 100% auto no-repeat, var(--preview-sky) !important;
+  box-shadow: inset 0 1px 0 #ffffff40;
+}
+:is([data-theme-id="Autumn"], [data-theme-id="Halloween"]) :is(.theme-preview, .appearance-sample) > * { visibility: hidden; }
+:is([data-theme-id="Autumn"], [data-theme-id="Halloween"]) .theme-preview::after { display: none; }
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .studio-toolbar {
+  border-bottom-color: color-mix(in srgb, var(--season-edge) 50%, var(--border));
+}
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .sidebar {
+  background-image: var(--season-scene), linear-gradient(var(--surface-glass-strong), var(--surface-glass));
+  background-position: center bottom, center;
+  background-size: 420px 126px, cover;
+  background-repeat: no-repeat;
+}
+@media(max-width: 600px) {
+  :root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .settings-stack > .card > .section-head {
+    padding-right: 0;
+    padding-bottom: 48px;
+    background-position: right bottom;
+    background-size: 160px 48px;
+  }
+  :root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .mascot-choice::before { background-size: 130px 39px; opacity: .45; }
+}
+
+:root[data-theme="Halloween"] .seasonal-scarf { display: none; }
+.product-layout .settings-stack .theme-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: 14px;
+}
+.product-layout .settings-stack .theme-choice { padding: 12px; border-radius: 22px; }
+.product-layout .settings-stack .theme-choice > b { font-size: calc(14px * var(--font-scale, 1)); line-height: 1.4; }
+.product-layout .settings-stack .theme-preview { width: 100%; height: 108px; }
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout :is(.studio-header, .page-heading) {
+  background: var(--season-scene) right 295px center / 250px 75px no-repeat;
+}
+:root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout .sidebar {
+  background-size: 100% auto, cover;
+}
+@media(max-width: 1100px) {
+  :root:is([data-theme="Autumn"], [data-theme="Halloween"]) .product-layout :is(.studio-header, .page-heading) { background-image: none; }
+}

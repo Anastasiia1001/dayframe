@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" fill="none">
+<defs><linearGradient id="leaf" x2="1" y2="1"><stop stop-color="#efb953"/><stop offset="1" stop-color="#b94f2e"/></linearGradient><linearGradient id="nut" x2=".3" y2="1"><stop stop-color="#e4b580"/><stop offset="1" stop-color="#9d5e37"/></linearGradient><radialGradient id="light"><stop stop-color="#ffc764" stop-opacity=".3"/><stop offset="1" stop-color="#ffc764" stop-opacity="0"/></radialGradient><g id="maple"><path d="M0 40L-6 24L-25 25L-20 14L-34 1L-16 0L-18-14L-7-7L0-29L8-7L20-16L17 0L35-2L23 13L28 24L8 24Z" fill="url(#leaf)" stroke="#a55130" stroke-width=".8"/><path d="M0 48V-17M0 21L-19 5M0 16L21 3M0 2L-10-7" stroke="#ffe2a3" stroke-width="1.3" stroke-linecap="round"/></g></defs>
+<ellipse cx="495" cy="126" rx="125" ry="70" fill="url(#light)"/>
+<path d="M381 165Q475 137 585 162" stroke="#986943" opacity=".3"/>
+<use href="#maple" transform="translate(511 117) rotate(42) scale(1.25)"/>
+<use href="#maple" transform="translate(569 121) rotate(-28) scale(.8)"/>
+<use href="#maple" transform="translate(439 146) rotate(105) scale(.6)"/>
+<g transform="translate(474 139) rotate(-24)"><path d="M-12 0Q-15 22 0 29Q15 22 12 0Z" fill="url(#nut)"/><path d="M-16 0Q-15-15 0-13Q16-15 16 0Q0 7-16 0" fill="#77533c"/><path d="M-10-4L8-9M-6-10L10-3M0-13Q-3-21 4-23" stroke="#b78c62" stroke-width="2" stroke-linecap="round"/></g>
+<use href="#maple" transform="translate(55 55) rotate(-27) scale(.55)" opacity=".8"/>
+<use href="#maple" transform="translate(148 115) rotate(56) scale(.3)" opacity=".5"/>
+<path d="M92 33Q127 54 107 80" stroke="#b78246" stroke-dasharray="2 7" opacity=".45"/>
+</svg>

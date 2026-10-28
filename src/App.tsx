@@ -1554,6 +1554,7 @@ export default function App() {
                   {themes.map((t) => (
                     <button
                       key={t.id}
+                      data-theme-id={t.id}
                       className={`theme-choice ${theme === t.id ? "chosen" : ""}`}
                       onClick={() => setTheme(t.id)}
                       aria-pressed={theme === t.id}
