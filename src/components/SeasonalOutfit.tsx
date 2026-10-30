@@ -92,7 +92,7 @@ export function SeasonalOutfit({ kind }: { kind: MascotId }) {
       </g>
       <g
         className="seasonal-halloween"
-        transform={`translate(${hatX} ${hatY}) rotate(${hatTilt}) scale(${hatScale})`}
+        transform={`translate(${hatX} ${hatY}) rotate(${hatTilt}) scale(${hatScale * 1.6})`}
       >
         {/* A soft brim rests on the crown; the bent felt tip has no hard outline. */}
         <ellipse cx="0" cy="3.5" rx="17" ry="3.8" fill="#201629" opacity=".22" />
