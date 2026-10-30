@@ -108,7 +108,7 @@ test("task CRUD, completion and preferences persist across reloads", async ({
     .getByLabel("Виконати Записатися до стоматолога", { exact: true })
     .click();
   await expect(
-    page.getByRole("status").filter({ hasText: "Маленька перемога" }),
+    page.getByRole("status").filter({ hasText: "Справу виконано" }),
   ).toBeVisible();
   await page.reload();
   await go(page, "Personal");

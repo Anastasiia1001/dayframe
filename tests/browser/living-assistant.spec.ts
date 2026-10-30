@@ -186,7 +186,7 @@ test("right-hand scope blocks schedule plans and clone yearly templates without 
     .getByRole("button", { name: "Додати план: Місяць", exact: true })
     .click();
   const dialog = page.getByRole("dialog", { name: "Редактор запису" });
-  await expect(dialog.getByLabel("Рівень плану")).toHaveValue("month");
+  await expect(dialog.getByLabel("Горизонт плану")).toHaveValue("month");
   await dialog.getByLabel("Назва", { exact: true }).fill("Обробити фотосесію");
   await dialog.getByRole("button", { name: "Зберегти", exact: true }).click();
   await expect(pool).toContainText("Обробити фотосесію");

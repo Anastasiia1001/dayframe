@@ -1,3 +1,4 @@
+import { useLocal } from "../useLocal";
 import { restOccurrences } from "../domain/rest";
 import { dayAvailability } from "../domain/dayAvailability";
 import { nextOccurrence } from "../recurrence";
@@ -22,6 +23,10 @@ export function DayContext(p: {
   visibleIds?: string[];
   compact?: boolean;
 }) {
+  const [bounds, setBounds] = useLocal("dayframe-day-bounds", {
+    start: "08:00",
+    end: "20:00",
+  });
   const [choosing, setChoosing] = useState(false),
     [notice, setNotice] = useState("");
   const visibleTasks = useMemo(
@@ -62,7 +67,8 @@ export function DayContext(p: {
   const availability = dayAvailability(
     events,
     p.date,
-    p.date === p.today ? minutes(now) : 8 * 60,
+    p.date === p.today ? minutes(now) : minutes(bounds.start),
+    { start: minutes(bounds.start), end: minutes(bounds.end) },
   );
   const next = availability.next,
     free = availability.free
@@ -134,13 +140,53 @@ export function DayContext(p: {
       <div className="context-next">
         <Clock size={16} />
         <div>
-          <small>{next ? "Найближча подія" : "Простір для себе"}</small>
+          <small>{next ? "Найближча подія" : "Події у Dayframe"}</small>
           <strong>
             {next
               ? `${next.start} · ${next.title}`
-              : "Немає запланованих зустрічей"}
+              : "У Dayframe немає подій на цей час"}
           </strong>
-          {free && <span>Вікно без зустрічей: {free}</span>}
+          {free && events.length > 0 && (
+            <span>Без записів у Dayframe: {free}</span>
+          )}
+          <small>
+            Враховано: особисті записи
+            {[...new Set(p.events.map((e) => e.source))]
+              .map((source) => `, ${source}`)
+              .join("")}
+            . Інші календарі можуть містити події.
+          </small>
+          <details>
+            <summary>
+              Межі розрахункового дня · {bounds.start}–{bounds.end}
+            </summary>
+            <label>
+              Початок дня
+              <input
+                aria-label="Початок розрахункового дня"
+                type="time"
+                value={bounds.start}
+                max={bounds.end}
+                onChange={(e) => {
+                  if (e.target.value && e.target.value < bounds.end)
+                    setBounds({ ...bounds, start: e.target.value });
+                }}
+              />
+            </label>
+            <label>
+              Кінець дня
+              <input
+                aria-label="Кінець розрахункового дня"
+                type="time"
+                value={bounds.end}
+                min={bounds.start}
+                onChange={(e) => {
+                  if (e.target.value > bounds.start)
+                    setBounds({ ...bounds, end: e.target.value });
+                }}
+              />
+            </label>
+          </details>
         </div>
       </div>
       <div className="context-heading">
@@ -150,7 +196,9 @@ export function DayContext(p: {
             className="context-focus-count"
             aria-label="Виконано головних справ"
           >
-            {focused.filter((t) => t.completed).length}/{focused.length || 3}
+            {focused.length
+              ? `Виконано ${focused.filter((t) => t.completed).length} із ${focused.length}`
+              : "Обери головне на сьогодні"}
           </small>
         </h3>
         <button
@@ -187,16 +235,21 @@ export function DayContext(p: {
           </button>
         </>
       )}
-      <label className="context-notes">
-        Нотатка дня
-        <textarea
-          aria-label="Нотатки дня"
-          rows={p.compact ? 2 : 4}
-          value={p.notes}
-          onChange={(e) => p.onNotes(e.target.value)}
-          placeholder="Що важливо не загубити…"
-        />
-      </label>
+      {!p.compact && (
+        <details className="context-note-disclosure" open>
+          <summary>Нотатка дня</summary>
+          <label className="context-notes">
+            Нотатка дня
+            <textarea
+              aria-label="Нотатки дня"
+              rows={p.compact ? 2 : 4}
+              value={p.notes}
+              onChange={(e) => p.onNotes(e.target.value)}
+              placeholder="Що важливо не загубити…"
+            />
+          </label>
+        </details>
+      )}
       {!p.compact && events.length > 0 && (
         <details className="context-events">
           <summary>Усі події дня · {events.length}</summary>
@@ -252,5 +305,23 @@ export function TodayFocus(
         </details>
       )}
     </article>
+  );
+}
+
+export function TodayDayNotes({ date }: { date: string }) {
+  const { plan, update } = useDailyPlan(date);
+  return (
+    <details className="today-card today-day-notes">
+      <summary>Нотатка дня</summary>
+      <label>
+        Нотатки дня
+        <textarea
+          aria-label="Нотатки дня"
+          rows={3}
+          value={plan.notes}
+          onChange={(e) => update({ notes: e.target.value })}
+        />
+      </label>
+    </details>
   );
 }

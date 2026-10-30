@@ -47,7 +47,8 @@ export function overviewTasks(
       return date >= from && date <= to;
     }
     const horizon = taskHorizon(t);
-    const anchor = t.planningAnchor || today;
+    const anchor = t.planningAnchor;
+    if (!anchor) return false;
     return (
       scopes.includes(horizon) &&
       horizon !== "backlog" &&

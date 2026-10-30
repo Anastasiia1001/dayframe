@@ -37,7 +37,9 @@ export function TodayFitness({
       <HealthConnection onData={setData} compact />
       <div className="today-steps">
         <Footprints size={23} />
-        <strong>{day.steps.toLocaleString("uk-UA")}</strong>
+        <strong>
+          {data.days[date] ? day.steps.toLocaleString("uk-UA") : "Немає даних"}
+        </strong>
         <span>/ {data.goal.toLocaleString("uk-UA")} кроків</span>
       </div>
       <progress

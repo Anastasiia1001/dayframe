@@ -1,0 +1,440 @@
+/* Material and geometry roles inherit every existing theme palette. */
+:root[data-theme] .product-layout {
+  --surfaceGlass: var(--surface-glass);
+  --surfaceStrong: var(--surface-glass-strong);
+  --surfaceInput: var(--surface-input);
+  --textPrimary: var(--text);
+  --textSecondary: var(--text-secondary);
+  --accentSoft: var(--accent-soft);
+  --focusRing: var(--accent);
+  --radius-panel: 24px;
+  --radius-control: 12px;
+  --radius-record: 12px;
+}
+:root[data-theme] .product-layout :is(input, select, textarea, button) {
+  border-radius: var(--radius-control);
+}
+:root[data-theme]
+  .product-layout
+  :is(button, input, select, textarea, a):focus-visible {
+  outline: 2px solid var(--focusRing);
+  outline-offset: 3px;
+}
+:root[data-theme]
+  .product-layout
+  :is(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+}
+:root[data-theme] .product-layout :is(h1) {
+  font-size: calc(26px * var(--font-scale, 1));
+}
+:root[data-theme] .product-layout :is(h2) {
+  font-size: calc(18px * var(--font-scale, 1));
+}
+:root[data-theme]
+  .product-layout
+  :is(
+    .context-next small,
+    .context-next span,
+    .context-focus-count,
+    .task-facts,
+    .studio-event-main small
+  ) {
+  font-size: calc(12px * var(--font-scale, 1));
+  color: var(--textSecondary);
+}
+:root[data-theme] .product-layout :is(.today-board-task, .studio-timed-event) {
+  border-radius: var(--radius-record);
+}
+:root[data-theme] .product-layout .page-today .page-heading {
+  min-height: 88px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background-image: none;
+  align-items: center;
+}
+:root[data-theme] .product-layout .page-today .page-heading p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+:root[data-theme] .product-layout .page-today .page-heading .weather-buddy {
+  min-height: 80px;
+  height: 80px;
+  max-width: 300px;
+}
+:root[data-theme] .product-layout .page-today .workspace-toolbar {
+  padding: 8px 0;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+:root[data-theme] .product-layout .today-view-tools {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+:root[data-theme] .product-layout .focused-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+:root[data-theme]
+  .product-layout
+  .focused-dashboard
+  > .today-overview-grid:first-of-type {
+  display: block;
+}
+:root[data-theme] .product-layout .today-focus {
+  padding: 12px 16px;
+}
+:root[data-theme] .product-layout .today-focus .day-context {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(240px, 1fr);
+  gap: 8px 16px;
+}
+:root[data-theme] .product-layout .today-focus .context-next {
+  grid-column: 1;
+  grid-row: 1 / span 6;
+  align-self: start;
+  padding: 12px;
+  margin: 0;
+}
+:root[data-theme] .product-layout .today-focus .context-heading {
+  grid-column: 2;
+  margin: 0;
+}
+:root[data-theme]
+  .product-layout
+  .today-focus
+  :is(.context-empty, .context-task, .context-candidates) {
+  grid-column: 2;
+  margin: 0;
+}
+:root[data-theme] .product-layout .context-note-disclosure {
+  grid-column: 1 / -1;
+}
+:root[data-theme] .product-layout summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+:root[data-theme] .product-layout .context-focus-count {
+  display: block;
+  margin-top: 4px;
+}
+:root[data-theme] .product-layout .today-task-board .planner-section-title {
+  padding: 0;
+  margin-bottom: 8px;
+}
+:root[data-theme]
+  .product-layout
+  .today-task-board
+  .planner-section-title
+  :is(p, .eyebrow) {
+  display: none;
+}
+:root[data-theme]
+  .product-layout
+  .today-task-board
+  .planner-inline-status:empty {
+  display: none;
+}
+:root[data-theme] .product-layout .today-board-column {
+  padding: 12px;
+}
+:root[data-theme] .product-layout .today-board-column h3 {
+  margin: 0 0 8px;
+}
+:root[data-theme] .product-layout .today-board-task-tools {
+  padding-top: 0;
+}
+:root[data-theme] .product-layout .today-board-task .task-row {
+  padding: 8px !important;
+}
+:root[data-theme] .product-layout .today-board-task .task-title strong {
+  font-size: calc(14px * var(--font-scale, 1));
+}
+:root[data-theme]
+  .product-layout
+  .today-board-task
+  :is(.task-facts, .today-horizon) {
+  font-size: 12px;
+}
+:root[data-theme] .product-layout .today-extra-grid {
+  display: contents;
+}
+:root[data-theme] .product-layout .focused-dashboard > .cozy-note {
+  order: 9;
+}
+:root[data-theme] .product-layout .focused-dashboard > .today-attention {
+  order: 17;
+}
+:root[data-theme]
+  .product-layout
+  .focused-dashboard
+  > :is(
+    div:empty,
+    .today-overview-grid:not(:has(*)),
+    .today-extra-module:not(:has(*)),
+    .focus-columns:not(:has(*))
+  ) {
+  display: none;
+}
+:root[data-theme] .product-layout .screen-configuration {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+:root[data-theme] .product-layout .screen-configuration > label {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+}
+:root[data-theme] .product-layout .widget-order-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 4px 0;
+}
+:root[data-theme] .product-layout .widget-order-row span {
+  flex: 1;
+}
+:root[data-theme] .product-layout .quick-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+:root[data-theme] .product-layout .quick-check input {
+  width: auto;
+}
+:root[data-theme] .product-layout .studio-editor {
+  width: min(640px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 24px;
+  overflow-y: auto;
+  scroll-padding-bottom: 24px;
+}
+:root[data-theme] .product-layout .studio-editor :is(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+}
+:root[data-theme] .product-layout .studio-editor small {
+  display: block;
+  color: var(--textSecondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+:root[data-theme] .product-layout .studio-editor .studio-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+:root[data-theme] .product-layout .draft-confirmation {
+  padding: 16px;
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  background: var(--surfaceStrong);
+}
+:root[data-theme] .product-layout .draft-confirmation button {
+  margin: 4px;
+}
+:root[data-theme] .product-layout .inspiration-compact {
+  max-height: 80px;
+  overflow: auto;
+}
+:root[data-theme] .product-layout .habit-sheet > summary {
+  font-size: 16px;
+  font-weight: 600;
+}
+:root[data-theme] .product-layout .assistant-settings {
+  display: grid;
+  gap: 12px;
+}
+:root[data-theme] .product-layout .assistant-settings label {
+  display: grid;
+  gap: 8px;
+}
+:root[data-theme] .product-layout .plan-period-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+:root[data-theme] .product-layout .plan-period-filter input {
+  width: auto;
+}
+:root[data-theme] .product-layout .studio-event-main strong {
+  font-size: 14px;
+}
+@media (max-width: 760px) {
+  :root[data-theme] .product-layout .today-focus .day-context {
+    display: flex;
+    flex-direction: column;
+  }
+  :root[data-theme] .product-layout .page-today .page-heading {
+    min-height: 88px;
+    flex-wrap: wrap;
+  }
+  :root[data-theme] .product-layout .page-today .page-heading .weather-buddy {
+    max-width: 100%;
+  }
+  :root[data-theme] .product-layout .today-board-columns {
+    grid-template-columns: 1fr;
+  }
+  :root[data-theme]
+    .product-layout
+    :is(button, select, input[type="date"], input[type="time"]) {
+    min-height: 44px;
+  }
+  :root[data-theme] .product-layout .studio-editor {
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  :root[data-theme] .product-layout .studio-editor .studio-editor-grid {
+    grid-template-columns: 1fr;
+  }
+  :root[data-theme] .product-layout .context-star {
+    min-width: 44px;
+  }
+}
+:root[data-theme] .product-layout .focused-dashboard > .today-overview-grid {
+  margin: 0;
+}
+:root[data-theme] .product-layout .today-task-board {
+  margin: 0;
+}
+:root[data-theme] .product-layout .today-focus .day-context {
+  grid-auto-rows: min-content;
+}
+:root[data-theme] .product-layout .today-focus .context-next {
+  grid-row: 1 / span 3;
+}
+:root[data-theme] .product-layout .today-day-notes {
+  order: 8;
+  padding: 8px 16px;
+}
+:root[data-theme] .product-layout .today-day-notes textarea {
+  width: 100%;
+}
+:root[data-theme] .product-layout .focused-dashboard > .cozy-note {
+  margin: 0;
+}
+:root[data-theme]
+  .product-layout
+  .page-today
+  .workspace-toolbar
+  .today-view-tools {
+  margin: 0;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+:root[data-theme] .product-layout .page-today .page-heading h1 {
+  margin: 4px 0;
+}
+:root[data-theme] .product-layout .today-board-task-tools {
+  min-height: 28px;
+}
+:root[data-theme] .product-layout .today-board-task .task-facts {
+  line-height: 1.2;
+}
+:root[data-theme] .product-layout .today-board-items {
+  gap: 8px;
+}
+:root[data-theme] .product-layout .today-board-task .task-row {
+  padding: 6px 8px !important;
+}
+:root[data-theme] .product-layout .studio-header {
+  margin-bottom: 8px;
+}
+:root[data-theme]
+  .product-layout
+  :is(.page-calendar, .page-personal)
+  > .topbar
+  .global-add {
+  display: inline-flex;
+}
+:root[data-theme]
+  .product-layout
+  .focused-dashboard
+  > .today-overview-grid:not(:has(article, section)) {
+  display: none;
+}
+:root[data-theme] .product-layout .today-board-task .task-title {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--textPrimary);
+  text-align: left;
+  min-height: 0;
+}
+:root[data-theme] .product-layout .today-board-task .task-row .checkbox {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  align-self: center;
+}
+@media (min-width: 761px) {
+  :root[data-theme]
+    .product-layout
+    .today-board-task-tools
+    :is(button, select) {
+    min-height: 28px;
+    padding: 4px;
+  }
+  :root[data-theme] .product-layout .today-board-task .task-actions button {
+    min-height: 28px;
+  }
+}
+:root[data-theme] .product-layout .studio-header {
+  margin-bottom: 0;
+}
+:root[data-theme] .product-layout .studio-status summary {
+  padding: 0;
+}
+@media (max-width: 360px) {
+  :root[data-theme] .product-layout .topbar {
+    height: auto;
+    min-height: 52px;
+    padding: 8px;
+  }
+  :root[data-theme] .product-layout .top-actions {
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+  :root[data-theme] .product-layout .studio-header {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  :root[data-theme] .product-layout .studio-header-art {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
+    flex-wrap: wrap;
+  }
+  :root[data-theme] .product-layout .weather-buddy {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  :root[data-theme] .product-layout .studio-date-popover {
+    min-width: 0;
+    max-width: calc(100vw - 20px);
+  }
+  :root[data-theme] .product-layout .mobile-nav {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+  :root[data-theme] .product-layout .mobile-nav button {
+    min-width: 44px;
+    flex: 1 0 44px;
+  }
+}
+/* Recurrence badges keep their colour; the text sits on the theme's record surface. */
+:root[data-theme] .product-layout .today-board-task .task-row[data-cadence] {background:transparent!important;}
+@media(max-width:760px){
+ :root[data-theme] .product-layout .today-board-task .task-row .checkbox {width:44px;height:44px;min-height:44px;flex-basis:44px;}
+ :root[data-theme] .product-layout .today-board-task .task-title {min-height:44px;}
+}

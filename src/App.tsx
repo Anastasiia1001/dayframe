@@ -1,8 +1,10 @@
+import { deleteRecord, applyRecordEdit } from "./domain/recordEdit";
+import { AssistantSettings } from "./components/AssistantSettings";
 import { ThemePreview } from "./components/ThemePreview";
 import { CalendarCompanion } from "./components/CalendarCompanion";
 import { RestCorner } from "./components/RestCorner";
 import { QuickTaskEditor } from "./components/QuickTaskEditor";
-import { TodayFocus } from "./components/DayContext";
+import { TodayDayNotes, TodayFocus } from "./components/DayContext";
 import { TaskChecklist } from "./components/TaskChecklist";
 import { HabitTracker } from "./components/HabitTracker";
 import { TodayTaskBoard } from "./components/TodayTaskBoard";
@@ -121,6 +123,32 @@ export default function App() {
     {},
   );
   const visible = (key: string) => blocks[key] !== false;
+  const [widgetOrder, setWidgetOrder] = useLocal<string[]>(
+    "dayframe-widget-order",
+    [
+      "fitness",
+      "habits",
+      "care",
+      "chat",
+      "inspiration",
+      "attention",
+      "connections",
+      "schedule",
+    ],
+  );
+  const widgetRank = (key: string) =>
+    10 + Math.max(0, widgetOrder.indexOf(key));
+  const [configureScreen, setConfigureScreen] = useState(false);
+  const [overviewOpen, setOverviewOpen] = useState(false);
+  const [tone, setTone] = useLocal("dayframe-tone", "supportive");
+  const [compactInspiration, setCompactInspiration] = useLocal(
+    "dayframe-inspiration-compact",
+    false,
+  );
+  const [bannerDismissed, setBannerDismissed] = useLocal(
+    "dayframe-connection-banner-dismissed",
+    false,
+  );
   const [displayName, setDisplayName] = useLocal("dayframe-display-name", "");
   const initials =
     displayName
@@ -201,6 +229,44 @@ export default function App() {
   }, [today, tasks, setTasks]);
   const taskReminders = useTaskReminders(tasks);
   const [modal, setModal] = useState<PersonalTask | null>(null);
+  const [recoveryDraft, setRecoveryDraft] = useState<PersonalTask | null>(
+    () => {
+      try {
+        return JSON.parse(
+          localStorage.getItem("dayframe-record-draft") || "null",
+        );
+      } catch {
+        return null;
+      }
+    },
+  );
+  useEffect(() => {
+    if (!modal) {
+      try {
+        setRecoveryDraft(
+          JSON.parse(localStorage.getItem("dayframe-record-draft") || "null"),
+        );
+      } catch {}
+    }
+  }, [modal]);
+  useEffect(() => {
+    const refresh = () => {
+      try {
+        const value = JSON.parse(
+          localStorage.getItem("dayframe-record-draft") || "null",
+        );
+        setRecoveryDraft(
+          value &&
+            typeof value.id === "string" &&
+            typeof value.title === "string"
+            ? value
+            : null,
+        );
+      } catch {}
+    };
+    window.addEventListener("dayframe-draft-updated", refresh);
+    return () => window.removeEventListener("dayframe-draft-updated", refresh);
+  }, []);
   const [eventDetail, setEventDetail] = useState<CalendarEvent | null>(null);
   const [detail, setDetail] = useState<{
     title: string;
@@ -227,6 +293,14 @@ export default function App() {
   const [calendarDate, setCalendarDate] = useState(
     () => new Date(today + "T12:00:00"),
   );
+  const [taskUndo, setTaskUndo] = useState<{
+    before: PersonalTask[];
+    after: PersonalTask[];
+  } | null>(null);
+  useEffect(() => {
+    if (taskUndo && JSON.stringify(tasks) !== JSON.stringify(taskUndo.after))
+      setTaskUndo(null);
+  }, [tasks, taskUndo]);
   const [toast, setToast] = useState("");
   const [prefs, setPrefs] = useLocal("dayframe-prefs", {
     showPersonal: true,
@@ -260,7 +334,6 @@ export default function App() {
       }
       if (e.key === "Escape") {
         setSearchOpen(false);
-        setModal(null);
         setDetail(null);
         setEventDetail(null);
         setNotifications(false);
@@ -334,12 +407,18 @@ export default function App() {
     );
     if (!t.completed) {
       setBurst((b) => b + 1);
-      setToast("Маленька перемога. Ти молодець! ♡");
+      setToast(
+        tone === "concise"
+          ? "Справу виконано"
+          : "Справу виконано. Можна рухатися у власному темпі.",
+      );
     }
   };
   const postpone = (t: PersonalTask) => {
     const next = postponedTask(t, today);
-    setTasks((ts) => ts.map((x) => (x.id === t.id ? next : x)));
+    const nextTasks = tasks.map((x) => (x.id === t.id ? next : x));
+    setTaskUndo({ before: tasks, after: nextTasks });
+    setTasks(nextTasks);
     setToast("Завдання перенесено на " + shortDate(next.date));
   };
   const todaysTasks = sortTasks(
@@ -805,37 +884,35 @@ export default function App() {
           <ChevronDown size={14} />
         </button>
         <div className="connections" hidden={!sourcesOpen}>
-          {["Outlook", "Google", "Slack", "Jira"]
-            .filter(
-              (s) =>
-                s !== "Jira" ||
-                workspace.status?.providers.some(
-                  (p) => p.id === "jira" && p.configured,
-                ),
-            )
-            .map((s) => (
-              <button key={uk(s)} onClick={() => setPage("Settings")}>
-                <Source name={s} />
-                {s === "Google"
-                  ? "Календар Google"
-                  : s === "Outlook"
-                    ? "Календар Outlook"
-                    : s}
-                <i
-                  className={
-                    workspace.mode === "live" &&
-                    workspace.status?.providers.some(
-                      (p) =>
-                        (s === "Outlook"
-                          ? p.id.startsWith("outlook-")
-                          : p.id === s.toLowerCase()) && p.connected,
-                    )
-                      ? "connected"
-                      : "disconnected"
-                  }
-                />
-              </button>
-            ))}
+          {["Outlook", "Google", "Slack", "Jira", "Confluence"].map((s) => (
+            <button key={uk(s)} onClick={() => setPage("Settings")}>
+              <Source name={s} />
+              {s === "Google"
+                ? "Календар Google"
+                : s === "Outlook"
+                  ? "Календар Outlook"
+                  : s}
+              <i
+                className={
+                  workspace.mode === "live" &&
+                  workspace.status?.providers.some(
+                    (p) =>
+                      (s === "Outlook"
+                        ? p.id.startsWith("outlook-")
+                        : p.id === s.toLowerCase()) && p.connected,
+                  )
+                    ? "connected"
+                    : "disconnected"
+                }
+              />
+            </button>
+          ))}
+          <button
+            className="source-connect"
+            onClick={() => setPage("Settings")}
+          >
+            Підключити
+          </button>
         </div>
         <div className="sidebar-bottom">
           <div className="quiet-note">
@@ -906,11 +983,27 @@ export default function App() {
             {!legacyPlanner && (
               <button
                 className="primary global-add"
-                onClick={() => addTask()}
+                onClick={() =>
+                  addTask(
+                    page === "Calendar"
+                      ? new Intl.DateTimeFormat("sv-SE").format(calendarDate)
+                      : today,
+                  )
+                }
                 aria-label="Швидко додати справу"
               >
                 <Plus size={16} />
                 <span>Додати</span>
+              </button>
+            )}
+            {recoveryDraft && (
+              <button
+                onClick={() => {
+                  setModal(recoveryDraft);
+                  setRecoveryDraft(null);
+                }}
+              >
+                Відновити чернетку
               </button>
             )}
             <span className="top-divider" />
@@ -948,7 +1041,9 @@ export default function App() {
                 {page === "Today"
                   ? "Сьогодні"
                   : page === "Personal"
-                    ? "Мої завдання"
+                    ? legacyPlanner
+                      ? "Мої завдання"
+                      : "Плани"
                     : page === "Work"
                       ? "Робочі повідомлення"
                       : page === "Calendar"
@@ -1013,36 +1108,32 @@ export default function App() {
             >
               {workspace.loading ? "Оновлюємо…" : "Оновити"}
             </button>
-            {["Today", "Personal"].includes(page) && (
+            {page === "Today" && (
+              <div className="today-view-tools">
+                <button
+                  aria-expanded={overviewOpen}
+                  onClick={() => {
+                    setOverviewOpen(!overviewOpen);
+                    setOverviewPeriod("day");
+                  }}
+                >
+                  Огляд
+                </button>
+                <button
+                  aria-expanded={configureScreen}
+                  onClick={() => setConfigureScreen(!configureScreen)}
+                >
+                  Налаштувати екран
+                </button>
+              </div>
+            )}
+            {(page === "Personal" || (legacyPlanner && page === "Today")) && (
               <button className="primary quick-add" onClick={() => addTask()}>
                 <Plus size={16} />
                 Додати завдання
               </button>
             )}
           </div>
-          {prefs.cozyMode !== false && page === "Today" && (
-            <CozyCompanion
-              mascot={safeMascot(mascot)}
-              hideMascot={!legacyPlanner && visible("weather")}
-              burst={burst}
-              tasks={tasks}
-              today={today}
-              alerts={taskReminders.alerts}
-              onOpenTask={setModal}
-              onOpenChat={() => {
-                setBlocks((old) => ({ ...old, chat: true }));
-                requestAnimationFrame(() =>
-                  document.getElementById("planner-chat")?.scrollIntoView({
-                    behavior: matchMedia("(prefers-reduced-motion: reduce)")
-                      .matches
-                      ? "auto"
-                      : "smooth",
-                    block: "start",
-                  }),
-                );
-              }}
-            />
-          )}
           {workspace.errors
             .filter((e) => workspace.status || page === "Settings")
             .map((e) => (
@@ -1060,7 +1151,64 @@ export default function App() {
                 </button>
               </div>
             ))}
-          {page === "Today" && (
+
+          {page === "Today" && configureScreen && (
+            <section
+              className="today-card screen-configuration"
+              aria-label="Налаштувати екран"
+            >
+              <h2>Налаштувати екран</h2>
+              <p>Приховування змінює лише видимість. Дані залишаються.</p>
+              {Object.entries(blockLabels).map(([key, label]) => (
+                <label key={key}>
+                  <input
+                    type="checkbox"
+                    checked={visible(key)}
+                    onChange={(e) =>
+                      setBlocks((old) => ({ ...old, [key]: e.target.checked }))
+                    }
+                  />
+                  {label}
+                </label>
+              ))}
+              <h3>Порядок додаткових модулів</h3>
+              {widgetOrder.map((key, i) => (
+                <div key={key} className="widget-order-row">
+                  <span>
+                    {(blockLabels as Record<string, string>)[key] ||
+                      "Афірмації та цікавинки"}
+                  </span>
+                  <button
+                    disabled={!i}
+                    aria-label={`Вище: ${key}`}
+                    onClick={() =>
+                      setWidgetOrder((old) => {
+                        const next = [...old];
+                        [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                        return next;
+                      })
+                    }
+                  >
+                    ↑
+                  </button>
+                  <button
+                    disabled={i === widgetOrder.length - 1}
+                    aria-label={`Нижче: ${key}`}
+                    onClick={() =>
+                      setWidgetOrder((old) => {
+                        const next = [...old];
+                        [next[i + 1], next[i]] = [next[i], next[i + 1]];
+                        return next;
+                      })
+                    }
+                  >
+                    ↓
+                  </button>
+                </div>
+              ))}
+            </section>
+          )}
+          {page === "Today" && overviewOpen && (
             <nav className="overview-periods" aria-label="Період огляду">
               {overviewPeriods.map(([id, name]) => (
                 <button
@@ -1084,6 +1232,19 @@ export default function App() {
               onToggle={toggleTask}
               onEvent={setEventDetail}
             />
+          )}
+          {page === "Today" && taskUndo && (
+            <div className="studio-message" role="status">
+              Планування змінено{" "}
+              <button
+                onClick={() => {
+                  setTasks(taskUndo.before);
+                  setTaskUndo(null);
+                }}
+              >
+                Скасувати дію
+              </button>
+            </div>
           )}
           {page === "Today" && overviewPeriod === "day" && (
             <div className="focused-dashboard">
@@ -1148,6 +1309,70 @@ export default function App() {
                     }}
                   />
                 )}
+              </div>
+              {prefs.showPersonal && visible("tasks") && (
+                <TodayTaskBoard
+                  tasks={tasks}
+                  today={today}
+                  onToggle={toggleTask}
+                  onEdit={setModal}
+                  onPostpone={postpone}
+                  onAdd={() => addTask()}
+                  onMove={(id, column, before) => {
+                    const nextTasks = moveTodayTask(
+                      tasks,
+                      id,
+                      column,
+                      today,
+                      before,
+                    );
+                    setTaskUndo({ before: tasks, after: nextTasks });
+                    setTasks(nextTasks);
+                    if (column === "done") {
+                      setBurst((n) => n + 1);
+                      setToast(
+                        tone === "concise"
+                          ? "Справу виконано"
+                          : "Справу виконано. Можна рухатися у власному темпі.",
+                      );
+                    }
+                  }}
+                />
+              )}
+              {prefs.cozyMode !== false &&
+                page === "Today" &&
+                tone !== "concise" && (
+                  <CozyCompanion
+                    mascot={safeMascot(mascot)}
+                    hideMascot={!legacyPlanner && visible("weather")}
+                    burst={burst}
+                    tasks={tasks}
+                    today={today}
+                    alerts={taskReminders.alerts}
+                    onOpenTask={setModal}
+                    onOpenChat={() => {
+                      setBlocks((old) => ({ ...old, chat: true }));
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById("planner-chat")
+                          ?.scrollIntoView({
+                            behavior: matchMedia(
+                              "(prefers-reduced-motion: reduce)",
+                            ).matches
+                              ? "auto"
+                              : "smooth",
+                            block: "start",
+                          }),
+                      );
+                    }}
+                  />
+                )}
+              <TodayDayNotes date={today} />
+              <div
+                className="today-extra-module"
+                style={{ order: widgetRank("fitness") }}
+              >
+                {" "}
                 {visible("fitness") && (
                   <TodayFitness
                     date={today}
@@ -1155,25 +1380,38 @@ export default function App() {
                   />
                 )}
               </div>
-              {!hasCalendar && !workspace.loading && visible("connections") && (
-                <div className="connect-strip">
-                  <CalendarDays size={21} />
-                  <div>
-                    <strong>Додай календар — решта вже під рукою</strong>
-                    <p>
-                      Outlook і Google покажуть події тут. Особистими завданнями
-                      можна користуватися вже зараз.
-                    </p>
-                  </div>
-                  <button
-                    className="secondary"
-                    onClick={() => setPage("Settings")}
+              {!hasCalendar &&
+                !workspace.loading &&
+                !bannerDismissed &&
+                visible("connections") && (
+                  <div
+                    className="connect-strip"
+                    style={{ order: widgetRank("connections") }}
                   >
-                    Підключити календар
-                  </button>
-                </div>
-              )}
+                    <CalendarDays size={21} />
+                    <div>
+                      <strong>Додай календар — решта вже під рукою</strong>
+                      <p>
+                        Outlook і Google покажуть події тут. Особистими
+                        завданнями можна користуватися вже зараз.
+                      </p>
+                    </div>
+                    <button
+                      className="secondary"
+                      onClick={() => setPage("Settings")}
+                    >
+                      Підключити календар
+                    </button>
+                    <button
+                      aria-label="Закрити підказку підключення"
+                      onClick={() => setBannerDismissed(true)}
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                )}
               <div
+                style={{ order: widgetRank("schedule") }}
                 className={`focus-columns ${!hasCalendar ? "tasks-first" : ""}`}
               >
                 {hasCalendar && visible("schedule") && (
@@ -1211,47 +1449,59 @@ export default function App() {
                   </Section>
                 )}
               </div>
-              {prefs.showPersonal && visible("tasks") && (
-                <TodayTaskBoard
-                  tasks={tasks}
-                  today={today}
-                  onToggle={toggleTask}
-                  onEdit={setModal}
-                  onPostpone={postpone}
-                  onAdd={() => addTask()}
-                  onMove={(id, column, before) => {
-                    setTasks((old) =>
-                      moveTodayTask(old, id, column, today, before),
-                    );
-                    if (column === "done") {
-                      setBurst((n) => n + 1);
-                      setToast("Маленька перемога. Ти молодець! ♡");
-                    }
-                  }}
-                />
+              {visible("habits") && (
+                <div style={{ order: widgetRank("habits") }}>
+                  <HabitTracker today={today} />
+                </div>
               )}
-              {visible("habits") && <HabitTracker today={today} />}
-              <div className="today-overview-grid">
-                {visible("care") && <PlannerCare today={today} />}
+              <div className="today-extra-grid">
+                {visible("care") && (
+                  <div style={{ order: widgetRank("care") }}>
+                    <PlannerCare today={today} />
+                  </div>
+                )}
                 {visible("chat") && (
-                  <ChatGPTQuestions
-                    apiKey={openAIKey}
-                    onKey={setOpenAIKey}
-                    mascot={safeMascot(mascot)}
-                  />
+                  <div style={{ order: widgetRank("chat") }}>
+                    <ChatGPTQuestions
+                      apiKey={openAIKey}
+                      onKey={setOpenAIKey}
+                      mascot={safeMascot(mascot)}
+                      onSettings={() => {
+                        setPage("Settings");
+                        requestAnimationFrame(() =>
+                          document
+                            .getElementById("assistant-settings")
+                            ?.scrollIntoView(),
+                        );
+                      }}
+                    />
+                  </div>
                 )}
               </div>
-              <div className="today-overview-grid">
+              <div
+                className="today-overview-grid"
+                style={{ order: widgetRank("inspiration") }}
+              >
                 {visible("weather") && legacyPlanner && <WeatherCard />}
                 <div className="planner-inspiration-pair">
-                  {visible("affirmations") && (
-                    <InspirationCard kind="affirmations" />
+                  {visible("affirmations") && tone !== "concise" && (
+                    <InspirationCard
+                      kind="affirmations"
+                      compact={compactInspiration}
+                    />
                   )}
-                  {visible("facts") && <InspirationCard kind="facts" />}
+                  {visible("facts") && (
+                    <InspirationCard
+                      kind="facts"
+                      compact={compactInspiration}
+                    />
+                  )}
                 </div>
               </div>
               {attention.length > 0 && visible("attention") && (
                 <Section
+                  style={{ order: widgetRank("attention") }}
+                  className="today-attention"
                   title="Потребує відповіді"
                   action={
                     <button
@@ -1453,6 +1703,30 @@ export default function App() {
           )}
           {page === "Settings" && (
             <div className="settings-stack">
+              <section id="assistant-settings">
+                <Section title="Налаштування помічника">
+                  <label className="setting-row">
+                    Тон
+                    <select
+                      aria-label="Тон інтерфейсу"
+                      value={tone}
+                      onChange={(e) => setTone(e.target.value)}
+                    >
+                      <option value="supportive">З підтримкою</option>
+                      <option value="concise">Лаконічно</option>
+                    </select>
+                  </label>
+                  <label className="setting-row">
+                    Компактні афірмації й цікавинки
+                    <input
+                      type="checkbox"
+                      checked={compactInspiration}
+                      onChange={(e) => setCompactInspiration(e.target.checked)}
+                    />
+                  </label>
+                  <AssistantSettings apiKey={openAIKey} onKey={setOpenAIKey} />
+                </Section>
+              </section>
               <Section title="Спокійний інтерфейс">
                 <label className="setting-row">
                   <div>
@@ -1888,27 +2162,32 @@ export default function App() {
           task={modal}
           onChange={setModal}
           onClose={() => setModal(null)}
-          onSave={() => {
-            const next = tasks.some((t) => t.id === modal.id)
-              ? tasks.map((t) =>
-                  t.id === modal.id
-                    ? { ...modal, title: modal.title.trim() }
-                    : t,
-                )
-              : [...tasks, { ...modal, title: modal.title.trim() }];
+          onSave={(scope, occurrence) => {
+            const next = applyRecordEdit(tasks, modal, scope, occurrence);
             try {
               localStorage.setItem("dayframe-tasks", JSON.stringify(next));
             } catch {
               return "Не вдалося зберегти справу. Перевір вільне місце або зроби резервну копію. Редактор залишається відкритим.";
             }
+            localStorage.removeItem("dayframe-record-draft");
+            localStorage.removeItem("dayframe-record-draft-context");
+            window.dispatchEvent(new Event("dayframe-draft-updated"));
+            setRecoveryDraft(null);
             setTasks(next);
             setModal(null);
             setToast("Справу збережено на цьому пристрої");
           }}
           onDelete={
             tasks.some((t) => t.id === modal.id)
-              ? () => {
-                  setTasks((all) => all.filter((t) => t.id !== modal.id));
+              ? (scope, occurrence) => {
+                  setTasks((all) =>
+                    deleteRecord(all, modal.id, scope, occurrence),
+                  );
+                  try {
+                    localStorage.removeItem("dayframe-record-draft");
+                    localStorage.removeItem("dayframe-record-draft-context");
+                    window.dispatchEvent(new Event("dayframe-draft-updated"));
+                  } catch {}
                   setModal(null);
                 }
               : undefined

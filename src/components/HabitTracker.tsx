@@ -110,7 +110,14 @@ export function HabitTracker({ today }: { today: string }) {
           const rows = habits.filter((h) => h.frequency === id),
             cells = habitCells(id, anchor, year);
           return (
-            <article key={id} className={`habit-sheet habit-${id}`}>
+            <details
+              key={id}
+              className={`habit-sheet habit-${id}`}
+              open={id === "daily" || rows.length > 0}
+            >
+              <summary>
+                {label} · {rows.length} звичок
+              </summary>
               <header>
                 <h3>{label}</h3>
                 {id === "daily" ? (
@@ -243,7 +250,7 @@ export function HabitTracker({ today }: { today: string }) {
               >
                 ＋ Додати рядок
               </button>
-            </article>
+            </details>
           );
         })}
       </div>

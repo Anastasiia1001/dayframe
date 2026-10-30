@@ -1,0 +1,227 @@
+[
+  {
+    "theme": "Pastel",
+    "text": "rgb(48, 44, 51)",
+    "secondary": "color(srgb 0.394902 0.362549 0.406667)",
+    "surface": "rgb(255, 253, 250)",
+    "bg": "rgb(247, 244, 239)",
+    "primaryRatio": 13.48493127922507,
+    "secondaryRatio": 6.2768321539979794
+  },
+  {
+    "theme": "CutePlanner",
+    "text": "rgb(101, 71, 54)",
+    "secondary": "color(srgb 0.472745 0.355098 0.298431)",
+    "surface": "rgb(255, 249, 237)",
+    "bg": "rgb(255, 240, 219)",
+    "primaryRatio": 7.984818392119752,
+    "secondaryRatio": 5.90323921780809
+  },
+  {
+    "theme": "Vintage",
+    "text": "rgb(96, 74, 49)",
+    "secondary": "color(srgb 0.403137 0.330196 0.238824)",
+    "surface": "rgb(244, 233, 208)",
+    "bg": "rgb(234, 221, 191)",
+    "primaryRatio": 6.906572797304621,
+    "secondaryRatio": 5.971809703636647
+  },
+  {
+    "theme": "Parchment",
+    "text": "rgb(61, 42, 24)",
+    "secondary": "color(srgb 0.382549 0.291373 0.187451)",
+    "surface": "rgb(239, 219, 171)",
+    "bg": "rgb(230, 205, 147)",
+    "primaryRatio": 9.975922739591676,
+    "secondaryRatio": 6.049280058131572
+  },
+  {
+    "theme": "Autumn",
+    "text": "rgb(53, 43, 36)",
+    "secondary": "color(srgb 0.407843 0.345294 0.281176)",
+    "surface": "rgb(255, 250, 241)",
+    "bg": "rgb(245, 234, 219)",
+    "primaryRatio": 13.266148047933289,
+    "secondaryRatio": 6.559544594809322
+  },
+  {
+    "theme": "Halloween",
+    "text": "rgb(255, 241, 223)",
+    "secondary": "color(srgb 0.813333 0.748431 0.791176)",
+    "surface": "rgb(39, 35, 55)",
+    "bg": "rgb(25, 23, 38)",
+    "primaryRatio": 13.677103419917096,
+    "secondaryRatio": 8.650984005301702
+  },
+  {
+    "theme": "NeonAzure",
+    "text": "rgb(234, 247, 255)",
+    "secondary": "color(srgb 0.71098 0.781961 0.873333)",
+    "surface": "rgb(16, 29, 54)",
+    "bg": "rgb(8, 15, 37)",
+    "primaryRatio": 15.384557508476504,
+    "secondaryRatio": 9.784256970100982
+  },
+  {
+    "theme": "NeonOcean",
+    "text": "rgb(234, 247, 255)",
+    "secondary": "color(srgb 0.68098 0.815294 0.843333)",
+    "surface": "rgb(12, 41, 55)",
+    "bg": "rgb(6, 27, 41)",
+    "primaryRatio": 13.86681500114463,
+    "secondaryRatio": 9.212034312880885
+  },
+  {
+    "theme": "NeonCobalt",
+    "text": "rgb(234, 247, 255)",
+    "secondary": "color(srgb 0.767647 0.805294 0.933333)",
+    "surface": "rgb(26, 32, 71)",
+    "bg": "rgb(14, 17, 50)",
+    "primaryRatio": 14.347070783652438,
+    "secondaryRatio": 9.944822450612218
+  },
+  {
+    "theme": "NeonAurora",
+    "text": "rgb(234, 247, 255)",
+    "secondary": "color(srgb 0.75098 0.811961 0.883333)",
+    "surface": "rgb(25, 36, 61)",
+    "bg": "rgb(16, 22, 43)",
+    "primaryRatio": 14.140931447914095,
+    "secondaryRatio": 9.733682572739829
+  },
+  {
+    "theme": "NeonIce",
+    "text": "rgb(23, 49, 73)",
+    "secondary": "color(srgb 0.256863 0.372157 0.466274)",
+    "surface": "rgb(247, 252, 255)",
+    "bg": "rgb(234, 245, 255)",
+    "primaryRatio": 12.928403403305468,
+    "secondaryRatio": 6.498415038956969
+  },
+  {
+    "theme": "Default",
+    "text": "rgb(62, 41, 58)",
+    "secondary": "color(srgb 0.423137 0.337451 0.400784)",
+    "surface": "rgb(255, 252, 253)",
+    "bg": "rgb(255, 244, 248)",
+    "primaryRatio": 13.008993400039607,
+    "secondaryRatio": 6.513661558600872
+  },
+  {
+    "theme": "Graphite",
+    "text": "rgb(41, 47, 54)",
+    "secondary": "color(srgb 0.350784 0.374314 0.408431)",
+    "surface": "rgb(255, 255, 255)",
+    "bg": "rgb(241, 242, 243)",
+    "primaryRatio": 13.512141486911474,
+    "secondaryRatio": 6.396806515721825
+  },
+  {
+    "theme": "Blue",
+    "text": "rgb(48, 55, 50)",
+    "secondary": "color(srgb 0.321569 0.39902 0.469412)",
+    "surface": "rgb(255, 255, 255)",
+    "bg": "rgb(242, 246, 250)",
+    "primaryRatio": 12.222029842328189,
+    "secondaryRatio": 5.967153066174982
+  },
+  {
+    "theme": "Green",
+    "text": "rgb(48, 55, 50)",
+    "secondary": "color(srgb 0.331569 0.412353 0.342745)",
+    "surface": "rgb(255, 255, 255)",
+    "bg": "rgb(241, 246, 240)",
+    "primaryRatio": 12.222029842328189,
+    "secondaryRatio": 5.919255367988365
+  },
+  {
+    "theme": "Purple",
+    "text": "rgb(48, 55, 50)",
+    "secondary": "color(srgb 0.418235 0.35902 0.462745)",
+    "surface": "rgb(255, 255, 255)",
+    "bg": "rgb(246, 243, 249)",
+    "primaryRatio": 12.222029842328189,
+    "secondaryRatio": 6.180571126344301
+  },
+  {
+    "theme": "Warm",
+    "text": "rgb(48, 55, 50)",
+    "secondary": "color(srgb 0.441569 0.385686 0.316078)",
+    "surface": "rgb(255, 255, 255)",
+    "bg": "rgb(250, 245, 238)",
+    "primaryRatio": 12.222029842328189,
+    "secondaryRatio": 5.8746734329397805
+  },
+  {
+    "theme": "Dark",
+    "text": "rgb(241, 233, 241)",
+    "secondary": "color(srgb 0.781765 0.713726 0.781765)",
+    "surface": "rgb(37, 43, 40)",
+    "bg": "rgb(29, 34, 32)",
+    "primaryRatio": 12.142727042712648,
+    "secondaryRatio": 7.531451697059117
+  },
+  {
+    "theme": "Blossom",
+    "text": "rgb(56, 41, 70)",
+    "secondary": "color(srgb 0.392941 0.317451 0.461176)",
+    "surface": "rgb(255, 250, 255)",
+    "bg": "rgb(248, 242, 255)",
+    "primaryRatio": 12.94363580117333,
+    "secondaryRatio": 6.837173097886987
+  },
+  {
+    "theme": "Strawberry",
+    "text": "rgb(77, 40, 56)",
+    "secondary": "color(srgb 0.475294 0.300196 0.382941)",
+    "surface": "rgb(255, 250, 251)",
+    "bg": "rgb(255, 240, 242)",
+    "primaryRatio": 12.122372962297797,
+    "secondaryRatio": 6.684118597958018
+  },
+  {
+    "theme": "Pistachio",
+    "text": "rgb(53, 67, 44)",
+    "secondary": "color(srgb 0.371176 0.426078 0.285882)",
+    "surface": "rgb(254, 255, 248)",
+    "bg": "rgb(244, 247, 231)",
+    "primaryRatio": 10.486053843454846,
+    "secondaryRatio": 5.564334845537215
+  },
+  {
+    "theme": "Peach",
+    "text": "rgb(85, 56, 44)",
+    "secondary": "color(srgb 0.5 0.362941 0.285882)",
+    "surface": "rgb(255, 252, 248)",
+    "bg": "rgb(255, 243, 233)",
+    "primaryRatio": 10.326229909504503,
+    "secondaryRatio": 5.77374771965163
+  },
+  {
+    "theme": "Blueberry",
+    "text": "rgb(59, 49, 91)",
+    "secondary": "color(srgb 0.391373 0.352157 0.506863)",
+    "surface": "rgb(252, 251, 255)",
+    "bg": "rgb(240, 241, 255)",
+    "primaryRatio": 11.474051339885115,
+    "secondaryRatio": 6.150921620145078
+  },
+  {
+    "theme": "Lagoon",
+    "text": "rgb(41, 75, 67)",
+    "secondary": "color(srgb 0.307451 0.450784 0.409412)",
+    "surface": "rgb(250, 255, 253)",
+    "bg": "rgb(235, 250, 246)",
+    "primaryRatio": 9.527690111284842,
+    "secondaryRatio": 5.224396668076216
+  },
+  {
+    "theme": "Moonlight",
+    "text": "rgb(244, 234, 250)",
+    "secondary": "color(srgb 0.806863 0.74098 0.860392)",
+    "surface": "rgb(48, 43, 70)",
+    "bg": "rgb(37, 34, 56)",
+    "primaryRatio": 11.538480227467229,
+    "secondaryRatio": 7.642057239056357
+  }
+]

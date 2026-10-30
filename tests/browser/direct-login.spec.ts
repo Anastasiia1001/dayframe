@@ -203,7 +203,7 @@ test("assigned Jira deadlines appear in the calendar and undated tasks can be pl
   await expect(dialog.getByLabel("Назва", { exact: true })).toHaveValue(
     "ART-18 · Ідея без дедлайну",
   );
-  await dialog.getByRole("button", { name: "Додати", exact: true }).click();
+  await dialog.getByRole("button", { name: "Зберегти", exact: true }).click();
   await expect(
     card.getByRole("button", { name: "У планах", exact: true }),
   ).toBeDisabled();

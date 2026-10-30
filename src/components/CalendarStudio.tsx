@@ -1,3 +1,7 @@
+import { applyRecordEdit } from "../domain/recordEdit";
+import { useDraftGuard } from "../useDraftGuard";
+import { overviewRange } from "../domain/overview";
+import { RecordFields } from "./RecordFields";
 import { WeatherCard } from "./WeatherCard";
 import { backupKeyAllowed, restOccurrences } from "../domain/rest";
 import { DayContext } from "./DayContext";
@@ -50,7 +54,6 @@ import {
 } from "../domain/planning";
 import {
   initialSections,
-  quickEntry,
   scheduledEvents,
   timeString,
   type Section,
@@ -139,19 +142,17 @@ export function CalendarStudio(p: Props) {
   const [undo, setUndo] = useState<PersonalTask[] | null>(null),
     [selected, setSelected] = useState<string[]>([]);
   const [bulkDate, setBulkDate] = useState("");
+  const [bulkScope, setBulkScope] = useState("one");
   const [draft, setDraft] = useState<PersonalTask | null>(null),
     [occurrence, setOccurrence] = useState<string | null>(null),
     [scope, setScope] = useState("one");
-  const [quick, setQuick] = useState(""),
-    [checkTitle, setCheckTitle] = useState(""),
-    [attachmentError, setAttachmentError] = useState("");
+  const guard = useDraftGuard(draft, () => setDraft(null), occurrence);
   const scroll = useRef<HTMLDivElement>(null);
   const selection = useRef<{ day: string; start: number; y: number } | null>(
     null,
   );
   const suppressClick = useRef(false);
   const dialog = useRef<HTMLDialogElement>(null),
-    titleInput = useRef<HTMLInputElement>(null),
     importInput = useRef<HTMLInputElement>(null);
   const [now, setNow] = useState(new Date());
   const drag = useRef<{
@@ -295,12 +296,28 @@ export function CalendarStudio(p: Props) {
       ? "quarter"
       : horizon;
   };
+  const [allPlanPeriods, setAllPlanPeriods] = useLocal(
+    "dayframe-all-plan-periods",
+    false,
+  );
   const scopedTasks = p.tasks.filter(
     (t) =>
       !t.completed &&
       !t.disabled &&
       sectionOf(t)?.visible !== false &&
-      scopeGroups.some((group) => group.id === scopeOf(t)),
+      scopeGroups.some((group) => group.id === scopeOf(t)) &&
+      (allPlanPeriods ||
+        !t.planningAnchor ||
+        scopeOf(t) === "backlog" ||
+        (() => {
+          const range = overviewRange(
+            key,
+            scopeOf(t) as "week" | "month" | "quarter" | "year",
+          );
+          return (
+            t.planningAnchor! >= range.from && t.planningAnchor! <= range.to
+          );
+        })()),
   );
   const createScope = (scope: string) => {
     create("");
@@ -377,7 +394,6 @@ export function CalendarStudio(p: Props) {
   useEffect(() => {
     if (draft) {
       dialog.current?.showModal();
-      titleInput.current?.focus();
     } else dialog.current?.close();
   }, [!!draft]);
   useEffect(() => {
@@ -433,9 +449,6 @@ export function CalendarStudio(p: Props) {
     setDraft(structuredClone(task));
     setOccurrence(day || null);
     setScope("one");
-    setQuick("");
-    setCheckTitle("");
-    setAttachmentError("");
   };
   const create = (day = key, start = "") =>
     open({
@@ -468,7 +481,7 @@ export function CalendarStudio(p: Props) {
             date: event.date,
             scheduledStart: event.start,
             scheduledDuration:
-              minutes(event.end) - minutes(event.start) ||
+              (minutes(event.end) - minutes(event.start) + 1440) % 1440 ||
               task.scheduledDuration,
           },
           event.occurrence,
@@ -484,12 +497,10 @@ export function CalendarStudio(p: Props) {
     duration: number,
   ) => {
     if (task.recurrence !== "once")
-      patchTask(task.id, {
-        seriesExceptions: {
-          ...task.seriesExceptions,
-          [original]: { date, start, duration },
-        },
-      });
+      open(
+        { ...task, date, scheduledStart: start, scheduledDuration: duration },
+        original,
+      );
     else
       patchTask(task.id, {
         date,
@@ -644,6 +655,20 @@ export function CalendarStudio(p: Props) {
               scheduledDuration: next.duration,
             },
           ]);
+        else if (task.recurrence !== "once")
+          open(
+            {
+              ...task,
+              date: next.date,
+              scheduledStart: next.timed
+                ? timeString(next.start)
+                : task.scheduledStart,
+              scheduledDuration: next.duration,
+              inBacklog: false,
+              planningHorizon: "day",
+            },
+            d.occurrence,
+          );
         else
           patchTask(task.id, {
             date: next.date,
@@ -668,64 +693,20 @@ export function CalendarStudio(p: Props) {
   };
   const submit = () => {
     if (!draft?.title.trim()) return;
-    const original = p.tasks.find((t) => t.id === draft.id);
-    if (
-      original &&
-      occurrence &&
-      scope === "one" &&
-      original.recurrence !== "once"
-    ) {
-      // Occurrence content becomes a detached copy; the original instance is skipped.
-      const detached = {
-        ...draft,
-        title: draft.title.trim(),
-        id: crypto.randomUUID(),
-        recurrence: "once",
-        seriesExceptions: undefined,
-      };
-      save([
-        ...p.tasks.map((t) =>
-          t.id === original.id
-            ? {
-                ...t,
-                seriesExceptions: {
-                  ...t.seriesExceptions,
-                  [occurrence]: {
-                    date: draft.date,
-                    start: draft.scheduledStart || "09:00",
-                    duration: draft.scheduledDuration || 30,
-                    cancelled: true,
-                  },
-                },
-              }
-            : t,
-        ),
-        detached,
-      ]);
-    } else
-      save(
-        original
-          ? p.tasks.map((t) =>
-              t.id === draft.id
-                ? {
-                    ...draft,
-                    title: draft.title.trim(),
-                    date:
-                      occurrence && scope === "all"
-                        ? addDays(
-                            original.date,
-                            Math.round(
-                              (fromDate(draft.date).getTime() -
-                                fromDate(occurrence).getTime()) /
-                                86400000,
-                            ),
-                          )
-                        : draft.date,
-                  }
-                : t,
-            )
-          : [...p.tasks, { ...draft, title: draft.title.trim() }],
-      );
+    const next = applyRecordEdit(p.tasks, draft, scope, occurrence);
+    try {
+      localStorage.setItem("dayframe-tasks", JSON.stringify(next));
+    } catch {
+      setStorageErrors((keys) => [...new Set([...keys, "dayframe-tasks"])]);
+      setMessage("Не вдалося зберегти запис. Редактор залишається відкритим.");
+      return;
+    }
+    save(next);
+    try {
+      localStorage.removeItem("dayframe-record-draft");
+      localStorage.removeItem("dayframe-record-draft-context");
+      window.dispatchEvent(new Event("dayframe-draft-updated"));
+    } catch {}
     setDraft(null);
   };
   const remove = () => {
@@ -743,6 +724,11 @@ export function CalendarStudio(p: Props) {
         },
       });
     else save(p.tasks.filter((t) => t.id !== draft.id));
+    try {
+      localStorage.removeItem("dayframe-record-draft");
+      localStorage.removeItem("dayframe-record-draft-context");
+      window.dispatchEvent(new Event("dayframe-draft-updated"));
+    } catch {}
     setDraft(null);
   };
   const exportBackup = () => {
@@ -752,7 +738,10 @@ export function CalendarStudio(p: Props) {
         const k = localStorage.key(i)!;
         if (backupKeyAllowed(k)) data[k] = JSON.parse(localStorage.getItem(k)!);
       }
-      data["dayframe-tasks"] = p.tasks;
+      data["dayframe-tasks"] =
+        draft && storageError
+          ? applyRecordEdit(p.tasks, draft, scope, occurrence)
+          : p.tasks;
       data["dayframe-sections"] = sections;
       data["dayframe-daily-plans"] = {
         ...((data["dayframe-daily-plans"] as object) || {}),
@@ -893,6 +882,19 @@ export function CalendarStudio(p: Props) {
         <strong>{task.title}</strong>
         <small>
           {sectionOf(task)?.name}
+          {task.inBacklog && scopeOf(task) !== "backlog"
+            ? ` · ${
+                task.planningAnchor
+                  ? (() => {
+                      const range = overviewRange(
+                        task.planningAnchor!,
+                        scopeOf(task) as "week" | "month" | "quarter" | "year",
+                      );
+                      return `${range.from} — ${range.to}`;
+                    })()
+                  : "період ще не обрано"
+              }`
+            : ""}
           {task.deadline
             ? ` · До ${fromDate(task.deadline).toLocaleDateString("uk-UA", { day: "numeric", month: "short" })}`
             : ""}
@@ -975,6 +977,14 @@ export function CalendarStudio(p: Props) {
         Звичайна справа переміщується. Шаблон створює окреме виконання.
         «Запланувати» працює і без перетягування.
       </p>
+      <label className="plan-period-filter">
+        <input
+          type="checkbox"
+          checked={allPlanPeriods}
+          onChange={(e) => setAllPlanPeriods(e.target.checked)}
+        />
+        Показати також плани інших періодів
+      </label>
       {scopeGroups.map((group) => {
         const list = scopedTasks.filter((t) => scopeOf(t) === group.id);
         return (
@@ -1119,7 +1129,12 @@ export function CalendarStudio(p: Props) {
           >
             <ChevronLeft size={18} />
           </button>
-          <button onClick={() => p.onDate(fromDate(today))}>Сьогодні</button>
+          <button
+            title="Перейти до сьогоднішньої дати"
+            onClick={() => p.onDate(fromDate(today))}
+          >
+            Сьогодні
+          </button>
           <button
             aria-label="Наступний період"
             onClick={() => p.onDate(moveDate(p.date, view, 1))}
@@ -1518,22 +1533,41 @@ export function CalendarStudio(p: Props) {
                 value={bulkDate}
                 onChange={(e) => setBulkDate(e.target.value)}
               />
+              {p.tasks.some(
+                (t) => selected.includes(t.id) && t.recurrence !== "once",
+              ) && (
+                <label>
+                  Повторювані справи
+                  <select
+                    aria-label="Обсяг групового перенесення"
+                    value={bulkScope}
+                    onChange={(e) => setBulkScope(e.target.value)}
+                  >
+                    <option value="one">Лише вибрані виконання</option>
+                    <option value="all">Усі серії</option>
+                  </select>
+                </label>
+              )}
               <button
                 disabled={!bulkDate}
                 onClick={() => {
-                  save(
-                    p.tasks.map((t) =>
-                      selected.includes(t.id)
-                        ? {
-                            ...t,
-                            date: bulkDate,
-                            inBacklog: false,
-                            planningHorizon: "day",
-                            planningAnchor: bulkDate,
-                          }
-                        : t,
-                    ),
-                  );
+                  let next = p.tasks;
+                  for (const task of p.tasks.filter((t) =>
+                    selected.includes(t.id),
+                  ))
+                    next = applyRecordEdit(
+                      next,
+                      {
+                        ...task,
+                        date: bulkDate,
+                        inBacklog: false,
+                        planningHorizon: "day",
+                        planningAnchor: bulkDate,
+                      },
+                      bulkScope,
+                      task.date,
+                    );
+                  save(next);
                   setSelected([]);
                 }}
               >
@@ -2127,9 +2161,12 @@ export function CalendarStudio(p: Props) {
         ref={dialog}
         className="studio-editor"
         aria-label="Редактор запису"
-        onCancel={() => setDraft(null)}
+        onCancel={(e) => {
+          e.preventDefault();
+          guard.requestClose();
+        }}
         onClick={(e) => {
-          if (e.target === e.currentTarget) setDraft(null);
+          if (e.target === e.currentTarget) guard.requestClose();
         }}
       >
         {draft && (
@@ -2151,508 +2188,38 @@ export function CalendarStudio(p: Props) {
               <button
                 type="button"
                 aria-label="Закрити редактор"
-                onClick={() => setDraft(null)}
+                onClick={guard.requestClose}
               >
                 <X size={20} />
               </button>
             </header>
-            {!p.tasks.some((t) => t.id === draft.id) && (
-              <details className="quick-phrase">
-                <summary>Додати фразою</summary>
-                <label className="studio-quick">
-                  Швидке введення
-                  <div>
-                    <input
-                      aria-label="Швидке введення фразою"
-                      value={quick}
-                      onChange={(e) => setQuick(e.target.value)}
-                      placeholder="Завтра о 15:00 перевірити префаби, година"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const parsed = quickEntry(quick, today);
-                        setDraft({
-                          ...draft,
-                          title: parsed.title,
-                          date: parsed.date,
-                          scheduledStart: parsed.start,
-                          planningHorizon: "day",
-                          planningAnchor: parsed.date,
-                          scheduledDuration: parsed.duration,
-                          inBacklog: false,
-                        });
-                      }}
-                    >
-                      Розпізнати
-                    </button>
-                  </div>
-                  <small>
-                    Перевір дату, час і тривалість нижче перед збереженням.
-                  </small>
-                </label>
-              </details>
-            )}
-            <label>
-              Назва
-              <input
-                ref={titleInput}
-                required
-                maxLength={500}
-                value={draft.title}
-                onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-              />
-            </label>
-            <div className="studio-editor-grid">
-              <label>
-                Розділ
-                <select
-                  aria-label="Розділ"
-                  value={draft.sectionId || "personal"}
-                  onChange={(e) =>
-                    setDraft({ ...draft, sectionId: e.target.value })
-                  }
-                >
-                  {sections.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Тип запису
-                <select
-                  aria-label="Тип запису"
-                  value={
-                    draft.inBacklog
-                      ? "idea"
-                      : draft.allDay
-                        ? "allDay"
-                        : draft.scheduledStart
-                          ? "event"
-                          : "task"
-                  }
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      inBacklog: e.target.value === "idea",
-                      planningHorizon:
-                        e.target.value === "idea" ? "backlog" : "day",
-                      planningAnchor: draft.date || key,
-                      date: draft.date || key,
-                      allDay: e.target.value === "allDay",
-                      scheduledStart:
-                        e.target.value === "event"
-                          ? draft.scheduledStart || "09:00"
-                          : undefined,
-                    })
-                  }
-                >
-                  <option value="task">Справа без часу</option>
-                  <option value="event">Подія з часом</option>
-                  <option value="allDay">Увесь день</option>
-                  <option value="idea">Ідея без дати</option>
-                </select>
-              </label>
-            </div>
-            {draft.inBacklog && (
-              <label>
-                Рівень плану
-                <select
-                  aria-label="Рівень плану"
-                  value={scopeOf(draft)}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      planningHorizon:
-                        e.target.value === "quarter"
-                          ? "year"
-                          : (e.target.value as PersonalTask["planningHorizon"]),
-                      category:
-                        e.target.value === "quarter"
-                          ? "Quarter"
-                          : e.target.value === "year"
-                            ? "Year"
-                            : e.target.value === "month"
-                              ? "Month"
-                              : "Day",
-                      planningAnchor: key,
-                    })
-                  }
-                >
-                  <option value="backlog">Без дати / ідея</option>
-                  {scopeGroups.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-            {!draft.inBacklog && (
-              <div className="studio-editor-grid">
-                <label>
-                  Дата
-                  <input
-                    aria-label="Дата запису"
-                    required
-                    type="date"
-                    value={draft.date}
-                    onChange={(e) =>
-                      setDraft({ ...draft, date: e.target.value })
-                    }
-                  />
-                </label>
-                {draft.scheduledStart && (
-                  <>
-                    <label>
-                      Початок
-                      <input
-                        aria-label="Початок події"
-                        required
-                        type="time"
-                        value={draft.scheduledStart}
-                        onChange={(e) =>
-                          setDraft({ ...draft, scheduledStart: e.target.value })
-                        }
-                      />
-                    </label>
-                    <label>
-                      Тривалість, хв
-                      <input
-                        aria-label="Тривалість події"
-                        required
-                        type="number"
-                        min={15}
-                        step={15}
-                        max={1440 - minutes(draft.scheduledStart)}
-                        value={draft.scheduledDuration || 30}
-                        onChange={(e) =>
-                          setDraft({
-                            ...draft,
-                            scheduledDuration: Number(e.target.value),
-                          })
-                        }
-                      />
-                    </label>
-                  </>
-                )}
+            <RecordFields
+              draft={draft}
+              onChange={setDraft}
+              sections={sections}
+              today={today}
+              selectedDate={key}
+              existing={p.tasks.some((t) => t.id === draft.id)}
+              occurrence={occurrence}
+              scope={scope}
+              onScope={setScope}
+            />
+            {guard.prompt}
+            {storageError && (
+              <div role="alert">
+                <p>Не вдалося записати зміни. Чернетка лишається відкритою.</p>
+                <button type="button" onClick={exportBackup}>
+                  Експорт незбережених змін
+                </button>
               </div>
             )}
-            <details
-              className="studio-advanced"
-              open={
-                !!(
-                  draft.notes ||
-                  draft.checklist?.length ||
-                  draft.recurrence !== "once" ||
-                  draft.deadline
-                )
-              }
-            >
-              <summary>Більше параметрів</summary>
-              <div className="studio-editor-grid">
-                <label>
-                  Дедлайн (окремо від плану)
-                  <input
-                    aria-label="Дедлайн"
-                    type="date"
-                    value={draft.deadline || ""}
-                    onChange={(e) =>
-                      setDraft({ ...draft, deadline: e.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  Повторення
-                  <select
-                    aria-label="Повторення запису"
-                    value={draft.recurrence}
-                    onChange={(e) =>
-                      setDraft({ ...draft, recurrence: e.target.value })
-                    }
-                  >
-                    {[
-                      ["once", "Не повторювати"],
-                      ["daily", "Щодня"],
-                      ["weekly", "Щотижня"],
-                      ["monthly", "Щомісяця"],
-                      ["yearly", "Щороку"],
-                      ["every 3 months", "Щокварталу"],
-                      ["custom", "Власний інтервал"],
-                    ].map(([id, name]) => (
-                      <option key={id} value={id}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              {draft.recurrence === "custom" && (
-                <label>
-                  Інтервал повторення, днів
-                  <input
-                    type="number"
-                    min={1}
-                    max={36500}
-                    value={draft.customDays || 2}
-                    onChange={(e) =>
-                      setDraft({ ...draft, customDays: Number(e.target.value) })
-                    }
-                  />
-                </label>
-              )}
-              {occurrence && draft.recurrence !== "once" && (
-                <label>
-                  Застосувати зміни
-                  <select
-                    aria-label="Обсяг змін серії"
-                    value={scope}
-                    onChange={(e) => setScope(e.target.value)}
-                  >
-                    <option value="one">Лише це входження</option>
-                    <option value="all">Усю серію</option>
-                  </select>
-                </label>
-              )}
-              <label>
-                Нотатки
-                <textarea
-                  aria-label="Нотатки запису"
-                  rows={3}
-                  value={draft.notes}
-                  onChange={(e) =>
-                    setDraft({ ...draft, notes: e.target.value })
-                  }
-                />
-              </label>
-              <fieldset>
-                <legend>Чекліст</legend>
-                {(draft.checklist || []).map((item) => (
-                  <div className="studio-check-item" key={item.id}>
-                    <input
-                      aria-label={`Готово: ${item.title}`}
-                      type="checkbox"
-                      checked={item.done}
-                      onChange={() =>
-                        setDraft({
-                          ...draft,
-                          checklist: draft.checklist?.map((x) =>
-                            x.id === item.id ? { ...x, done: !x.done } : x,
-                          ),
-                        })
-                      }
-                    />
-                    <input
-                      aria-label="Текст пункту"
-                      value={item.title}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          checklist: draft.checklist?.map((x) =>
-                            x.id === item.id
-                              ? { ...x, title: e.target.value }
-                              : x,
-                          ),
-                        })
-                      }
-                    />
-                    <button
-                      type="button"
-                      aria-label={`Видалити пункт ${item.title}`}
-                      onClick={() =>
-                        setDraft({
-                          ...draft,
-                          checklist: draft.checklist?.filter(
-                            (x) => x.id !== item.id,
-                          ),
-                        })
-                      }
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-                <div className="studio-check-item">
-                  <input
-                    aria-label="Новий пункт чекліста"
-                    value={checkTitle}
-                    onChange={(e) => setCheckTitle(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    disabled={!checkTitle.trim()}
-                    onClick={() => {
-                      setDraft({
-                        ...draft,
-                        checklist: [
-                          ...(draft.checklist || []),
-                          {
-                            id: crypto.randomUUID(),
-                            title: checkTitle.trim(),
-                            done: false,
-                          },
-                        ],
-                      });
-                      setCheckTitle("");
-                    }}
-                  >
-                    Додати пункт
-                  </button>
-                </div>
-              </fieldset>
-              <details>
-                <summary>Посилання, вкладення та нагадування</summary>
-                <label>
-                  Посилання (по одному в рядку)
-                  <textarea
-                    aria-label="Посилання запису"
-                    value={(draft.links || []).join("\n")}
-                    onChange={(e) =>
-                      setDraft({ ...draft, links: e.target.value.split("\n") })
-                    }
-                  />
-                </label>
-                {draft.links
-                  ?.filter((url) => /^https?:\/\//.test(url))
-                  .map((url, i) => (
-                    <a key={i} href={url} target="_blank" rel="noreferrer">
-                      {url}
-                    </a>
-                  ))}
-                <label>
-                  Нагадування
-                  <select
-                    aria-label="Нагадування запису"
-                    value={
-                      draft.reminderMinutes === undefined
-                        ? "off"
-                        : draft.reminderMinutes
-                    }
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        reminderMinutes:
-                          e.target.value === "off"
-                            ? undefined
-                            : Number(e.target.value),
-                      })
-                    }
-                  >
-                    <option value="off">Вимкнено</option>
-                    <option value="0">На початку</option>
-                    <option value="5">За 5 хвилин</option>
-                    <option value="15">За 15 хвилин</option>
-                    <option value="60">За годину</option>
-                  </select>
-                  <small>
-                    Нагадування працює, доки Dayframe відкритий, для подій із
-                    часом.
-                  </small>
-                </label>
-                <label>
-                  Вкладення (до 1 МБ сумарно на запис)
-                  <input
-                    type="file"
-                    aria-label="Додати вкладення"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      if (
-                        file.size +
-                          (draft.attachments || []).reduce(
-                            (n, a) => n + a.data.length * 0.75,
-                            0,
-                          ) >
-                        1024 * 1024
-                      ) {
-                        setAttachmentError(
-                          "Завеликий файл: до 1 МБ сумарно. Для великих референсів додай посилання.",
-                        );
-                        return;
-                      }
-                      try {
-                        const data = await new Promise<string>(
-                          (resolve, reject) => {
-                            const r = new FileReader();
-                            r.onload = () => resolve(String(r.result));
-                            r.onerror = reject;
-                            r.readAsDataURL(file);
-                          },
-                        );
-                        setDraft((d) =>
-                          d
-                            ? {
-                                ...d,
-                                attachments: [
-                                  ...(d.attachments || []),
-                                  { name: file.name, data, type: file.type },
-                                ],
-                              }
-                            : d,
-                        );
-                        setAttachmentError("");
-                      } catch {
-                        setAttachmentError(
-                          "Не вдалося прочитати файл. Спробуй додати його ще раз.",
-                        );
-                      }
-                    }}
-                  />
-                </label>
-                {attachmentError && <p role="alert">{attachmentError}</p>}
-                {draft.attachments?.map((file, i) => (
-                  <div className="studio-attachment" key={i}>
-                    <a href={file.data} download={file.name}>
-                      {file.name}
-                    </a>
-                    {/^image\/(png|jpeg|webp|gif)$/.test(file.type) && (
-                      <button
-                        type="button"
-                        onClick={() => setDraft({ ...draft, cover: file.data })}
-                      >
-                        На обкладинку
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      aria-label={`Видалити вкладення ${file.name}`}
-                      onClick={() =>
-                        setDraft({
-                          ...draft,
-                          attachments: draft.attachments?.filter(
-                            (_, j) => j !== i,
-                          ),
-                          cover:
-                            draft.cover === file.data ? undefined : draft.cover,
-                        })
-                      }
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-                {draft.cover && (
-                  <div className="studio-cover">
-                    <img src={draft.cover} alt="Обкладинка референсу" />
-                    <button
-                      type="button"
-                      onClick={() => setDraft({ ...draft, cover: undefined })}
-                    >
-                      Прибрати обкладинку
-                    </button>
-                  </div>
-                )}
-              </details>
-            </details>
             <footer>
               {p.tasks.some((t) => t.id === draft.id) && (
                 <button type="button" className="danger" onClick={remove}>
                   Видалити
                 </button>
               )}
-              <button type="button" onClick={() => setDraft(null)}>
+              <button type="button" onClick={guard.requestClose}>
                 Скасувати
               </button>
               <button className="primary" type="submit">

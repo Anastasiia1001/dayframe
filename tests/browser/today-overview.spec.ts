@@ -101,6 +101,7 @@ test("Today shows sport, editable daily priorities, real weather and period navi
   await page
     .getByRole("button", { name: "Закрити погоду", exact: true })
     .click();
+  await page.getByRole("button", {name:"Огляд",exact:true}).click();
   const periods = page.getByRole("navigation", { name: "Період огляду" });
   for (const name of ["Тиждень", "Місяць", "Квартал", "Рік"]) {
     await periods.getByRole("button", { name, exact: true }).click();
@@ -269,6 +270,7 @@ test("year overview reads connected calendars beyond the current month in bounde
     .locator(".sidebar")
     .getByRole("button", { name: "Сьогодні", exact: true })
     .click();
+  await page.getByRole("button", {name:"Огляд",exact:true}).click();
   await page
     .getByRole("navigation", { name: "Період огляду" })
     .getByRole("button", { name: "Рік", exact: true })

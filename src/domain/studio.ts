@@ -53,6 +53,7 @@ export function scheduledEvents(
   until: string,
 ): LocalOccurrence[] {
   const result: LocalOccurrence[] = [];
+  const windowStart = addDays(from, -1);
   for (const task of tasks.filter(
     (t) =>
       !t.isTemplate &&
@@ -66,7 +67,7 @@ export function scheduledEvents(
     while (date && date <= until && count++ < 20000) {
       const override = task.seriesExceptions?.[date];
       const actual = override?.date || date;
-      if (!override?.cancelled && actual >= from && actual <= until) {
+      if (!override?.cancelled && actual >= windowStart && actual <= until) {
         const start = override?.start || task.scheduledStart || "09:00";
         const duration = override?.duration || task.scheduledDuration || 30;
         const end = minutes(start) + duration;
@@ -97,7 +98,7 @@ export function scheduledEvents(
       if (
         (original >= from && original <= until) ||
         override.cancelled ||
-        override.date < from ||
+        override.date < windowStart ||
         override.date > until ||
         result.some((e) => e.taskId === task.id && e.occurrence === original)
       )
@@ -121,7 +122,14 @@ export function scheduledEvents(
       });
     }
   }
-  return result;
+  return result.filter(
+    (event) =>
+      event.date >= from ||
+      (!event.allDay &&
+        !!event.endDate &&
+        event.endDate >= from &&
+        event.end !== "00:00"),
+  );
 }
 export const kyivToday = () => {
   const d = new Date();

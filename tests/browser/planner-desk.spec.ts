@@ -154,9 +154,11 @@ test("care check-in and independent inspiration persist while ChatGPT only recei
     });
   });
   const chat = page.getByRole("region", { name: "Запитати ChatGPT" });
-  await chat
+  await chat.getByRole("button",{name:"Налаштування помічника · API та модель"}).click();
+  await page
     .getByLabel("API-ключ OpenAI", { exact: true })
     .fill("sk-personal-test-only");
+  await page.locator(".sidebar").getByRole("button",{name:"Сьогодні",exact:true}).click();
   await chat
     .getByLabel("Питання для ChatGPT", { exact: true })
     .fill("Як спланувати день?");
@@ -181,9 +183,9 @@ test("care check-in and independent inspiration persist while ChatGPT only recei
   await expect(
     care.getByRole("button", { name: "Втомлено", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  await expect(chat.getByLabel("API-ключ OpenAI", { exact: true })).toHaveValue(
-    "",
-  );
+  await chat.getByRole("button",{name:"Налаштування помічника · API та модель"}).click();
+  await expect(page.getByLabel("API-ключ OpenAI", { exact: true })).toHaveValue("");
+  await page.locator(".sidebar").getByRole("button",{name:"Сьогодні",exact:true}).click();
   await expect(care.getByLabel("Місце для думок")).toHaveValue(
     "Приватний запис",
   );

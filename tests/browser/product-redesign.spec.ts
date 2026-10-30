@@ -122,7 +122,7 @@ test("plans use explicit scheduling without unexpected copies and theme gallery 
     .getByRole("button", { name: "Запланувати План на місяць", exact: true })
     .click();
   const editor = page.getByRole("dialog", { name: "Редактор запису" });
-  await editor.getByLabel("Тип запису").selectOption("event");
+  await editor.getByLabel("Початок події").fill("09:00");
   await editor.getByLabel("Початок події").fill("10:00");
   await editor.getByRole("button", { name: "Зберегти", exact: true }).click();
   await expect
@@ -224,7 +224,7 @@ test("fresh installs have no automatic obligations, global quick editor closes a
   await editor
     .getByLabel("Назва", { exact: true })
     .fill("Пити чай без поспіху");
-  await editor.getByRole("button", { name: "Додати", exact: true }).click();
+  await editor.getByRole("button", { name: "Зберегти", exact: true }).click();
   await p.reload();
   expect(
     await p.evaluate(
@@ -258,7 +258,7 @@ test("failed local save keeps the draft and retry creates only one record", asyn
       original.call(this, key, value);
     };
   });
-  await editor.getByRole("button", { name: "Додати", exact: true }).click();
+  await editor.getByRole("button", { name: "Зберегти", exact: true }).click();
   await expect(editor).toBeVisible();
   await expect(editor.getByRole("alert")).toBeVisible();
   await expect(editor.getByLabel("Назва", { exact: true })).toHaveValue(
@@ -270,7 +270,7 @@ test("failed local save keeps the draft and retry creates only one record", asyn
     ),
   ).toBe(7);
   await page.evaluate(() => (window as any).restoreStorage());
-  await editor.getByRole("button", { name: "Додати", exact: true }).click();
+  await editor.getByRole("button", { name: "Зберегти", exact: true }).click();
   await expect(editor).not.toBeVisible();
   await page.reload();
   expect(

@@ -1,0 +1,377 @@
+{
+  "screens": [
+    {
+      "width": 1440,
+      "zoom": 100,
+      "cssWidth": 1440,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "zoom": 200,
+      "cssWidth": 720,
+      "overflow": false
+    },
+    {
+      "width": 1366,
+      "zoom": 100,
+      "cssWidth": 1366,
+      "overflow": false
+    },
+    {
+      "width": 1366,
+      "zoom": 200,
+      "cssWidth": 683,
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "zoom": 100,
+      "cssWidth": 1024,
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "zoom": 200,
+      "cssWidth": 512,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "zoom": 100,
+      "cssWidth": 768,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "zoom": 200,
+      "cssWidth": 384,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "zoom": 100,
+      "cssWidth": 390,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "zoom": 200,
+      "cssWidth": 195,
+      "overflow": false
+    }
+  ],
+  "themes": [
+    {
+      "theme": "Pastel",
+      "text": "rgb(48, 44, 51)",
+      "background": "#fffdfa",
+      "nav": "rgb(255, 252, 253)",
+      "grid": "color(srgb 0.999059 0.991098 0.979098)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "CutePlanner",
+      "text": "rgb(101, 71, 54)",
+      "background": "#fff9ed",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 1 0.975412 0.927294)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Vintage",
+      "text": "rgb(96, 74, 49)",
+      "background": "#f4e9d0",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.955686 0.912314 0.813686)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Parchment",
+      "text": "rgb(61, 42, 24)",
+      "background": "#efdbab",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.936196 0.857176 0.667765)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Autumn",
+      "text": "rgb(53, 43, 36)",
+      "background": "#fffaf1",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.998824 0.97851 0.94251)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Halloween",
+      "text": "rgb(255, 241, 223)",
+      "background": "#272337",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.151294 0.135843 0.213686)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "NeonAzure",
+      "text": "rgb(234, 247, 255)",
+      "background": "#101d36",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.0618039 0.112078 0.209765)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "NeonOcean",
+      "text": "rgb(234, 247, 255)",
+      "background": "#0c2937",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.0463529 0.159137 0.214039)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "NeonCobalt",
+      "text": "rgb(234, 247, 255)",
+      "background": "#1a2047",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.100549 0.123725 0.275961)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "NeonAurora",
+      "text": "rgb(234, 247, 255)",
+      "background": "#19243d",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.0969804 0.139529 0.237098)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "NeonIce",
+      "text": "rgb(23, 49, 73)",
+      "background": "#f7fcff",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.967098 0.987412 1)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Default",
+      "text": "rgb(62, 41, 58)",
+      "background": "#fffcfd",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 1 0.987294 0.991569)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Graphite",
+      "text": "rgb(41, 47, 54)",
+      "background": "#fff",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.998353 0.998471 0.998588)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Blue",
+      "text": "rgb(48, 55, 50)",
+      "background": "#fff",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.998471 0.998941 0.999412)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Green",
+      "text": "rgb(48, 55, 50)",
+      "background": "#fff",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.998353 0.998941 0.998235)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Purple",
+      "text": "rgb(48, 55, 50)",
+      "background": "#fff",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.998941 0.998588 0.999294)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Warm",
+      "text": "rgb(48, 55, 50)",
+      "background": "#fff",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.999412 0.998824 0.998)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Dark",
+      "text": "rgb(241, 233, 241)",
+      "background": "#252b28",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.144157 0.167569 0.155922)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Blossom",
+      "text": "rgb(56, 41, 70)",
+      "background": "#fffaff",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.999176 0.979451 1)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Strawberry",
+      "text": "rgb(77, 40, 56)",
+      "background": "#fffafb",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 1 0.979216 0.983255)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Pistachio",
+      "text": "rgb(53, 67, 44)",
+      "background": "#fefff8",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.994902 0.999059 0.970549)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Peach",
+      "text": "rgb(85, 56, 44)",
+      "background": "#fffcf8",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 1 0.987176 0.970784)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Blueberry",
+      "text": "rgb(59, 49, 91)",
+      "background": "#fcfbff",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.986824 0.983137 1)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Lagoon",
+      "text": "rgb(41, 75, 67)",
+      "background": "#fafffd",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.978627 0.999412 0.991333)",
+      "gridBlur": "none",
+      "overflow": false
+    },
+    {
+      "theme": "Moonlight",
+      "text": "rgb(244, 234, 250)",
+      "background": "#302b46",
+      "nav": "oklab(0.993629 0.00346616 -0.000298142)",
+      "grid": "color(srgb 0.186941 0.167569 0.272863)",
+      "gridBlur": "none",
+      "overflow": false
+    }
+  ],
+  "performance": [
+    {
+      "version": "before",
+      "theme": "Pastel",
+      "width": 1440,
+      "openTodayMs": 269,
+      "navigationMs": 254.30000000074506
+    },
+    {
+      "version": "before",
+      "theme": "Pastel",
+      "width": 390,
+      "openTodayMs": 320,
+      "navigationMs": 281.40000000037253
+    },
+    {
+      "version": "before",
+      "theme": "Halloween",
+      "width": 1440,
+      "openTodayMs": 327,
+      "navigationMs": 311.79999999981374
+    },
+    {
+      "version": "before",
+      "theme": "Halloween",
+      "width": 390,
+      "openTodayMs": 225,
+      "navigationMs": 283.59999999962747
+    },
+    {
+      "version": "before",
+      "theme": "NeonCobalt",
+      "width": 1440,
+      "openTodayMs": 333,
+      "navigationMs": 261.79999999981374
+    },
+    {
+      "version": "before",
+      "theme": "NeonCobalt",
+      "width": 390,
+      "openTodayMs": 364,
+      "navigationMs": 362.29999999981374
+    },
+    {
+      "version": "after",
+      "theme": "Pastel",
+      "width": 1440,
+      "openTodayMs": 509,
+      "navigationMs": 311.59999999962747
+    },
+    {
+      "version": "after",
+      "theme": "Pastel",
+      "width": 390,
+      "openTodayMs": 323,
+      "navigationMs": 325.29999999981374
+    },
+    {
+      "version": "after",
+      "theme": "Halloween",
+      "width": 1440,
+      "openTodayMs": 157,
+      "navigationMs": 249.79999999981374
+    },
+    {
+      "version": "after",
+      "theme": "Halloween",
+      "width": 390,
+      "openTodayMs": 158,
+      "navigationMs": 133.6000000005588
+    },
+    {
+      "version": "after",
+      "theme": "NeonCobalt",
+      "width": 1440,
+      "openTodayMs": 140,
+      "navigationMs": 104
+    },
+    {
+      "version": "after",
+      "theme": "NeonCobalt",
+      "width": 390,
+      "openTodayMs": 183,
+      "navigationMs": 105.20000000018626
+    }
+  ]
+}

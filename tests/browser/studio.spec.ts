@@ -37,6 +37,7 @@ test("create edit overlap resize move delete and undo a scheduled task, preservi
     .fill("Завтра о 15:00 перевірити префаби, година");
   await dialog.getByRole("button", { name: "Розпізнати" }).click();
   await expect(dialog.getByLabel("Початок події")).toHaveValue("15:00");
+  await advanced(dialog);
   await expect(dialog.getByLabel("Тривалість події")).toHaveValue("60");
   await dialog.getByRole("button", { name: "Зберегти", exact: true }).click();
   await page.reload();
@@ -159,7 +160,7 @@ test("recurring occurrence can be edited separately and overlapping events get d
   await page.getByRole("button", { name: "Додати", exact: true }).click();
   const d = page.getByRole("dialog", { name: "Редактор запису" });
   await d.getByLabel("Назва", { exact: true }).fill("Фокус Unity");
-  await d.getByLabel("Тип запису").selectOption("event");
+  await d.getByLabel("Початок події").fill("09:00");
   await d.getByLabel("Початок події").fill("10:00");
   await advanced(d);
   await d.getByLabel("Повторення запису").selectOption("daily");
@@ -175,7 +176,7 @@ test("recurring occurrence can be edited separately and overlapping events get d
   ).toHaveCount(1);
   await page.getByRole("button", { name: "Додати", exact: true }).click();
   await d.getByLabel("Назва", { exact: true }).fill("Перетин");
-  await d.getByLabel("Тип запису").selectOption("event");
+  await d.getByLabel("Початок події").fill("09:00");
   await d.getByLabel("Початок події").fill("10:00");
   await d.getByRole("button", { name: "Зберегти", exact: true }).click();
   const widths = await page
@@ -236,6 +237,7 @@ test("range selection, bulk planning and backup merge remain editable and revers
   await page.mouse.up();
   const d = page.getByRole("dialog", { name: "Редактор запису" });
   await expect(d).toBeVisible();
+  await advanced(d);
   await expect(d.getByLabel("Тривалість події")).toHaveValue("90");
   await d.getByLabel("Назва", { exact: true }).fill("Тривалий фокус");
   await d.getByRole("button", { name: "Зберегти", exact: true }).click();
@@ -345,11 +347,10 @@ test("storage failure stays visible and export includes unsaved in-memory record
   const d = page.getByRole("dialog", { name: "Редактор запису" });
   await d.getByLabel("Назва", { exact: true }).fill("Незбережена творча ідея");
   await d.getByRole("button", { name: "Зберегти", exact: true }).click();
-  await expect(page.locator(".studio-status")).toContainText(
-    "Не вдалося записати",
-  );
+  await expect(d).toBeVisible();
+  await expect(d.getByRole("alert")).toContainText("Не вдалося записати");
   const download = page.waitForEvent("download");
-  await page
+  await d
     .getByRole("button", { name: "Експорт незбережених змін", exact: true })
     .click();
   const path = await (await download).path();
@@ -378,14 +379,14 @@ test("sections and rich event details persist including checklist, reference cov
   await page.getByRole("button", { name: "Додати", exact: true }).click();
   const d = page.getByRole("dialog", { name: "Редактор запису" });
   await d.getByLabel("Назва", { exact: true }).fill("Маленький творчий проєкт");
-  await d.getByLabel("Розділ", { exact: true }).selectOption("creative");
-  await d.getByLabel("Тип запису").selectOption("event");
+  await d.getByLabel("Категорія", { exact: true }).selectOption("creative");
+  await d.getByLabel("Початок події").fill("09:00");
   await advanced(d);
   await d.getByLabel("Нотатки запису").fill("Перевірити палітру");
   await d.getByLabel("Новий пункт чекліста").fill("Зібрати референси");
   await d.getByRole("button", { name: "Додати пункт", exact: true }).click();
   await d
-    .getByText("Посилання, вкладення та нагадування", { exact: true })
+    .getByText("Посилання та вкладення", { exact: true })
     .click();
   await d.getByLabel("Посилання запису").fill("https://example.com/reference");
   await d.getByLabel("Нагадування запису").selectOption("15");
@@ -408,7 +409,7 @@ test("sections and rich event details persist including checklist, reference cov
   await page.getByLabel("Згорнути навігацію", { exact: true }).click();
   await page.locator(".studio-event-main").click();
   await d
-    .getByText("Посилання, вкладення та нагадування", { exact: true })
+    .getByText("Посилання та вкладення", { exact: true })
     .click();
   await expect(d.getByLabel("Нагадування запису")).toHaveValue("15");
   await expect(d.getByLabel("Нотатки запису")).toHaveValue(

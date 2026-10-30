@@ -5,15 +5,20 @@ export function dayAvailability(
   events: CalendarEvent[],
   date: string,
   nowMinutes = 8 * 60,
+  bounds = { start: 8 * 60, end: 20 * 60 },
 ) {
-  const start = Math.max(8 * 60, Math.ceil(nowMinutes / 15) * 15),
-    until = 20 * 60;
+  const start = Math.max(bounds.start, Math.ceil(nowMinutes / 15) * 15),
+    until = bounds.end;
   const intervals = events
     .filter((e) => !e.allDay && eventOnDay(e, date))
     .map((event) => ({
       event,
       start: event.date < date ? 0 : minutes(event.start),
-      end: event.endDate && event.endDate > date ? 1440 : minutes(event.end),
+      end:
+        (event.endDate && event.endDate > date) ||
+        (!event.endDate && event.end < event.start && event.date === date)
+          ? 1440
+          : minutes(event.end),
     }))
     .sort((a, b) => a.start - b.start);
   const next = intervals.find((e) => e.end > nowMinutes)?.event;

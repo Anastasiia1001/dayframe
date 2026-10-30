@@ -137,10 +137,12 @@ export function ChatGPTQuestions({
   apiKey,
   onKey,
   mascot = "bunny",
+  onSettings,
 }: {
   apiKey: string;
   onKey: (key: string) => void;
   mascot?: MascotId;
+  onSettings?: () => void;
 }) {
   const [question, setQuestion] = useState(""),
     [messages, setMessages] = useState<AssistantMessage[]>([]),
@@ -211,53 +213,9 @@ export function ChatGPTQuestions({
         цього чату; завдання, щоденник та дані здоров’я автоматично не
         додаються.
       </p>
-      <details className="assistant-settings" open={!apiKey}>
-        <summary>Підключення особистого API</summary>
-        <label>
-          API-ключ OpenAI
-          <input
-            aria-label="API-ключ OpenAI"
-            type="password"
-            autoComplete="off"
-            spellCheck={false}
-            value={apiKey}
-            onChange={(e) => onKey(e.target.value)}
-            placeholder="Ключ зі свого OpenAI Platform"
-          />
-        </label>
-        <label>
-          Модель OpenAI
-          <input
-            aria-label="Модель OpenAI"
-            value={model}
-            maxLength={100}
-            onChange={(e) => setModel(e.target.value)}
-          />
-        </label>
-        <p>
-          Ключ зберігається тільки в пам’яті до перезавантаження або закриття
-          апки. API має окремий баланс від підписки ChatGPT.
-        </p>
-        <a
-          href="https://platform.openai.com/api-keys"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Керувати ключами в OpenAI ↗
-        </a>
-        {apiKey && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => {
-              onKey("");
-              setError("");
-            }}
-          >
-            Забути ключ
-          </button>
-        )}
-      </details>
+      <button onClick={onSettings}>
+        Налаштування помічника · API та модель
+      </button>
       <label>
         Як допомогти?
         <select

@@ -39,8 +39,10 @@ const facts = [
 ];
 export function InspirationCard({
   kind = "affirmations",
+  compact = false,
 }: {
   kind?: "affirmations" | "facts";
+  compact?: boolean;
 }) {
   const [minutes, setMinutes] = useLocal(`dayframe-inspiration-${kind}`, 5);
   const [index, setIndex] = useState(0);
@@ -70,20 +72,22 @@ export function InspirationCard({
           <ArrowRight size={17} />
         </button>
       </div>
-      <p className="inspiration-text" key={index}>
-        {fact
-          ? facts[index % facts.length][0]
-          : affirmations[index % affirmations.length]}
-      </p>
-      {fact && (
-        <a
-          href={facts[index % facts.length][1]}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Джерело факту ↗
-        </a>
-      )}
+      <div className={compact ? "inspiration-compact" : ""}>
+        <p className="inspiration-text" key={index}>
+          {fact
+            ? facts[index % facts.length][0]
+            : affirmations[index % affirmations.length]}
+        </p>
+        {fact && (
+          <a
+            href={facts[index % facts.length][1]}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Джерело факту ↗
+          </a>
+        )}
+      </div>
       <label>
         Змінювати
         <select
